@@ -1,5 +1,6 @@
 import AnimatedDots from '../objectWrappers/texts/AnimatedDots.js';
 import RoadFromRiver from '../objectWrappers/maps/RoadFromRiver.js';
+import Tank from '../objectWrappers/Tank.js';
 
 class Level1 {
 
@@ -9,6 +10,8 @@ class Level1 {
 
     this.animatedDots = new AnimatedDots(this.game, this.game.world.centerX, this.game.world.centerY, '')
     this.animatedDots.setAnchor('centration');
+
+    this.tank1 = new Tank(this.game);
   }
 
   loadUpdate() {
@@ -16,8 +19,11 @@ class Level1 {
   }
 
   preload() {
+    this.tank1.preload();
+
     this.load.image('tm_ground', require('../assets/tilemaps/ground.png'));
     this.load.tilemap('csv_map', require('file!../assets/csv/road-from-river.csv'));
+
   }
 
   create() {
@@ -25,6 +31,12 @@ class Level1 {
 
     this.layer = this.map.source.createLayer(0);
     this.layer.resizeWorld();
+
+    this.tank1.create();
+  }
+
+  update() {
+    this.tank1.update();
   }
 
 }
