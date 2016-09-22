@@ -11,17 +11,34 @@ app.use(express.static(__dirname + '/../static'));
 
 const server = http.createServer(app);
 
-server.listen(PORT);
+
 console.log('listen port: ' + PORT);
+//
+// const sock = shoe(stream => {
+//
+//   var d = dnode({
+//     transform: (s, cb) => {
+//       var res = s.toUpperCase() + 'ED!!!';
+//       cb(res);
+//     }
+//   });
+//
+//   d.pipe(stream).pipe(d);
+// });
+//
+// sock.install(server, '/dnode');
 
-const sock = shoe(stream => {
-  var d = dnode({
-    transform: (s, cb) => {
-      var res = s.toUpperCase() + 'ED!!!';
-      cb(res);
-    }
+/*
+//
+*/
+
+var io = require('socket.io')(server);
+io.on('connection', function (client) {
+  client.on('event', function (data) {
+    console.log(data);
   });
-  d.pipe(stream).pipe(d);
+  client.on('disconnect', function () {
+    console.log('disconnect');
+  });
 });
-
-sock.install(server, '/dnode');
+server.listen(PORT);

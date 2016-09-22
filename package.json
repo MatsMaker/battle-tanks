@@ -18,7 +18,9 @@
     "dnode": "^1.2.2",
     "express": "^4.14.0",
     "phaser": "^2.6.2",
-    "shoe": "0.0.15"
+    "shoe": "0.0.15",
+    "socket.io": "^1.4.8",
+    "socket.io-client": "^1.4.8"
   },
   "engines": {
     "node": ">=6.4.0"

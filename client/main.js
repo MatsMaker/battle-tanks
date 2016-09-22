@@ -15,14 +15,26 @@ theGame.init().then(result => {
 //
 */
 
-var shoe = require('shoe');
-var dnode = require('dnode');
+// var shoe = require('shoe'); var dnode = require('dnode');
+//
+// var stream = shoe('/dnode'); var d = dnode();
+//
+// d.on('remote', remote => {
+//
+//   remote.transform('connect', function (s) {     console.log(s);   });
+//
+// });
+//
+// d.pipe(stream).pipe(d);
 
-var stream = shoe('/dnode');
-var d = dnode();
-d.on('remote', function (remote) {
-  remote.transform('connect', function (s) {
-    console.log(s);
-  });
+var io = require('socket.io-client');
+var socket = io('http://localhost:8000');
+socket.on('connect', function (e) {
+  console.log('connect', e);
 });
-d.pipe(stream).pipe(d);
+socket.on('event', function (data) {
+  console.log(data);
+});
+socket.on('disconnect', function (e) {
+  console.log(e);
+});
