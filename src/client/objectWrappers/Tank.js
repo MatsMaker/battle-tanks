@@ -2,7 +2,7 @@ import Phaser from '../Phaser.js';
 
 class Tank {
 
-  constructor(game) {
+  constructor(game, options) {
     this.game = game;
     this.source;
     this.imageKey = 'tank';
@@ -14,31 +14,41 @@ class Tank {
 
   create() {
     this.source = this.game.add.sprite(250, 250, this.imageKey);
-    this.source.anchor.x = 0.5;
-    this.source.anchor.y = 0.5;
+    this.source.scale.set(0.3, 0.3);
+    this.source.anchor.set(0.5, 0.5);
 
     this.game.physics.enable(this.source, Phaser.Physics.ARCADE);
 
-    this.source.body.drag.set(800);
-    this.source.body.maxVelocity.set(200);
-    // this.source.scale(0.3);
-
+    this.source.body.bounce.set(0.3);
+    this.source.body.collideWorldBounds = true;
+    this.source.body.drag.set(900);
+    this.source.body.mass = 1000;
+    // this.source.body.angularDrag = 1000; this.source.body.maxAngular = 80;
+    this.source.body.maxVelocity.set(250);
     this.cursors = this.game.input.keyboard.createCursorKeys();
   }
 
   update() {
-    if (this.cursors.up.isDown) {
-      this.game.physics.arcade.accelerationFromRotation(this.source.rotation, 200, this.source.body.acceleration);
-    } else {
-      this.source.body.acceleration.set(0);
-    }
+    this.source.body.velocity.x = 0;
+    this.source.body.velocity.y = 0;
+    this.source.body.angularVelocity = 0;
+
     if (this.cursors.left.isDown) {
-      this.source.body.angularVelocity = -100;
+      this.source.body.angularVelocity = -150;
     } else if (this.cursors.right.isDown) {
-      this.source.body.angularVelocity = 100;
-    } else {
-      this.source.body.angularVelocity = 0;
+      this.source.body.angularVelocity = 150;
     }
+
+    if (this.cursors.up.isDown) {
+      this.source.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.source.angle, 200));
+    } else if (this.cursors.down.isDown) {
+      this.source.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.source.angle, -200));
+    }
+
+  }
+
+  render() {
+    this.game.debug.body(this.source);
   }
 
 }

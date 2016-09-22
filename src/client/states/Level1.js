@@ -8,7 +8,7 @@ class Level1 {
     this.background = this.stage.game.add.sprite(-80, -80, 'kdeWallpapers');
     this.background.scale.set(0.5);
 
-    this.animatedDots = new AnimatedDots(this.game, this.game.world.centerX, this.game.world.centerY, '')
+    this.animatedDots = new AnimatedDots(this.game, this.game.world.centerX, this.game.world.centerY, '');
     this.animatedDots.setAnchor('centration');
 
     this.tank1 = new Tank(this.game);
@@ -33,10 +33,15 @@ class Level1 {
     this.layer.resizeWorld();
 
     this.tank1.create();
+    this.camera.follow(this.tank1.source);
   }
 
   update() {
     this.tank1.update();
+  }
+
+  render() {
+    this.tank1.render();
   }
 
 }
