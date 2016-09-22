@@ -9,9 +9,9 @@ var phaser = path.join(phaserModule, 'build/custom/phaser-split.js'),
   p2 = path.join(phaserModule, 'build/custom/p2.js');
 
 module.exports = {
-  entry: path.join(__dirname, 'src/client', 'main.js'),
+  entry: path.join(__dirname, '/client', 'main.js'),
   output: {
-    path: 'build',
+    path: 'static',
     filename: 'index_bundle.js'
   },
   module: {
