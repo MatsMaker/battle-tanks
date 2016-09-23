@@ -11,34 +11,53 @@ app.use(express.static(__dirname + '/../static'));
 
 const server = http.createServer(app);
 
+const io = require('socket.io')(server);
 
-console.log('listen port: ' + PORT);
-//
-// const sock = shoe(stream => {
-//
-//   var d = dnode({
-//     transform: (s, cb) => {
-//       var res = s.toUpperCase() + 'ED!!!';
-//       cb(res);
-//     }
-//   });
-//
-//   d.pipe(stream).pipe(d);
-// });
-//
-// sock.install(server, '/dnode');
+const usersArePlaying = [];
+const tanks = [];
 
-/*
-//
-*/
+io.on('connection', socket => {
+  console.log('A user connected');
 
-var io = require('socket.io')(server);
-io.on('connection', function (client) {
-  client.on('event', function (data) {
-    console.log(data);
+  socket.on('auth', response => {
+    io.emit('auth', {userId: response.auth});
   });
-  client.on('disconnect', function () {
+
+  socket.on('startGame', response => {
+    usersArePlaying.push(response.userId);
+    io.emit('startGame', {
+      userId: response.userId,
+      data: {
+        tanks: tanks
+      }
+    });
+  });
+
+  socket.on('addTank', response => {
+    tanks.push(response.data.tank);
+  });
+
+  socket.on('getTanks', response => {
+    io.emit('getTanks', {
+      userId: response.userId,
+      data: {
+        tanks: tanks
+      }
+    });
+  });
+
+  socket.on('updateTank', response => {
+    tanks.forEach((tank, index, tanksArray) => {
+      if (tank.player === response.tank.player) {
+        tanksArray[index] = response.tank;
+      }
+    })
+    console.log(tanks);
+  });
+
+  socket.on('disconnect', function () {
     console.log('disconnect');
   });
+
 });
 server.listen(PORT);

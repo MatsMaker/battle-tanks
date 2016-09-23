@@ -5,22 +5,24 @@ import Level1 from './states/Level1.js';
 
 class TheGame {
 
-  constructor() {
+  constructor(userId, socket) {
     this.game = new Phaser.Game(800, 600, Phaser.CONVAS, '', Boot);
+    this.game.data = {
+      socket: socket,
+      userId: userId,
+      tanks: []
+    }
   }
 
   init() {
     return new Promise((resolve, reject) => {
-
       this.game.state.add('Preloader', Preloader);
-
       resolve({result: true});
     })
   }
 
   run() {
     return new Promise((resolve, reject) => {
-
       this.game.state.start('Preloader');
       resolve({result: true});
     })
