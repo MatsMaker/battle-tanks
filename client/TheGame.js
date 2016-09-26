@@ -5,10 +5,10 @@ import Level1 from './states/Level1.js';
 
 class TheGame {
 
-  constructor(userId, socket) {
+  constructor(userId, reduser) {
     this.game = new Phaser.Game(800, 600, Phaser.CONVAS, '', Boot);
     this.game.data = {
-      socket: socket,
+      reduser: reduser,
       userId: userId,
       tanks: []
     }

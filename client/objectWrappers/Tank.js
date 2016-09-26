@@ -51,15 +51,18 @@ class Tank {
       } else if (this.cursors.down.isDown) {
         this.source.body.reverse(800000);
       }
-      this.game.data.socket.emit('updateTank', {
-        userId: this.game.data.userId,
+      this.game.data.reduser.makeOne('updateTank', {
         tank: {
           player: this.player,
           x: this.source.body.x,
           y: this.source.body.y,
           angle: this.source.body.angle
         }
-      });
+      }).then(response => {
+
+      }).catch(err => {
+        console.error(err);
+      })
     } else if (remouteTankData) {
       this.source.body.x = remouteTankData.x;
       this.source.body.y = remouteTankData.y;

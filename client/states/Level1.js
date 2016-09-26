@@ -6,31 +6,51 @@ import Tank from '../objectWrappers/Tank.js';
 class Level1 {
 
   initTanks() {
-    this.game.data.socket.emit('initTank', {
+    this.game.data.reduser.makeOne('initTank', {
       userId: this.game.data.userId,
-      data: {
-        tank: {
-          alive: true,
-          player: this.game.data.userId,
-          x: this.world.centerX,
-          y: this.world.centerY,
-          angle: 0
-        }
+      tank: {
+        alive: true,
+        player: this.game.data.userId,
+        x: this.world.centerX,
+        y: this.world.centerY,
+        angle: 0
+      }
+    }).then(response => {
+      this.game.data.tanks = response.data.tanks;
+      this.tanks = response.data.tanks.map(tank => {
+        return new Tank(this.game, tank.player, tank);
+      });
+
+      this.tanks.forEach(tank => {
+        tank.create();
+      });
+
+      this.playerTank = this.tanks.find(tank => tank.player == this.game.data.userId);
+      this.camera.follow(this.playerTank.source);
+    })
+  }
+
+  updateTanks(response) {
+    this.game.data.tanks = response.data.tanks;
+    response.data.tanks.forEach(rTank => {
+      let selectTank = this.tanks.find(lTank => lTank.player == rTank.player);
+      if (selectTank) {
+        selectTank.update(rTank);
+      } else {
+        const newTank = new Tank(this.game, rTank.player, rTank)
+        newTank.create();
+        this.tanks.push(newTank);
       }
     });
-    this.game.data.socket.on('initTank', response => {
-      if (response.userId === this.game.data.userId) {
-        this.game.data.tanks = response.data.tanks;
-        this.tanks = response.data.tanks.map(tank => {
-          return new Tank(this.game, tank.player, tank);
-        });
+  }
 
-        this.tanks.forEach(tank => {
-          tank.create();
-        });
-
-        this.playerTank = this.tanks.find(tank => tank.player == this.game.data.userId);
-        this.camera.follow(this.playerTank.source);
+  lossUser(response) {
+    const lossUserId = response.data.userId;
+    this.tanks.forEach((tank, index, arrayTanks) => {
+      if (tank.player == lossUserId) {
+        tank.source.body.destroy();
+        tank.source.destroy();
+        arrayTanks.splice(index, 1);
       }
     });
   }
@@ -45,20 +65,13 @@ class Level1 {
     this.animatedDots = new AnimatedDots(this.game, this.game.world.centerX, this.game.world.centerY, '');
     this.animatedDots.setAnchor('centration');
 
-    this.game.data.socket.on('getTanks', response => {
-      if (response.userId == this.game.data.userId) {
-        this.game.data.tanks = response.data.tanks;
-        response.data.tanks.forEach(rTank => {
-          let selectTank = this.tanks.find(lTank => lTank.player == rTank.player);
-          if (selectTank) {
-            selectTank.update(rTank);
-          } else {
-            const newTank = new Tank(this.game, rTank.player, rTank)
-            newTank.create();
-            this.tanks.push(newTank);
-          }
-        });
-      }
+    this.game.data.reduser.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
+      console.error(err);
+    });
+
+    this.game.data.reduser.addEventListener('disconnect', response => {
+      this.lossUser(response);
+      return {one: false}
     });
   }
 
@@ -85,7 +98,9 @@ class Level1 {
   }
 
   update() {
-    this.game.data.socket.emit('getTanks', {userId: this.game.data.userId});
+    this.game.data.reduser.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
+      console.error(err);
+    });
   }
 
 }

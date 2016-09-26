@@ -25,15 +25,8 @@ class MainMenu {
     this.menu = new StartMenu(this.game);
 
     this.menu.onStartGame = (button) => {
-      this.game.data.socket.emit('startGame', {userId: this.game.data.userId});
+      this.state.start('Level1');
     }
-
-    this.game.data.socket.on('startGame', response => {
-      if (response.userId == this.game.data.userId) {
-        this.game.data.tanks = response.data.tanks;
-        this.state.start('Level1');
-      }
-    });
   }
 
 }

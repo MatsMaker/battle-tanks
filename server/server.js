@@ -6,75 +6,99 @@ const dnode = require('dnode');
 const PORT = 8000;
 
 const app = express();
-
 app.use(express.static(__dirname + '/../static'));
-
 const server = http.createServer(app);
-
 const io = require('socket.io')(server);
 
 const usersArePlaying = [];
 const tanks = [];
 
+server.listen(PORT);
+
 io.on('connection', socket => {
-  console.log('A user connected');
+  console.log('new connect ', socket.id);
 
-  socket.on('auth', response => {
-    io.emit('auth', {userId: response.auth});
-  });
+  socket.on('message', response => {
+    let data;
+    switch (response.type) {
 
-  socket.on('startGame', response => {
-    usersArePlaying.push(response.userId);
-    io.emit('startGame', {
-      userId: response.userId,
-      data: {
-        tanks: tanks
-      }
-    });
-  });
-
-  socket.on('initTank', response => {
-    let userTank = tanks.find(tank => {
-      return response.userId == tank.player
-    });
-    if (userTank === undefined) {
-      tanks.push(response.data.tank);
-    } else {
-      tanks.forEach((tank, index, tanksArray) => {
-        if (tank.player == response.userId) {
-          tanksArray[index] = response.data.tank
+      case 'auth':
+        const userId = (response.data.auth !== null)
+          ? response.data.auth
+          : new Date().getTime();
+        const userIndex = usersArePlaying.findIndex(user => user.userId == userId);
+        if (userIndex > -1) {
+          usersArePlaying[userIndex].connectedId = socket.id;
+        } else {
+          usersArePlaying.push({userId: userId, connectedId: socket.id});
         }
-      });
+        data = {
+          userId
+        };
+        break;
+
+      case 'getTanks':
+        data = {
+          tanks: tanks
+        };
+        break;
+
+      case 'updateTank':
+        tanks.forEach((tank, index, tanksArray) => {
+          if (tank.player === response.data.tank.player) {
+            tanksArray[index] = response.data.tank;
+          }
+        });
+        data = {
+          result: true
+        };
+        break;
+
+      case 'initTank':
+        let userTank = tanks.find(tank => {
+          return response.data.userId == tank.player
+        });
+        if (userTank === undefined) {
+          tanks.push(response.data.tank);
+        } else {
+          tanks.forEach((tank, index, tanksArray) => {
+            if (tank.player == response.data.userId) {
+              tanksArray[index] = response.data.tank
+            }
+          });
+        }
+        data = {
+          tanks: tanks
+        };
+        break;
+
+      default:
+        data = {
+          error: 'not right type request'
+        }
     }
-    io.emit('initTank', {
-      userId: response.userId,
+    io.emit('message', {
+      type: response.type,
+      data: data
+    });
+
+  })
+
+  socket.on('disconnect', response => {
+    const userIndex = usersArePlaying.findIndex(player => player.connectedId == socket.id);
+    const userId = usersArePlaying[userIndex].userId;
+    if (userIndex > -1) {
+      const tankIndex = tanks.findIndex(tank => tank.player == usersArePlaying[userIndex].userId);
+      usersArePlaying.splice(userIndex, 1);
+      tanks.splice(tankIndex, 1);
+    }
+
+    io.emit('message', {
+      type: 'disconnect',
       data: {
-        tanks: tanks
+        userId: userId,
       }
     });
-  });
-
-  socket.on('getTanks', response => {
-    io.emit('getTanks', {
-      userId: response.userId,
-      data: {
-        tanks: tanks
-      }
-    });
-  });
-
-  socket.on('updateTank', response => {
-    tanks.forEach((tank, index, tanksArray) => {
-      if (tank.player === response.tank.player) {
-        tanksArray[index] = response.tank;
-      }
-    })
-    console.log(tanks);
-  });
-
-  socket.on('disconnect', function () {
-    console.log('disconnect');
   });
 
 });
-server.listen(PORT);
