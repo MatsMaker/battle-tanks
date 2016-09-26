@@ -33,8 +33,25 @@ io.on('connection', socket => {
     });
   });
 
-  socket.on('addTank', response => {
-    tanks.push(response.data.tank);
+  socket.on('initTank', response => {
+    let userTank = tanks.find(tank => {
+      return response.userId == tank.player
+    });
+    if (userTank === undefined) {
+      tanks.push(response.data.tank);
+    } else {
+      tanks.forEach((tank, index, tanksArray) => {
+        if (tank.player == response.userId) {
+          tanksArray[index] = response.data.tank
+        }
+      });
+    }
+    io.emit('initTank', {
+      userId: response.userId,
+      data: {
+        tanks: tanks
+      }
+    });
   });
 
   socket.on('getTanks', response => {

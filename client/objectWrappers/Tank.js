@@ -31,7 +31,7 @@ class Tank {
     this.source.body.damping = 0.999;
     this.source.body.angularDamping = 0.999;
     this.source.body.inertia = 1000;
-    this.source.body.sleepSpeedLimit = 1500;
+    this.source.body.sleepSpeedLimit = 1400;
     this.source.body.dynamic = true;
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
@@ -47,9 +47,9 @@ class Tank {
         this.source.body.setZeroRotation();
       }
       if (this.cursors.up.isDown) {
-        this.source.body.thrust(1000000);
+        this.source.body.thrust(800000);
       } else if (this.cursors.down.isDown) {
-        this.source.body.reverse(1000000);
+        this.source.body.reverse(800000);
       }
       this.game.data.socket.emit('updateTank', {
         userId: this.game.data.userId,
