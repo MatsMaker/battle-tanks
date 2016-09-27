@@ -26,6 +26,8 @@ class Tank {
   }
 
   create() {
+    this.cursors = this.game.input.keyboard.createCursorKeys();
+
     const initPosition = {
       x: this.data.x || this.game.world.centerX,
       y: this.data.y || this.game.world.centerY
@@ -38,10 +40,10 @@ class Tank {
     this.turret.scale.set(0.3, 0.3);
     this.source.anchor.set(0.5, 0.5);
     this.turret.anchor.set(0.3, 0.5);
-    this.turret.angle = this.data.turretRotation || 0;
+    this.turretRadius = 30; // rotating turret radius
 
     this.game.physics.p2.enable(this.source);
-
+    this.turret.angle = this.data.turretRotation || 0;
     this.source.body.angular = this.data.angle || 0;
 
     this.source.body.mass = 1000;
@@ -51,16 +53,18 @@ class Tank {
     this.source.body.sleepSpeedLimit = 1400;
     this.source.body.dynamic = true;
 
-    this.cursors = this.game.input.keyboard.createCursorKeys();
-
     this.bullets = this.game.add.group();
     this.bullets.enableBody = true;
-    this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    this.bullets.createMultiple(20, imageKeyBullet, 0, false);
-    this.bullets.setAll('anchor.x', 0.5);
-    this.bullets.setAll('anchor.y', 0.5);
-    this.bullets.setAll('outOfBoundsKill', true);
-    this.bullets.setAll('checkWorldBounds', true);
+    // this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
+    this.bullets.physicsBodyType = Phaser.Physics.P2JS;
+    this.bullets.createMultiple(100, imageKeyBullet, 0, false);
+    // this.bullets.setAll('anchor.x', 0.5);
+    // this.bullets.setAll('anchor.y', 0.5);
+    // this.bullets.setAll('body.velocity', 0);
+    // this.bullets.setAll('body.velocity', 0);
+    // this.bullets.setAll('body.angularVelocity', 0);
+    //  this.bullets.setAll('outOfBoundsKill',
+    // true); this.bullets.setAll('checkWorldBounds', true);
   }
 
   destroy() {
@@ -69,10 +73,36 @@ class Tank {
     this.turret.destroy();
   }
 
+  coorOutBullet() {
+    // http://flashgamedev.ru/viewtopic.php?f=6&t=3948
+    const x0 = this.turret.x;
+    const y0 = this.turret.y - this.turretRadius;
+
+    const radians = this.turret.rotation + 1.5708;
+
+    const rx = x0 - this.turret.x;
+    const ry = y0 - this.turret.y;
+    const c = Math.cos(radians);
+    const s = Math.sin(radians);
+
+    return {
+      x: this.turret.x + rx * c - ry * s,
+      y: this.turret.y + rx * s + ry * c,
+      rotation: radians
+    }
+  }
+
   fire(target) {
     let bullet = this.bullets.getFirstDead();
-    bullet.reset(this.turret.x, this.turret.y);
-    bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 600);
+    const coorInitBullet = this.coorOutBullet();
+    bullet.reset(coorInitBullet.x, coorInitBullet.y);
+    bullet.body.reset(coorInitBullet.x, coorInitBullet.y);
+    bullet.body.rotation = coorInitBullet.rotation;
+    bullet.rotation = coorInitBullet.rotation;
+    bullet.body.setZeroVelocity();
+    // bullet.body.reset(this.turret.x, this.turret.y);
+    bullet.body.moveForward(800);
+    // bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 600);
   }
 
   update(remouteTankData) {
@@ -90,6 +120,7 @@ class Tank {
       } else if (this.cursors.down.isDown) {
         this.source.body.reverse(250000);
       }
+
       this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
       this.turret.x = this.source.body.x;
       this.turret.y = this.source.body.y;
