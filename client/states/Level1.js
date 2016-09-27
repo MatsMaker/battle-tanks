@@ -48,8 +48,7 @@ class Level1 {
     const lossUserId = response.data.userId;
     this.tanks.forEach((tank, index, arrayTanks) => {
       if (tank.player == lossUserId) {
-        tank.source.body.destroy();
-        tank.source.destroy();
+        tank.destroy();
         arrayTanks.splice(index, 1);
       }
     });

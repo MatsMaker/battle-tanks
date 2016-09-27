@@ -85,18 +85,21 @@ io.on('connection', socket => {
   })
 
   socket.on('disconnect', response => {
+    let userId;
     const userIndex = usersArePlaying.findIndex(player => player.connectedId == socket.id);
-    const userId = usersArePlaying[userIndex].userId;
     if (userIndex > -1) {
-      const tankIndex = tanks.findIndex(tank => tank.player == usersArePlaying[userIndex].userId);
-      usersArePlaying.splice(userIndex, 1);
-      tanks.splice(tankIndex, 1);
+      userId = usersArePlaying[userIndex].userId;
+      if (userIndex > -1) {
+        const tankIndex = tanks.findIndex(tank => tank.player == usersArePlaying[userIndex].userId);
+        usersArePlaying.splice(userIndex, 1);
+        tanks.splice(tankIndex, 1);
+      }
     }
 
     io.emit('message', {
       type: 'disconnect',
       data: {
-        userId: userId,
+        userId: userId
       }
     });
   });
