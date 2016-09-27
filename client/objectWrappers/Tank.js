@@ -55,22 +55,19 @@ class Tank {
 
     this.bullets = this.game.add.group();
     this.bullets.enableBody = true;
-    // this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
     this.bullets.physicsBodyType = Phaser.Physics.P2JS;
-    this.bullets.createMultiple(100, imageKeyBullet, 0, false);
-    // this.bullets.setAll('anchor.x', 0.5);
-    // this.bullets.setAll('anchor.y', 0.5);
-    // this.bullets.setAll('body.velocity', 0);
-    // this.bullets.setAll('body.velocity', 0);
-    // this.bullets.setAll('body.angularVelocity', 0);
-    //  this.bullets.setAll('outOfBoundsKill',
-    // true); this.bullets.setAll('checkWorldBounds', true);
+    this.bullets.createMultiple(23, imageKeyBullet, 0, false);
+
+    this.fireRate = 1000;
+    this.nextFire = 0;
+    this.alive = true;
   }
 
   destroy() {
     this.source.body.destroy();
     this.source.destroy();
     this.turret.destroy();
+    this.bullets.removeAll(true, true);
   }
 
   coorOutBullet() {
@@ -93,21 +90,29 @@ class Tank {
   }
 
   fire(target) {
-    let bullet = this.bullets.getFirstDead();
-    const coorInitBullet = this.coorOutBullet();
-    bullet.reset(coorInitBullet.x, coorInitBullet.y);
-    bullet.body.reset(coorInitBullet.x, coorInitBullet.y);
-    bullet.body.rotation = coorInitBullet.rotation;
-    bullet.rotation = coorInitBullet.rotation;
-    bullet.body.setZeroVelocity();
-    // bullet.body.reset(this.turret.x, this.turret.y);
-    bullet.body.moveForward(800);
-    // bullet.rotation = this.game.physics.arcade.moveToObject(bullet, target, 600);
+    if (!this.alive)
+      return;
+    if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+      this.nextFire = this.game.time.now + this.fireRate;
+
+      let bullet = this.bullets.getFirstDead();
+      const coorInitBullet = this.coorOutBullet();
+      bullet.reset(coorInitBullet.x, coorInitBullet.y);
+      bullet.body.reset(coorInitBullet.x, coorInitBullet.y);
+      bullet.body.rotation = coorInitBullet.rotation;
+      bullet.rotation = coorInitBullet.rotation;
+      bullet.body.setZeroVelocity();
+      bullet.body.moveForward(800);
+    }
   }
 
   update(remouteTankData) {
+    if (remouteTankData.fire) {
+      this.fire(remouteTankData.fire);
+    }
+    let fire = false;
+
     if (this.player === this.game.data.userId) {
-      let fire = false;
       if (this.cursors.left.isDown) {
         this.source.body.rotateLeft(50);
       } else if (this.cursors.right.isDown) {
@@ -130,11 +135,13 @@ class Tank {
           x: this.game.input.x + this.game.camera.x,
           y: this.game.input.y + + this.game.camera.y
         };
-        this.fire(fire);
+      } else {
+        fire = false;
       }
 
       this.game.data.reduser.makeOne('updateTank', {
         tank: {
+          alive: this.alive,
           player: this.player,
           x: this.source.body.x,
           y: this.source.body.y,
@@ -150,9 +157,6 @@ class Tank {
       this.source.body.y = remouteTankData.y;
       this.source.body.angle = remouteTankData.angle;
       this.turret.rotation = remouteTankData.turretRotation;
-      if (remouteTankData.fire) {
-        this.fire(remouteTankData.fire)
-      }
     }
     this.turret.x = this.source.body.x;
     this.turret.y = this.source.body.y;
