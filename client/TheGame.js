@@ -8,7 +8,7 @@ class TheGame {
   constructor(userId, reduser) {
     this.game = new Phaser.Game(800, 600, Phaser.CONVAS, '', Boot);
     this.game.data = {
-      reduser: reduser,
+      sync: reduser,
       userId: userId,
       tanks: []
     }

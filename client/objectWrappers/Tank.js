@@ -106,60 +106,77 @@ class Tank {
     }
   }
 
-  update(remouteTankData) {
-    if (remouteTankData.fire) {
-      this.fire(remouteTankData.fire);
+  _controller() {
+    return {
+      player: this.player,
+      x: this.source.body.x,
+      y: this.source.body.y,
+      angle: this.source.body.angle,
+      turretRotation: this.turret.rotation,
+      fire: this.game.input.mousePointer.leftButton.isDown,
+      target: {
+        x: this.game.input.x + this.game.camera.x,
+        y: this.game.input.y + + this.game.camera.y
+      },
+      move: {
+        left: this.cursors.left.isDown,
+        right: this.cursors.right.isDown,
+        forward: this.cursors.up.isDown,
+        back: this.cursors.down.isDown
+      }
     }
-    let fire = false;
+  }
 
-    if (this.player === this.game.data.userId) {
-      if (this.cursors.left.isDown) {
-        this.source.body.rotateLeft(50);
-      } else if (this.cursors.right.isDown) {
-        this.source.body.rotateRight(50);
-      } else {
-        this.source.body.setZeroRotation();
-      }
-      if (this.cursors.up.isDown) {
-        this.source.body.thrust(800000);
-      } else if (this.cursors.down.isDown) {
-        this.source.body.reverse(250000);
-      }
-
-      this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
-      this.turret.x = this.source.body.x;
-      this.turret.y = this.source.body.y;
-
-      if (this.game.input.mousePointer.leftButton.isDown) {
-        fire = {
-          x: this.game.input.x + this.game.camera.x,
-          y: this.game.input.y + + this.game.camera.y
-        };
-      } else {
-        fire = false;
-      }
-
-      this.game.data.reduser.makeOne('updateTank', {
-        tank: {
-          alive: this.alive,
-          player: this.player,
-          x: this.source.body.x,
-          y: this.source.body.y,
-          angle: this.source.body.angle,
-          turretRotation: this.turret.rotation,
-          fire: fire
-        }
-      }).then(response => {}).catch(err => {
-        console.error(err);
-      })
-    } else if (remouteTankData) {
+  _baseLocalSync(remouteTankData) {
+    if (remouteTankData.move.left != this.cursors.left.isDown || remouteTankData.move.right != this.cursors.right.isDown || remouteTankData.move.forward != this.cursors.up.isDown || remouteTankData.move.back != this.cursors.down.isDown || this.game.input.mousePointer.leftButton.isDown != remouteTankData.fire) {
       this.source.body.x = remouteTankData.x;
       this.source.body.y = remouteTankData.y;
       this.source.body.angle = remouteTankData.angle;
-      this.turret.rotation = remouteTankData.turretRotation;
     }
     this.turret.x = this.source.body.x;
     this.turret.y = this.source.body.y;
+  }
+
+  _hostLocalSync() {
+    const contrroller = this._controller();
+    this.game.data.sync.makeOne('updateTank', {tank: contrroller}).then(response => {}).catch(err => {
+      console.error(err);
+    });
+  }
+
+  _moveLovalSync(remouteTankData) {
+    if (remouteTankData.move.left) {
+      this.source.body.rotateLeft(50);
+    } else if (remouteTankData.move.right) {
+      this.source.body.rotateRight(50);
+    } else {
+      this.source.body.setZeroRotation();
+    }
+    if (remouteTankData.move.forward) {
+      this.source.body.thrust(800000);
+    } else if (remouteTankData.move.back) {
+      this.source.body.reverse(250000);
+    }
+    this.turret.rotation = remouteTankData.turretRotation;
+    if (remouteTankData.fire) {
+      this.fire(remouteTankData.target);
+    }
+  }
+
+  isOwner(tank) {
+    return this.game.data.userId == tank.player;
+  }
+
+  update(remouteTankData) {
+    const HOST = this.isOwner(remouteTankData);
+
+    this._baseLocalSync(remouteTankData);
+    this._moveLovalSync(remouteTankData);
+    if (HOST) {
+      this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
+      this._hostLocalSync();
+    }
+
   }
 
 }

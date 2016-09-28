@@ -6,14 +6,25 @@ import Tank from '../objectWrappers/Tank.js';
 class Level1 {
 
   initTanks() {
-    this.game.data.reduser.makeOne('initTank', {
+    this.game.data.sync.makeOne('initTank', {
       userId: this.game.data.userId,
       tank: {
-        alive: true,
         player: this.game.data.userId,
         x: this.world.centerX,
         y: this.world.centerY,
-        angle: 0
+        angle: 0,
+        turretRotation: 0,
+        fire: false,
+        target: {
+          x: this.world.centerX,
+          y: this.world.centerY + 20,
+        },
+        move: {
+          left: false,
+          right: false,
+          forward: false,
+          back: false
+        }
       }
     }).then(response => {
       this.game.data.tanks = response.data.tanks;
@@ -64,11 +75,11 @@ class Level1 {
     this.animatedDots = new AnimatedDots(this.game, this.game.world.centerX, this.game.world.centerY, '');
     this.animatedDots.setAnchor('centration');
 
-    this.game.data.reduser.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
+    this.game.data.sync.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
       console.error(err);
     });
 
-    this.game.data.reduser.addEventListener('disconnect', response => {
+    this.game.data.sync.addEventListener('disconnect', response => {
       this.lossUser(response);
       return {one: false}
     });
@@ -97,7 +108,7 @@ class Level1 {
   }
 
   update() {
-    this.game.data.reduser.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
+    this.game.data.sync.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
       console.error(err);
     });
   }
