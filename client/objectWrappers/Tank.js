@@ -4,6 +4,7 @@ const imageKeyBody = 'tankBody_E-100';
 const imageKeyTurret = 'tankTurret_E-100';
 const imageKeyBullet = 'tankBullet_E-100';
 const physicsData = 'physicsData';
+const tankExplosion = 'tankExplosion';
 
 class Tank {
 
@@ -24,7 +25,25 @@ class Tank {
     game.load.image(imageKeyBody, require('../assets/E-100/body2.png'), 1);
     game.load.image(imageKeyTurret, require('../assets/E-100/turret.png'), 1);
     game.load.image(imageKeyBullet, require('../assets/E-100/shot.png'), false);
+
+    game.load.spritesheet(tankExplosion, require('../assets/tilemaps/explosion_ring_ew_spritesht.png'), 254, 254);
+
     game.load.physics(physicsData, require('file!../assets/E-100/E-100.json'));
+  }
+
+  _explosion() {
+    this.explosion = this.game.add.sprite(this.source.body.x, this.source.body.y, tankExplosion);
+    this.explosion.scale.set(0.5, 0.5);
+    let play = this.explosion.animations.add('play', [
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+    ], 12);
+    this.explosion.anchor.set(0.5, 0.5);
+    play.killOnComplete = true;
+    play.play();
+    // setTimeout(() => {
+    //   this.explosion.animations.stop();
+    //   this.explosion.destroy();
+    // }, 130);
   }
 
   _controller() {
@@ -37,7 +56,7 @@ class Tank {
       fire: this.game.input.mousePointer.leftButton.isDown,
       target: {
         x: this.game.input.x + this.game.camera.x,
-        y: this.game.input.y + + this.game.camera.y
+        y: this.game.input.y + this.game.camera.y
       },
       move: {
         left: this.cursors.left.isDown,
@@ -119,7 +138,7 @@ class Tank {
     this.source.body.inertia = 1000;
     this.source.body.sleepSpeedLimit = 1400;
     this.source.body.dynamic = true;
-    this.source.body.debug = true; // debug
+    // this.source.body.debug = true; // debug
 
     this.bullets = this.game.add.group();
     this.bullets.enableBody = true;
@@ -140,7 +159,9 @@ class Tank {
     this.bullets.removeAll(true, true);
   }
 
-  kill() {}
+  kill() {
+    this._explosion();
+  }
 
   coorOutBullet() {
     // http://flashgamedev.ru/viewtopic.php?f=6&t=3948
