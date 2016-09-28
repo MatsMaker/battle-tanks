@@ -3,6 +3,7 @@ import Phaser from '../Phaser.js';
 const imageKeyBody = 'tankBody_E-100';
 const imageKeyTurret = 'tankTurret_E-100';
 const imageKeyBullet = 'tankBullet_E-100';
+const physicsData = 'physicsData';
 
 class Tank {
 
@@ -23,6 +24,67 @@ class Tank {
     game.load.image(imageKeyBody, require('../assets/E-100/body2.png'), 1);
     game.load.image(imageKeyTurret, require('../assets/E-100/turret.png'), 1);
     game.load.image(imageKeyBullet, require('../assets/E-100/shot.png'), false);
+    game.load.physics(physicsData, require('file!../assets/E-100/E-100.json'));
+  }
+
+  _controller() {
+    return {
+      player: this.player,
+      x: this.source.body.x,
+      y: this.source.body.y,
+      angle: this.source.body.angle,
+      turretRotation: this.turret.rotation,
+      fire: this.game.input.mousePointer.leftButton.isDown,
+      target: {
+        x: this.game.input.x + this.game.camera.x,
+        y: this.game.input.y + + this.game.camera.y
+      },
+      move: {
+        left: this.cursors.left.isDown,
+        right: this.cursors.right.isDown,
+        forward: this.cursors.up.isDown,
+        back: this.cursors.down.isDown
+      }
+    }
+  }
+
+  _baseLocalSync(remouteTankData) {
+    if (remouteTankData.move.left != this.cursors.left.isDown || remouteTankData.move.right != this.cursors.right.isDown || remouteTankData.move.forward != this.cursors.up.isDown || remouteTankData.move.back != this.cursors.down.isDown || this.game.input.mousePointer.leftButton.isDown != remouteTankData.fire) {
+      this.source.body.x = remouteTankData.x;
+      this.source.body.y = remouteTankData.y;
+      this.source.body.angle = remouteTankData.angle;
+    }
+    this.turret.x = this.source.body.x;
+    this.turret.y = this.source.body.y;
+
+    this.source.x = this.source.body.x;
+    this.source.y = this.source.body.y;
+  }
+
+  _hostLocalSync() {
+    const contrroller = this._controller();
+    this.game.data.sync.makeOne('updateTank', {tank: contrroller}).then(response => {}).catch(err => {
+      console.error(err);
+    });
+  }
+
+  _moveLovalSync(remouteTankData) {
+    if (remouteTankData.move.left) {
+      this.source.body.rotateLeft(50);
+    } else if (remouteTankData.move.right) {
+      this.source.body.rotateRight(50);
+    } else {
+      this.source.body.setZeroRotation();
+    }
+    if (remouteTankData.move.forward) {
+      this.source.body.thrust(800000);
+    } else if (remouteTankData.move.back) {
+      this.source.body.reverse(250000);
+    }
+    this.turret.rotation = remouteTankData.turretRotation;
+    if (remouteTankData.fire) {
+      this.fire(remouteTankData.target);
+    }
   }
 
   create() {
@@ -38,11 +100,16 @@ class Tank {
 
     this.source.scale.set(0.3, 0.3);
     this.turret.scale.set(0.3, 0.3);
+
     this.source.anchor.set(0.5, 0.5);
     this.turret.anchor.set(0.3, 0.5);
-    this.turretRadius = 30; // rotating turret radius
+    this.turretRadius = 33; // rotating turret radius
 
     this.game.physics.p2.enable(this.source);
+
+    this.source.body.clearShapes();
+    this.source.body.loadPolygon(physicsData, 'body2'); // scale 0.3
+
     this.turret.angle = this.data.turretRotation || 0;
     this.source.body.angular = this.data.angle || 0;
 
@@ -52,15 +119,18 @@ class Tank {
     this.source.body.inertia = 1000;
     this.source.body.sleepSpeedLimit = 1400;
     this.source.body.dynamic = true;
+    this.source.body.debug = true; // debug
 
     this.bullets = this.game.add.group();
     this.bullets.enableBody = true;
     this.bullets.physicsBodyType = Phaser.Physics.P2JS;
-    this.bullets.createMultiple(23, imageKeyBullet, 0, false);
+    this.bullets.createMultiple(1000, imageKeyBullet, 0, false);
 
     this.fireRate = 1000;
     this.nextFire = 0;
     this.alive = true;
+
+    this.source.body.onBeginContact.add(this.contactBy, this);
   }
 
   destroy() {
@@ -69,6 +139,8 @@ class Tank {
     this.turret.destroy();
     this.bullets.removeAll(true, true);
   }
+
+  kill() {}
 
   coorOutBullet() {
     // http://flashgamedev.ru/viewtopic.php?f=6&t=3948
@@ -106,65 +178,15 @@ class Tank {
     }
   }
 
-  _controller() {
-    return {
-      player: this.player,
-      x: this.source.body.x,
-      y: this.source.body.y,
-      angle: this.source.body.angle,
-      turretRotation: this.turret.rotation,
-      fire: this.game.input.mousePointer.leftButton.isDown,
-      target: {
-        x: this.game.input.x + this.game.camera.x,
-        y: this.game.input.y + + this.game.camera.y
-      },
-      move: {
-        left: this.cursors.left.isDown,
-        right: this.cursors.right.isDown,
-        forward: this.cursors.up.isDown,
-        back: this.cursors.down.isDown
-      }
-    }
-  }
-
-  _baseLocalSync(remouteTankData) {
-    if (remouteTankData.move.left != this.cursors.left.isDown || remouteTankData.move.right != this.cursors.right.isDown || remouteTankData.move.forward != this.cursors.up.isDown || remouteTankData.move.back != this.cursors.down.isDown || this.game.input.mousePointer.leftButton.isDown != remouteTankData.fire) {
-      this.source.body.x = remouteTankData.x;
-      this.source.body.y = remouteTankData.y;
-      this.source.body.angle = remouteTankData.angle;
-    }
-    this.turret.x = this.source.body.x;
-    this.turret.y = this.source.body.y;
-  }
-
-  _hostLocalSync() {
-    const contrroller = this._controller();
-    this.game.data.sync.makeOne('updateTank', {tank: contrroller}).then(response => {}).catch(err => {
-      console.error(err);
-    });
-  }
-
-  _moveLovalSync(remouteTankData) {
-    if (remouteTankData.move.left) {
-      this.source.body.rotateLeft(50);
-    } else if (remouteTankData.move.right) {
-      this.source.body.rotateRight(50);
-    } else {
-      this.source.body.setZeroRotation();
-    }
-    if (remouteTankData.move.forward) {
-      this.source.body.thrust(800000);
-    } else if (remouteTankData.move.back) {
-      this.source.body.reverse(250000);
-    }
-    this.turret.rotation = remouteTankData.turretRotation;
-    if (remouteTankData.fire) {
-      this.fire(remouteTankData.target);
-    }
-  }
-
   isOwner(tank) {
     return this.game.data.userId == tank.player;
+  }
+
+  contactBy(body, bodyB, shapeA, shapeB, equation) {
+    console.info(body, bodyB, shapeA, shapeB, equation);
+    if (body && body.sprite.key == 'tankBullet_E-100') {
+      this.kill();
+    }
   }
 
   update(remouteTankData) {
