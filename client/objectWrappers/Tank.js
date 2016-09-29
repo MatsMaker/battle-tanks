@@ -35,15 +35,28 @@ class Tank {
     this.explosion = this.game.add.sprite(this.source.body.x, this.source.body.y, tankExplosion);
     this.explosion.scale.set(0.5, 0.5);
     let play = this.explosion.animations.add('play', [
-      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
-    ], 12);
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ], 10);
     this.explosion.anchor.set(0.5, 0.5);
     play.killOnComplete = true;
     play.play();
-    // setTimeout(() => {
-    //   this.explosion.animations.stop();
-    //   this.explosion.destroy();
-    // }, 130);
+    setTimeout(() => {
+      this.explosion.destroy();
+    }, 1500)
   }
 
   _controller() {
@@ -75,9 +88,6 @@ class Tank {
     }
     this.turret.x = this.source.body.x;
     this.turret.y = this.source.body.y;
-
-    this.source.x = this.source.body.x;
-    this.source.y = this.source.body.y;
   }
 
   _hostLocalSync() {
@@ -124,7 +134,7 @@ class Tank {
     this.turret.anchor.set(0.3, 0.5);
     this.turretRadius = 33; // rotating turret radius
 
-    this.game.physics.p2.enable(this.source);
+    this.game.physics.p2.enableBody(this.source);
 
     this.source.body.clearShapes();
     this.source.body.loadPolygon(physicsData, 'body2'); // scale 0.3
@@ -143,24 +153,33 @@ class Tank {
     this.bullets = this.game.add.group();
     this.bullets.enableBody = true;
     this.bullets.physicsBodyType = Phaser.Physics.P2JS;
-    this.bullets.createMultiple(1000, imageKeyBullet, 0, false);
+    this.bullets.createMultiple(5, imageKeyBullet, 0, false);
 
-    this.fireRate = 1000;
+    this.fireRate = 500;
     this.nextFire = 0;
     this.alive = true;
 
     this.source.body.onBeginContact.add(this.contactBy, this);
   }
 
-  destroy() {
-    this.source.body.destroy();
-    this.source.destroy();
-    this.turret.destroy();
-    this.bullets.removeAll(true, true);
+  abort() {
+    setTimeout(() => {
+      this.turret.destroy();
+      setTimeout(() => {
+        this.source.body.destroy();
+        setTimeout(() => {
+          this.source.destroy();
+          setTimeout(() => {
+            this.bullets.destroy();
+          }, 100);
+        }, 100);
+      }, 100);
+    }, 100)
   }
 
   kill() {
     this._explosion();
+    // this.abort();
   }
 
   coorOutBullet() {
@@ -191,16 +210,24 @@ class Tank {
       let bullet = this.bullets.getFirstDead();
       const coorInitBullet = this.coorOutBullet();
       bullet.reset(coorInitBullet.x, coorInitBullet.y);
+      bullet.body.z = 200;
       bullet.body.reset(coorInitBullet.x, coorInitBullet.y);
       bullet.body.rotation = coorInitBullet.rotation;
       bullet.rotation = coorInitBullet.rotation;
       bullet.body.setZeroVelocity();
       bullet.body.moveForward(800);
+
+      bullet.body.onBeginContact.add(this.bulletContactBy, bullet);
     }
   }
 
   isOwner(tank) {
     return this.game.data.userId == tank.player;
+  }
+
+  bulletContactBy(body, bodyB, shapeA, shapeB, equation) {
+    this.exists = false;
+    this.alive = false;
   }
 
   contactBy(body, bodyB, shapeA, shapeB, equation) {
@@ -220,6 +247,7 @@ class Tank {
       this._hostLocalSync();
     }
 
+    console.log(this.game.world.children.length);
   }
 
 }

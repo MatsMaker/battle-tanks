@@ -17,7 +17,7 @@ class Level1 {
         fire: false,
         target: {
           x: this.world.centerX,
-          y: this.world.centerY + 20,
+          y: this.world.centerY + 20
         },
         move: {
           left: false,
@@ -41,6 +41,12 @@ class Level1 {
     })
   }
 
+  addTank(tankData) {
+    const newTank = new Tank(this.game, tankData.player, tankData)
+    newTank.create();
+    this.tanks.push(newTank);
+  }
+
   updateTanks(response) {
     this.game.data.tanks = response.data.tanks;
     response.data.tanks.forEach(rTank => {
@@ -48,9 +54,7 @@ class Level1 {
       if (selectTank) {
         selectTank.update(rTank);
       } else {
-        const newTank = new Tank(this.game, rTank.player, rTank)
-        newTank.create();
-        this.tanks.push(newTank);
+        this.addTank(rTank);
       }
     });
   }
@@ -59,7 +63,7 @@ class Level1 {
     const lossUserId = response.data.userId;
     this.tanks.forEach((tank, index, arrayTanks) => {
       if (tank.player == lossUserId) {
-        tank.destroy();
+        tank.abort();
         arrayTanks.splice(index, 1);
       }
     });
@@ -74,10 +78,6 @@ class Level1 {
 
     this.animatedDots = new AnimatedDots(this.game, this.game.world.centerX, this.game.world.centerY, '');
     this.animatedDots.setAnchor('centration');
-
-    this.game.data.sync.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
-      console.error(err);
-    });
 
     this.game.data.sync.addEventListener('disconnect', response => {
       this.lossUser(response);
