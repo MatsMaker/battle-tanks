@@ -13,6 +13,8 @@ class Level1 {
         x: this.world.randomX,
         y: this.world.randomY,
         angle: 0,
+        bulletContacts: [],
+        life: 5,
         turretRotation: 0,
         fire: false,
         target: {

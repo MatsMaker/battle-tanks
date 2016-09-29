@@ -78,7 +78,9 @@ class Tank {
       player: this.player,
       x: this.source.body.x,
       y: this.source.body.y,
+      life: this.life,
       angle: this.source.body.angle,
+      bulletContacts: this.bulletContacts,
       turretRotation: this.turret.rotation,
       fire: this.game.input.mousePointer.leftButton.isDown,
       target: {
@@ -95,39 +97,54 @@ class Tank {
   }
 
   _baseLocalSync(remouteTankData) {
-    if (remouteTankData.move.left != this.cursors.left.isDown || remouteTankData.move.right != this.cursors.right.isDown || remouteTankData.move.forward != this.cursors.up.isDown || remouteTankData.move.back != this.cursors.down.isDown || this.game.input.mousePointer.leftButton.isDown != remouteTankData.fire) {
-      this.source.body.x = remouteTankData.x;
-      this.source.body.y = remouteTankData.y;
-      this.source.body.angle = remouteTankData.angle;
-    }
-    this.turret.x = this.source.body.x;
-    this.turret.y = this.source.body.y;
-  }
-
-  _hostLocalSync() {
-    const contrroller = this._controller();
-    this.game.data.sync.makeOne('updateTank', {tank: contrroller}).then(response => {}).catch(err => {
-      console.error(err);
+    return new Promise((resolve, reject) => {
+      this.life = remouteTankData.life;
+      if (remouteTankData.bulletContacts.length) {
+        remouteTankData.bulletContacts.forEach((bulletBody, index, bulletArray) => {
+          this._hit(bulletBody);
+          this.life--;
+          bulletArray.slice(index, 1);
+        });
+        this.bulletContacts = [];
+      }
+      if (remouteTankData.move.left != this.cursors.left.isDown || remouteTankData.move.right != this.cursors.right.isDown || remouteTankData.move.forward != this.cursors.up.isDown || remouteTankData.move.back != this.cursors.down.isDown || this.game.input.mousePointer.leftButton.isDown != remouteTankData.fire) {
+        this.source.body.x = remouteTankData.x;
+        this.source.body.y = remouteTankData.y;
+        this.source.body.angle = remouteTankData.angle;
+      }
+      this.turret.x = this.source.body.x;
+      this.turret.y = this.source.body.y;
+      resolve();
     });
   }
 
   _moveLovalSync(remouteTankData) {
-    if (remouteTankData.move.left) {
-      this.source.body.rotateLeft(50);
-    } else if (remouteTankData.move.right) {
-      this.source.body.rotateRight(50);
-    } else {
-      this.source.body.setZeroRotation();
-    }
-    if (remouteTankData.move.forward) {
-      this.source.body.thrust(800000);
-    } else if (remouteTankData.move.back) {
-      this.source.body.reverse(250000);
-    }
-    this.turret.rotation = remouteTankData.turretRotation;
-    if (remouteTankData.fire) {
-      this.fire(remouteTankData.target);
-    }
+    return new Promise((resolve, reject) => {
+      if (remouteTankData.move.left) {
+        this.source.body.rotateLeft(50);
+      } else if (remouteTankData.move.right) {
+        this.source.body.rotateRight(50);
+      } else {
+        this.source.body.setZeroRotation();
+      }
+      if (remouteTankData.move.forward) {
+        this.source.body.thrust(800000);
+      } else if (remouteTankData.move.back) {
+        this.source.body.reverse(250000);
+      }
+      this.turret.rotation = remouteTankData.turretRotation;
+      if (remouteTankData.fire) {
+        this.fire(remouteTankData.target);
+      }
+      resolve();
+    });
+  }
+
+  _hostLocalSync(tankData) {
+    const contrroller = tankData || this._controller();
+    this.game.data.sync.makeOne('updateTank', {tank: contrroller}).then(response => {}).catch(err => {
+      console.error(err);
+    });
   }
 
   create() {
@@ -137,7 +154,7 @@ class Tank {
       x: this.data.x || this.game.world.centerX,
       y: this.data.y || this.game.world.centerY
     };
-
+    this.bulletContacts = [];
     this.source = this.game.add.sprite(initPosition.x, initPosition.y, this.imageKeyBody);
     this.turret = this.game.add.sprite(initPosition.x, initPosition.y, this.imageKeyTurret);
 
@@ -240,31 +257,29 @@ class Tank {
   }
 
   bulletContactBy(body, bodyB, shapeA, shapeB, equation) {
-    if (body) {
-      this.exists = false;
-      this.alive = false;
-    } else {
-      this.exists = false;
-      this.alive = false;
-    }
+    this.exists = false;
+    this.alive = false;
   }
 
   contactBy(body, bodyB, shapeA, shapeB, equation) {
-    console.info(body, bodyB, shapeA, shapeB, equation);
+    // console.info(body, bodyB, shapeA, shapeB, equation);
     if (body && body.sprite.key == 'tankBullet_E-100') {
-      this._hit(body);
+      console.warn('Hit !');
+      this.bulletContacts.push({x: body.x, y: body.y});
     }
   }
 
   update(remouteTankData) {
     const HOST = this.isOwner(remouteTankData);
-
-    this._baseLocalSync(remouteTankData);
-    this._moveLovalSync(remouteTankData);
-    if (HOST) {
-      this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
-      this._hostLocalSync();
-    }
+    this._baseLocalSync(remouteTankData).then(resolve => {
+      return this._moveLovalSync(remouteTankData);
+    }).then(resolve => {
+      if (HOST) {
+        console.log(this.life);
+        this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
+        this._hostLocalSync();
+      }
+    });
   }
 
 }
