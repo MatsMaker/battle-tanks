@@ -10,8 +10,8 @@ class Level1 {
       userId: this.game.data.userId,
       tank: {
         player: this.game.data.userId,
-        x: this.world.centerX,
-        y: this.world.centerY,
+        x: this.world.randomX,
+        y: this.world.randomY,
         angle: 0,
         turretRotation: 0,
         fire: false,

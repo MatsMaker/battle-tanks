@@ -56,7 +56,21 @@ class Tank {
     play.play();
     setTimeout(() => {
       this.explosion.destroy();
-    }, 1500)
+    }, 1500);
+  }
+
+  _hit(point) {
+    this.explosion = this.game.add.sprite(point.x, point.y, tankExplosion);
+    this.explosion.scale.set(0.15, 0.15);
+    this.explosion.angle = point.angle || 0;
+    let play = this.explosion.animations.add('play', [
+      0, 8
+    ], 10);
+    this.explosion.anchor.set(0.5, 0.5);
+    play.play(true,);
+    setTimeout(() => {
+      this.explosion.destroy();
+    }, 300);
   }
 
   _controller() {
@@ -226,14 +240,19 @@ class Tank {
   }
 
   bulletContactBy(body, bodyB, shapeA, shapeB, equation) {
-    this.exists = false;
-    this.alive = false;
+    if (body) {
+      this.exists = false;
+      this.alive = false;
+    } else {
+      this.exists = false;
+      this.alive = false;
+    }
   }
 
   contactBy(body, bodyB, shapeA, shapeB, equation) {
     console.info(body, bodyB, shapeA, shapeB, equation);
     if (body && body.sprite.key == 'tankBullet_E-100') {
-      this.kill();
+      this._hit(body);
     }
   }
 
@@ -246,8 +265,6 @@ class Tank {
       this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
       this._hostLocalSync();
     }
-
-    console.log(this.game.world.children.length);
   }
 
 }
