@@ -50,9 +50,9 @@ class Level1 {
   updateTanks(response) {
     this.game.data.tanks = response.data.tanks;
     response.data.tanks.forEach(rTank => {
-      let selectTank = this.tanks.find(lTank => lTank.player == rTank.player);
-      if (selectTank) {
-        selectTank.update(rTank);
+      let selectTankIndex = this.tanks.findIndex(lTank => lTank.player == rTank.player);
+      if (selectTankIndex > -1) {
+        this.tanks[selectTankIndex].update(rTank);
       } else {
         this.addTank(rTank);
       }

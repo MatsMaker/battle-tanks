@@ -119,6 +119,9 @@ class Tank {
       if (!this.alive) {
         reject({error: 'isDied'});
       };
+      if (remouteTankData.alive && !this.alive) {
+        this.create(true);
+      }
       if (remouteTankData.move.left != this.cursors.left.isDown || remouteTankData.move.right != this.cursors.right.isDown || remouteTankData.move.forward != this.cursors.up.isDown || remouteTankData.move.back != this.cursors.down.isDown || this.game.input.mousePointer.leftButton.isDown != remouteTankData.fire) {
         this.source.body.x = remouteTankData.x;
         this.source.body.y = remouteTankData.y;
@@ -138,6 +141,7 @@ class Tank {
           this.kill();
         }
       }
+      this.interfaceUpdate();
       resolve(true);
     });
   }
@@ -171,12 +175,41 @@ class Tank {
     });
   }
 
-  create() {
+  interfaceInit() {
+    const style = {
+      fill: (this.isOwner)
+        ? '#27F71B'
+        : '#ED00F3',
+      fontSize: '15px'
+    };
+    this.interfaceLife = this.game.add.text(this.source.x, this.source.y, 0, style);
+    this.interfaceLife.anchor.x = 0.5;
+    this.interfaceLife.anchor.y = 0.5;
+  }
+
+  interfaceUpdate() {
+    let text = (this.isOwner)
+      ? '(' + this.life + ')'
+      : this.life
+    this.interfaceLife.x = this.source.x;
+    this.interfaceLife.y = this.source.y;
+    this.interfaceLife.text = text;
+  }
+
+  interfaceDestroy() {
+    this.interfaceLife.destroy();
+  }
+
+  create(isRespawn) {
     this.cursors = this.game.input.keyboard.createCursorKeys();
 
     const initPosition = {
-      x: this.data.x || this.game.world.centerX,
-      y: this.data.y || this.game.world.centerY
+      x: (isRespawn)
+        ? this.game.world.randomX
+        : this.data.x,
+      y: (isRespawn)
+        ? this.game.world.randomY
+        : this.data.y
     };
 
     this.bulletContacts = [];
@@ -220,10 +253,12 @@ class Tank {
     if (this.isOwner) {
       this.game.camera.follow(this.source);
     }
+    this.interfaceInit();
   }
 
   respawn() {
     this.create();
+    this._hostLocalSync();
   }
 
   abort() {
@@ -233,6 +268,7 @@ class Tank {
       this.turret.destroy();
       this.bullets.destroy();
       this.source.destroy();
+      this.interfaceDestroy();
     }
   }
 
@@ -325,9 +361,7 @@ class Tank {
         this._hostLocalSync();
       }
     }).catch(err => {
-      // if (err.error == 'isDied') {   return; }
-      // console.warn(err);
-      // this._hostLocalSync();
+      // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
     });
   }
 
