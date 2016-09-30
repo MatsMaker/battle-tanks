@@ -16,19 +16,28 @@ class Tank {
     this.source;
     this.turret;
     this.bullets;
+    this.isOwner;
 
     this.imageKeyBody = imageKeyBody;
     this.imageKeyTurret = imageKeyTurret;
   }
 
-  get alive() {
-    return this.life > 0;
+  set isOwner(value) {
+    return this.isOwner = this.game.data.userId == this.player;
+  }
+
+  get isOwner() {
+    return this.game.data.userId == this.player;
   }
 
   set alive(value) {
     this.life = (value)
       ? 5
       : 0
+  }
+
+  get alive() {
+    return this.life > 0;
   }
 
   static preload(game) {
@@ -61,33 +70,18 @@ class Tank {
         12,
         13
         // 14
-      ], 10);
+      ]);
       this.explosion.anchor.set(0.5, 0.5);
       play.killOnComplete = true;
-      play.play(23, false, true);
+
+      play.play(30, false, false);
 
       setTimeout(() => {
+        this.abort();
         this.explosion.destroy();
-        resolve();
+        resolve(true);
       }, 1500);
-
     });
-  }
-
-  hit(point) {
-    this.explosion = this.game.add.sprite(point.x, point.y, tankExplosion);
-    this.explosion.scale.set(0.15, 0.15);
-    this.explosion.angle = point.angle || 0;
-    let play = this.explosion.animations.add('play', [
-      0, 8
-    ], 10);
-    this.explosion.anchor.set(0.5, 0.5);
-    play.play(10, false, true);
-    setTimeout(() => {
-      if (play.isFinished) {
-        this.explosion.destroy();
-      }
-    }, 300);
   }
 
   _controller() {
@@ -123,7 +117,7 @@ class Tank {
   _baseLocalSync(remouteTankData) {
     return new Promise((resolve, reject) => {
       if (!this.alive) {
-        reject({error: 'isNotAlive'});
+        reject({error: 'isDied'});
       };
       if (remouteTankData.move.left != this.cursors.left.isDown || remouteTankData.move.right != this.cursors.right.isDown || remouteTankData.move.forward != this.cursors.up.isDown || remouteTankData.move.back != this.cursors.down.isDown || this.game.input.mousePointer.leftButton.isDown != remouteTankData.fire) {
         this.source.body.x = remouteTankData.x;
@@ -184,6 +178,7 @@ class Tank {
       x: this.data.x || this.game.world.centerX,
       y: this.data.y || this.game.world.centerY
     };
+
     this.bulletContacts = [];
     this.source = this.game.add.sprite(initPosition.x, initPosition.y, this.imageKeyBody);
     this.turret = this.game.add.sprite(initPosition.x, initPosition.y, this.imageKeyTurret);
@@ -216,20 +211,19 @@ class Tank {
     this.bullets.physicsBodyType = Phaser.Physics.P2JS;
     this.bullets.createMultiple(5, imageKeyBullet, 0, false);
 
-    this.fireRate = 500;
+    this.fireRate = 1000;
     this.nextFire = 0;
     this.alive = true;
 
     this.source.body.onBeginContact.add(this.contactBy, this);
 
-    if (this.isOwner()) {
+    if (this.isOwner) {
       this.game.camera.follow(this.source);
     }
   }
 
   respawn() {
     this.create();
-    this._hostLocalSync();
   }
 
   abort() {
@@ -244,10 +238,11 @@ class Tank {
 
   kill() {
     this._explosion().then(result => {
-      this.abort();
-      setTimeout(() => {
-        this.respawn();
-      }, 3000);
+      if (this.isOwner) {
+        setTimeout(() => {
+          this.respawn();
+        }, 3000);
+      }
     }).catch(err => {
       console.log(err);
     })
@@ -292,9 +287,20 @@ class Tank {
     }
   }
 
-  isOwner(tank) {
-    const selectTank = tank || this;
-    return this.game.data.userId == selectTank.player;
+  hit(point) {
+    this.explosion = this.game.add.sprite(point.x, point.y, tankExplosion);
+    this.explosion.scale.set(0.15, 0.15);
+    this.explosion.angle = point.angle || 0;
+    let play = this.explosion.animations.add('play', [
+      0, 8
+    ], 10);
+    this.explosion.anchor.set(0.5, 0.5);
+    play.play(10, false, true);
+    setTimeout(() => {
+      if (play.isFinished) {
+        this.explosion.destroy();
+      }
+    }, 300);
   }
 
   bulletContactBy(body, bodyB, shapeA, shapeB, equation) {
@@ -311,20 +317,17 @@ class Tank {
 
   update(remouteTankData) {
     // console.warn('objects list :', this.game.world.children.length);
-    const HOST = this.isOwner(remouteTankData);
     this._baseLocalSync(remouteTankData).then(resolve => {
       return this._moveLovalSync(remouteTankData);
     }).then(resolve => {
-      if (HOST) {
+      if (this.isOwner) {
         this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
         this._hostLocalSync();
       }
     }).catch(err => {
-      if (err.error == 'isNotAlive') {
-        this._hostLocalSync();
-        return;
-      }
-      console.warn(err);
+      // if (err.error == 'isDied') {   return; }
+      // console.warn(err);
+      // this._hostLocalSync();
     });
   }
 
