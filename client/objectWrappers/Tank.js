@@ -21,6 +21,16 @@ class Tank {
     this.imageKeyTurret = imageKeyTurret;
   }
 
+  get alive() {
+    return this.life > 0;
+  }
+
+  set alive(value) {
+    this.life = (value)
+      ? 5
+      : 0
+  }
+
   static preload(game) {
     game.load.image(imageKeyBody, require('../assets/E-100/body2.png'), 1);
     game.load.image(imageKeyTurret, require('../assets/E-100/turret.png'), 1);
@@ -32,34 +42,39 @@ class Tank {
   }
 
   _explosion() {
-    this.explosion = this.game.add.sprite(this.source.body.x, this.source.body.y, tankExplosion);
-    this.explosion.scale.set(0.5, 0.5);
-    let play = this.explosion.animations.add('play', [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14
-    ], 10);
-    this.explosion.anchor.set(0.5, 0.5);
-    play.killOnComplete = true;
-    play.play();
-    setTimeout(() => {
-      this.explosion.destroy();
-    }, 1500);
+    return new Promise((resolve, reject) => {
+      this.explosion = this.game.add.sprite(this.source.body.x, this.source.body.y, tankExplosion);
+      this.explosion.scale.set(0.5, 0.5);
+      let play = this.explosion.animations.add('explosion', [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+        // 14
+      ], 10);
+      this.explosion.anchor.set(0.5, 0.5);
+      play.killOnComplete = true;
+      play.play(23, false, true);
+
+      setTimeout(() => {
+        this.explosion.destroy();
+        resolve();
+      }, 1500);
+
+    });
   }
 
-  _hit(point) {
+  hit(point) {
     this.explosion = this.game.add.sprite(point.x, point.y, tankExplosion);
     this.explosion.scale.set(0.15, 0.15);
     this.explosion.angle = point.angle || 0;
@@ -67,19 +82,28 @@ class Tank {
       0, 8
     ], 10);
     this.explosion.anchor.set(0.5, 0.5);
-    play.play(true,);
+    play.play(10, false, true);
     setTimeout(() => {
-      this.explosion.destroy();
+      if (play.isFinished) {
+        this.explosion.destroy();
+      }
     }, 300);
   }
 
   _controller() {
     return {
       player: this.player,
-      x: this.source.body.x,
-      y: this.source.body.y,
+      x: (this.alive)
+        ? this.source.body.x
+        : this.x,
+      y: (this.alive)
+        ? this.source.body.y
+        : this.y,
       life: this.life,
-      angle: this.source.body.angle,
+      alive: this.alive,
+      angle: (this.alive)
+        ? this.source.body.angle
+        : this.angle,
       bulletContacts: this.bulletContacts,
       turretRotation: this.turret.rotation,
       fire: this.game.input.mousePointer.leftButton.isDown,
@@ -98,15 +122,9 @@ class Tank {
 
   _baseLocalSync(remouteTankData) {
     return new Promise((resolve, reject) => {
-      this.life = remouteTankData.life;
-      if (remouteTankData.bulletContacts.length) {
-        remouteTankData.bulletContacts.forEach((bulletBody, index, bulletArray) => {
-          this._hit(bulletBody);
-          this.life--;
-          bulletArray.slice(index, 1);
-        });
-        this.bulletContacts = [];
-      }
+      if (!this.alive) {
+        reject({error: 'isNotAlive'});
+      };
       if (remouteTankData.move.left != this.cursors.left.isDown || remouteTankData.move.right != this.cursors.right.isDown || remouteTankData.move.forward != this.cursors.up.isDown || remouteTankData.move.back != this.cursors.down.isDown || this.game.input.mousePointer.leftButton.isDown != remouteTankData.fire) {
         this.source.body.x = remouteTankData.x;
         this.source.body.y = remouteTankData.y;
@@ -114,7 +132,19 @@ class Tank {
       }
       this.turret.x = this.source.body.x;
       this.turret.y = this.source.body.y;
-      resolve();
+      this.life = remouteTankData.life;
+      if (remouteTankData.bulletContacts.length) {
+        remouteTankData.bulletContacts.forEach((bulletBody, index, bulletArray) => {
+          this.hit(bulletBody);
+          this.life--;
+          bulletArray.slice(index, 1);
+        });
+        this.bulletContacts = [];
+        if (!this.alive) {
+          this.kill();
+        }
+      }
+      resolve(true);
     });
   }
 
@@ -191,26 +221,36 @@ class Tank {
     this.alive = true;
 
     this.source.body.onBeginContact.add(this.contactBy, this);
+
+    if (this.isOwner()) {
+      this.game.camera.follow(this.source);
+    }
+  }
+
+  respawn() {
+    this.create();
+    this._hostLocalSync();
   }
 
   abort() {
-    setTimeout(() => {
+    this.alive = false;
+    if (this.source) {
+      this.source.body.destroy();
       this.turret.destroy();
-      setTimeout(() => {
-        this.source.body.destroy();
-        setTimeout(() => {
-          this.source.destroy();
-          setTimeout(() => {
-            this.bullets.destroy();
-          }, 100);
-        }, 100);
-      }, 100);
-    }, 100)
+      this.bullets.destroy();
+      this.source.destroy();
+    }
   }
 
   kill() {
-    this._explosion();
-    // this.abort();
+    this._explosion().then(result => {
+      this.abort();
+      setTimeout(() => {
+        this.respawn();
+      }, 3000);
+    }).catch(err => {
+      console.log(err);
+    })
   }
 
   coorOutBullet() {
@@ -253,7 +293,8 @@ class Tank {
   }
 
   isOwner(tank) {
-    return this.game.data.userId == tank.player;
+    const selectTank = tank || this;
+    return this.game.data.userId == selectTank.player;
   }
 
   bulletContactBy(body, bodyB, shapeA, shapeB, equation) {
@@ -264,21 +305,26 @@ class Tank {
   contactBy(body, bodyB, shapeA, shapeB, equation) {
     // console.info(body, bodyB, shapeA, shapeB, equation);
     if (body && body.sprite.key == 'tankBullet_E-100') {
-      console.warn('Hit !');
       this.bulletContacts.push({x: body.x, y: body.y});
     }
   }
 
   update(remouteTankData) {
+    // console.warn('objects list :', this.game.world.children.length);
     const HOST = this.isOwner(remouteTankData);
     this._baseLocalSync(remouteTankData).then(resolve => {
       return this._moveLovalSync(remouteTankData);
     }).then(resolve => {
       if (HOST) {
-        console.log(this.life);
         this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
         this._hostLocalSync();
       }
+    }).catch(err => {
+      if (err.error == 'isNotAlive') {
+        this._hostLocalSync();
+        return;
+      }
+      console.warn(err);
     });
   }
 

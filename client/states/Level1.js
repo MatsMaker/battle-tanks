@@ -9,6 +9,7 @@ class Level1 {
     this.game.data.sync.makeOne('initTank', {
       userId: this.game.data.userId,
       tank: {
+        alive: true,
         player: this.game.data.userId,
         x: this.world.randomX,
         y: this.world.randomY,
@@ -37,9 +38,6 @@ class Level1 {
       this.tanks.forEach(tank => {
         tank.create();
       });
-
-      this.playerTank = this.tanks.find(tank => tank.player == this.game.data.userId);
-      this.camera.follow(this.playerTank.source);
     })
   }
 
@@ -95,7 +93,7 @@ class Level1 {
     Tank.preload(this.game);
 
     this.load.image('tm_ground', require('../assets/tilemaps/ground.png'));
-    this.load.tilemap('csv_map', require('file!../assets/csv/road-from-river.csv'));
+    this.load.tilemap('csv_map', require('file!../assets/csv/map2.csv'));
   }
 
   create() {
