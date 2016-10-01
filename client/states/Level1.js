@@ -3,6 +3,9 @@ import AnimatedDots from '../objectWrappers/texts/AnimatedDots.js';
 import RoadFromRiver from '../objectWrappers/maps/RoadFromRiver.js';
 import Tank from '../objectWrappers/Tank.js';
 
+import Panzer from '../objectWrappers/_Panzer.js';
+import OwnTank from '../objectWrappers/OwnTank.js';
+
 class Level1 {
 
   initTanks() {
@@ -32,7 +35,10 @@ class Level1 {
     }).then(response => {
       this.game.data.tanks = response.data.tanks;
       this.tanks = response.data.tanks.map(tank => {
-        return new Tank(this.game, tank.player, tank);
+        if (this.isOwner(tank)) {
+          return new OwnTank(this.game, tank.player, tank);
+        }
+        return new Panzer(this.game, tank.player, tank);
       });
 
       this.tanks.forEach(tank => {
@@ -42,9 +48,15 @@ class Level1 {
   }
 
   addTank(tankData) {
-    const newTank = new Tank(this.game, tankData.player, tankData)
+    const newTank = (this.isOwner(tank))
+      ? new OwnTank(this.game, tankData.player, tankData)
+      : new Panzer(this.game, tank.player, tank);
     newTank.create();
     this.tanks.push(newTank);
+  }
+
+  isOwner(tank) {
+    return tank.player == this.game.data.userId;
   }
 
   updateTanks(response) {
