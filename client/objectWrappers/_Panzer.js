@@ -13,8 +13,8 @@ class _Panzer {
       x: null,
       x: null
     };
-    this.turretRotation = data.turretRotation || 0,
-    this.initBullet = data.initBullet || function(x, y, rotation, speed, bulletData) {
+    this.turretRotation = data.turretRotation || 0;
+    this.initBullet = data.initBullet || function (x, y, rotation, speed, bulletData) {
       console.error('need set init bullet fn');
     };
     this.player = player;
@@ -30,9 +30,9 @@ class _Panzer {
   }
 
   set alive(value) {
-    this.life = (value)
-      ? 5
-      : 0
+    this.life = (value) ?
+      5 :
+      0
   }
 
   get alive() {
@@ -49,11 +49,11 @@ class _Panzer {
   _controller() {
     return {
       player: this.player,
-      x: this.source.body.x,
-      y: this.source.body.y,
-      life: this.data.life,
-      alive: this.data.alive,
-      angle: this.source.body.angle,
+      x: this.frame.body.x,
+      y: this.frame.body.y,
+      life: this.life,
+      alive: this.alive,
+      angle: this.frame.body.angle,
       bulletContacts: this.bulletContacts,
       fire: false,
       turretRotation: this.turret.rotation,
@@ -61,7 +61,10 @@ class _Panzer {
   }
 
   _localSyncContacts(newData) {
-    if (newData.bulletContacts.length) {
+    return new Promise((resolve, reject) => {
+      if (newData.bulletContacts.length === 0) {
+        resolve(true);
+      }
       newData.bulletContacts.forEach((bulletBody, index, bulletArray) => {
         this.hit(bulletBody);
         this.life--;
@@ -71,45 +74,69 @@ class _Panzer {
       if (!this.alive) {
         this.kill();
       }
-    }
-  }
-
-  _localSyncTurret(newData) {
-    this.turret.x = this.frame.body.x;
-    this.turret.y = this.frame.body.y;
-    this.turret.rotation = this.turretRotation;
-  }
-
-  _localSyncFrame(newData) {
-    this.frame.body.x = newData.x;
-    this.frame.body.y = newData.y;
-    this.frame.body.angle = newData.angle;
-  }
-
-  localSync(newData) {
-    return new Promise((resolve, reject) => {
-      this.life = newData.life;
-
-      if (!this.alive) {
-        if (newData.alive) {
-          this.create(true);
-        }
-        reject({error: 'isDied'});
-      };
-
-      this._localSyncFrame(newData);
-      this._localSyncTurret(newData);
-      this._localSyncContacts(newData);
-
       resolve(true);
     });
   }
 
-  removeSync(tankData) {
-    const contrroller = tankData || this._controller();
-    this.game.data.sync.makeOne('updateTank', {tank: contrroller}).then(response => {}).catch(err => {
-      console.error(err);
+  _localSyncTurret(newData) {
+    return new Promise((resolve, reject) => {
+      this.turret.x = this.frame.body.x;
+      this.turret.y = this.frame.body.y;
+      this.turret.rotation = this.turretRotation;
+      resolve(true);
     });
+  }
+
+  _localSyncFrame(newData) {
+    return new Promise((resolve, reject) => {
+      this.frame.body.x = newData.x;
+      this.frame.body.y = newData.y;
+      this.frame.body.angle = newData.angle;
+      resolve(true);
+    });
+  }
+
+  _isAlive(newData) {
+    this.life = newData.life;
+    return new Promise((resolve, reject) => {
+      if (!this.alive) {
+        if (newData.alive) {
+          this.create(true);
+        }
+        reject({ error: 'isDied' });
+      };
+      resolve(true);
+    });
+  }
+
+  localSync(newData) {
+    return new Promise((resolve, reject) => {
+      return this._isAlive(newData)
+        .then(result => {
+          return this._localSyncFrame(newData);
+        })
+        .then(result => {
+          return this._localSyncTurret(newData);
+        })
+        .then(result => {
+          return this._localSyncContacts(newData);
+        })
+        .then(result => {
+          resolve(true)
+        })
+        .catch(err => {
+          reject(err);
+        })
+    });
+  }
+
+  removeSync() {
+    const contrroller = this._controller();
+    this.game.data.sync.makeOne('updateTank', { tank: contrroller })
+      .then(response => {})
+      .catch(err => {
+        console.error(err);
+      });
   }
 
   create() {
@@ -178,30 +205,32 @@ class _Panzer {
   fire(target) {
     if (!this.alive)
       return;
-    if (this.game.time.now > this.nextFire && this.bullets.countDead() > 0) {
+    if (this.game.time.now > this.nextFire) {
       this.nextFire = this.game.time.now + this.fireRate;
       const coorInitBullet = this.barrelEdge();
-      this.data.initBullet(coorInitBullet.x, coorInitBullet.y, coorInitBullet.rotation, 800, {player: this.player});
+      this.initBullet(coorInitBullet.x, coorInitBullet.y, coorInitBullet.rotation, 800, { player: this.player });
     }
   }
 
   hit(point) {
-    console.log('Panser is hit point:', point);
+    console.frame('Panser is hit point:', point);
   }
 
   contactBy(body, bodyB, shapeA, shapeB, equation) {
     if (body && body.sprite.key == 'tankBullet_E-100') {
-      this.bulletContacts.push({x: body.x, y: body.y, body});
+      this.bulletContacts.push({ x: body.x, y: body.y, body });
     }
   }
 
   update(newData) {
     // console.warn('objects list :', this.game.world.children.length);
-    this.localSync(newData).then(resolve => {
-      this.removeSync();
-    }).catch(err => {
-      // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
-    });
+    this.localSync(newData)
+      .then(resolve => {
+        this.removeSync();
+      })
+      .catch(err => {
+        // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
+      });
   }
 
 }

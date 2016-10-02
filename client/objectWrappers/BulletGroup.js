@@ -8,7 +8,7 @@ class BulletsGroup {
       groupName: options.groupName || 'BulletsGroup',
       maxTimeLifeOfBullet: options.maxTimeLifeOfBullet || 60,
       autoDestroyOfBullet: options.autoDestroyOfBullet || true,
-      onBeginContact: options.onBeginContact || function() {}
+      onBeginContact: options.onBeginContact || function () {}
     };
     this.imageKey = 'tankBullet_E-100';
 
@@ -18,8 +18,8 @@ class BulletsGroup {
     this.group.physicsBodyType = Phaser.Physics.P2JS;
   }
 
-  preload() {
-    this.game.load.image(this.imageKey, require('../assets/E-100/shot.png'), false);
+  static preload(game) {
+    game.load.image(this.imageKey, require('../assets/E-100/shot.png'), false);
   }
 
   initBullet(x, y, rotation, speed, bulletData) {

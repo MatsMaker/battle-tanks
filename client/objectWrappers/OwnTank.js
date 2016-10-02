@@ -1,6 +1,5 @@
 import Phaser from '../Phaser.js';
 import _Panzer from './_Panzer.js';
-
 const imageKeyBody = 'tankBody_E-100';
 const imageKeyTurret = 'tankTurret_E-100';
 const physicsData = 'physicsData';
@@ -29,19 +28,41 @@ class OwnTank extends _Panzer {
     return superController;
   }
 
+  _isNewCommand(newData) {
+    return newData.move.left ||
+      newData.move.right ||
+      newData.move.forward ||
+      newData.move.back ||
+      newData.fire;
+  }
+
+  _localSyncFrame(newData) {
+    return new Promise((resolve, reject) => {
+      if (!this._isNewCommand(newData)) {
+        this.frame.body.x = newData.x;
+        this.frame.body.y = newData.y;
+        this.frame.body.angle = newData.angle;
+        resolve(true);
+      } else {
+        resolve('isNewCommand');
+      }
+    });
+
+  }
+
   moveLocalSync(newData) {
     return new Promise((resolve, reject) => {
       if (newData.move.left) {
-        this.source.body.rotateLeft(50);
+        this.frame.body.rotateLeft(50);
       } else if (newData.move.right) {
-        this.source.body.rotateRight(50);
+        this.frame.body.rotateRight(50);
       } else {
-        this.source.body.setZeroRotation();
+        this.frame.body.setZeroRotation();
       }
       if (newData.move.forward) {
-        this.source.body.thrust(800000);
+        this.frame.body.thrust(800000);
       } else if (newData.move.back) {
-        this.source.body.reverse(250000);
+        this.frame.body.reverse(250000);
       }
       this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
       if (newData.fire) {
@@ -64,15 +85,18 @@ class OwnTank extends _Panzer {
 
   update(newData) {
     // console.warn('objects list :', this.game.world.children.length);
-    this.localSync(newData).then(resolve => {
-      return this.moveLocalSync(newData);
-    }).then(resolve => {
-      this.removeSync();
-    }).catch(err => {
-      // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
-    });
+    this.localSync(newData)
+      .then(resolve => {
+        return this.moveLocalSync(newData);
+      })
+      .then(resolve => {
+        this.removeSync();
+      })
+      .catch(err => {
+        console.error(err);
+        // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
+      });
   }
-
 }
 
 export default OwnTank;

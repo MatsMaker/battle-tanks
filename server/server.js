@@ -2,6 +2,7 @@ const shoe = require('shoe');
 const http = require('http');
 const express = require('express');
 const dnode = require('dnode');
+const _ = require('underscore');
 
 const PORT = 8000;
 
@@ -22,60 +23,61 @@ io.on('connection', socket => {
     let data;
     switch (response.type) {
 
-      case 'auth':
-        const userId = (response.data.auth !== null)
-          ? response.data.auth
-          : new Date().getTime();
-        const userIndex = usersArePlaying.findIndex(user => user.userId == userId);
-        if (userIndex > -1) {
-          usersArePlaying[userIndex].connectedId = socket.id;
-        } else {
-          usersArePlaying.push({userId: userId, connectedId: socket.id});
+    case 'auth':
+      const userId = (response.data.auth !== null) ?
+        response.data.auth :
+        new Date()
+        .getTime();
+      const userIndex = usersArePlaying.findIndex(user => user.userId == userId);
+      if (userIndex > -1) {
+        usersArePlaying[userIndex].connectedId = socket.id;
+      } else {
+        usersArePlaying.push({ userId: userId, connectedId: socket.id });
+      }
+      data = {
+        userId
+      };
+      break;
+
+    case 'getTanks':
+      data = {
+        tanks: tanks
+      };
+      break;
+
+    case 'updateTank':
+      tanks.forEach((tank, index, tanksArray) => {
+        if (tank.player === response.data.tank.player) {
+          tanksArray[index] = _.extend(tanksArray[index], response.data.tank);
         }
-        data = {
-          userId
-        };
-        break;
+      });
+      data = {
+        result: true
+      };
+      break;
 
-      case 'getTanks':
-        data = {
-          tanks: tanks
-        };
-        break;
-
-      case 'updateTank':
+    case 'initTank':
+      let userTank = tanks.find(tank => {
+        return response.data.userId == tank.player
+      });
+      if (userTank === undefined) {
+        tanks.push(response.data.tank);
+      } else {
         tanks.forEach((tank, index, tanksArray) => {
-          if (tank.player === response.data.tank.player) {
-            tanksArray[index] = response.data.tank;
+          if (tank.player == response.data.userId) {
+            tanksArray[index] = response.data.tank
           }
         });
-        data = {
-          result: true
-        };
-        break;
+      }
+      data = {
+        tanks: tanks
+      };
+      break;
 
-      case 'initTank':
-        let userTank = tanks.find(tank => {
-          return response.data.userId == tank.player
-        });
-        if (userTank === undefined) {
-          tanks.push(response.data.tank);
-        } else {
-          tanks.forEach((tank, index, tanksArray) => {
-            if (tank.player == response.data.userId) {
-              tanksArray[index] = response.data.tank
-            }
-          });
-        }
-        data = {
-          tanks: tanks
-        };
-        break;
-
-      default:
-        data = {
-          error: 'not right type request'
-        }
+    default:
+      data = {
+        error: 'not right type request'
+      }
     }
     io.emit('message', {
       type: response.type,

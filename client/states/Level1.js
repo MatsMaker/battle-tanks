@@ -3,6 +3,7 @@ import AnimatedDots from '../objectWrappers/texts/AnimatedDots.js';
 import RoadFromRiver from '../objectWrappers/maps/RoadFromRiver.js';
 import Tank from '../objectWrappers/Tank.js';
 
+import BulletGroup from '../objectWrappers/BulletGroup.js'
 import Panzer from '../objectWrappers/_Panzer.js';
 import OwnTank from '../objectWrappers/OwnTank.js';
 
@@ -48,9 +49,9 @@ class Level1 {
   }
 
   addTank(tankData) {
-    const newTank = (this.isOwner(tank))
+    const newTank = (this.isOwner(tankData))
       ? new OwnTank(this.game, tankData.player, tankData)
-      : new Panzer(this.game, tank.player, tank);
+      : new Panzer(this.game, tankData.player, tankData);
     newTank.create();
     this.tanks.push(newTank);
   }
@@ -103,6 +104,7 @@ class Level1 {
 
   preload() {
     Tank.preload(this.game);
+    BulletGroup.preload(this.game);
 
     this.load.image('tm_ground', require('../assets/tilemaps/ground.png'));
     this.load.tilemap('csv_map', require('file!../assets/csv/map2.csv'));
