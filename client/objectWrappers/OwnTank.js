@@ -65,9 +65,6 @@ class OwnTank extends _Panzer {
         this.frame.body.reverse(250000);
       }
       this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
-      if (newData.fire) {
-        this.fire(newData.target);
-      }
       resolve(true);
     });
   }

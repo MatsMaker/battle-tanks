@@ -9,51 +9,60 @@ import OwnTank from '../objectWrappers/OwnTank.js';
 
 class Level1 {
 
+  _exetndTandkData(tankData) {
+    const self = this;
+    tankData.initBullet = function (x, y, rotation, speed, bulletData) {
+      self.bulletGroup.initBullet(x, y, rotation, speed, bulletData);
+    };
+    return tankData;
+  }
+
   initTanks() {
     this.game.data.sync.makeOne('initTank', {
-        userId: this.game.data.userId,
-        tank: {
-          alive: true,
-          player: this.game.data.userId,
-          x: this.world.randomX,
-          y: this.world.randomY,
-          angle: 0,
-          bulletContacts: [],
-          life: 5,
-          turretRotation: 0,
-          fire: false,
-          target: {
-            x: this.world.centerX,
-            y: this.world.centerY + 20
-          },
-          move: {
-            left: false,
-            right: false,
-            forward: false,
-            back: false
-          }
+      userId: this.game.data.userId,
+      tank: {
+        alive: true,
+        player: this.game.data.userId,
+        x: this.world.randomX,
+        y: this.world.randomY,
+        angle: 0,
+        bulletContacts: [],
+        life: 5,
+        turretRotation: 0,
+        fire: false,
+        target: {
+          x: this.world.centerX,
+          y: this.world.centerY + 20
+        },
+        move: {
+          left: false,
+          right: false,
+          forward: false,
+          back: false
         }
-      })
-      .then(response => {
-        this.game.data.tanks = response.data.tanks;
-        this.tanks = response.data.tanks.map(tank => {
-          tank.initBullet = this.bulletGroup.initBullet.bind(this.bulletGroup);
-          if (this.isOwner(tank)) {
-            return new OwnTank(this.game, tank.player, tank);
-          }
-          return new Panzer(this.game, tank.player, tank);
-        });
+      }
+    }).then(response => {
+      const self = this;
+      this.game.data.tanks = response.data.tanks;
+      this.tanks = response.data.tanks.map(tank => {
+        const extankData = self._exetndTandkData(tank);
+        if (this.isOwner(extankData)) {
+          return new OwnTank(this.game, tank.player, extankData);
+        }
+        return new Panzer(this.game, tank.player, extankData);
+      });
 
-        this.tanks.forEach(tank => {
-          tank.create();
-        });
-      })
+      this.tanks.forEach(tank => {
+        tank.create();
+      });
+    })
   }
 
   addTank(tankData) {
-    const newTank = (this.isOwner(tankData)) ?
-      new OwnTank(this.game, tankData.player, tankData) :
-      new Panzer(this.game, tankData.player, tankData);
+    const extankData = this._exetndTandkData(tankData);
+    const newTank = (this.isOwner(tankData))
+      ? new OwnTank(this.game, tankData.player, extankData)
+      : new Panzer(this.game, tankData.player, extankData);
     newTank.create();
     this.tanks.push(newTank);
   }
@@ -104,7 +113,7 @@ class Level1 {
 
     this.game.data.sync.addEventListener('disconnect', response => {
       this.lossUser(response);
-      return { one: false }
+      return {one: false}
     });
   }
 
@@ -113,27 +122,23 @@ class Level1 {
   }
 
   create() {
-    this.bulletGroup = new BulletGroup(this.game, {
-      onBeginContact: function (body, bodyB, shapeA, shapeB, equation) {
-        console.log(body, bodyB, shapeA, shapeB, equation);
-      }
-    });
-    this.initTanks();
-
     this.physics.startSystem(Phaser.Physics.P2JS);
     this.map = new RoadFromRiver(this.game, 'csv_map', 'tm_ground');
 
     this.layer = this.map.source.createLayer(0);
     this.layer.resizeWorld();
     this.stage.disableVisibilityChange = true;
+
+    this.bulletGroup = new BulletGroup(this.game);
+    this.bulletGroup.create();
+
+    this.initTanks();
   }
 
   update() {
-    this.game.data.sync.makeOne('getTanks', {})
-      .then(this.updateTanks.bind(this))
-      .catch(err => {
-        console.error(err);
-      });
+    this.game.data.sync.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
+      console.error(err);
+    });
   }
 
 }

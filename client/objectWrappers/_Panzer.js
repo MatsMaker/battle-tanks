@@ -82,7 +82,10 @@ class _Panzer {
     return new Promise((resolve, reject) => {
       this.turret.x = this.frame.body.x;
       this.turret.y = this.frame.body.y;
-      this.turret.rotation = this.turretRotation;
+      this.turret.rotation = newData.turretRotation;
+      if (newData.fire) {
+        this.fire(newData.target);
+      }
       resolve(true);
     });
   }
@@ -155,7 +158,7 @@ class _Panzer {
     this.frame.body.clearShapes();
     this.frame.body.loadPolygon(this.physicsData, 'body2');
 
-    this.turret.rotation = this.data.turretRotation;
+    this.turret.rotation = this.turretRotation;
     this.frame.body.angular = this.data.angle;
 
     this.frame.body.mass = 1000;
@@ -174,7 +177,7 @@ class _Panzer {
   abort() {
     this.alive = false;
     if (this.frame) {
-      this.frame.body.destroy();
+      this.frame.destroy();
       this.turret.destroy();
     }
   }
