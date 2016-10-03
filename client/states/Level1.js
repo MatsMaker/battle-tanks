@@ -9,8 +9,18 @@ import OwnTank from '../objectWrappers/OwnTank.js';
 
 class Level1 {
 
+  onBulletContactTank(bullet, tank, body, bodyB, shapeA, shapeB, equation) {
+    console.log(bullet, tank, body, bodyB, shapeA, shapeB, equation);
+  }
+
   _exetndTandkData(tankData) {
     const self = this;
+
+    self.bulletGroup.options.onBulletContact = function (bullet, body, bodyB, shapeA, shapeB, equation) {
+      const shutTank = self.tanks.find(tank => tank.player == tankData.player);
+      self.onBulletContactTank(bullet, collisionTank, body, bodyB, shapeA, shapeB, equation)
+    };
+
     tankData.initBullet = function (x, y, rotation, speed, bulletData) {
       self.bulletGroup.initBullet(x, y, rotation, speed, bulletData);
     };
