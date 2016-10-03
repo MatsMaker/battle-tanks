@@ -1,28 +1,20 @@
 require('./styles/main.scss');
 import TheGame from './TheGame.js';
+import reduser from './reduser/index.js';
 
-const theGame = new TheGame();
+let theGame;
 
-theGame.init().then(result => {
-  return theGame.run()
+// const authData = localStorage.getItem('auth');
+
+reduser.connect().then(response => {
+  return reduser.makeOne('auth', {auth: null});
+}).then(response => {
+  const userId = response.data.userId;
+  // localStorage.setItem('auth', userId);
+  theGame = new TheGame(userId, reduser);
+  return theGame.init();
 }).then(result => {
-  console.log('the game is run');
-}).catch(error => {
-  console.error(error);
+  return theGame.run();
+}).then(result => {}).catch(err => {
+  console.error(err);
 });
-
-/*
-//
-*/
-
-var shoe = require('shoe');
-var dnode = require('dnode');
-
-var stream = shoe('/dnode');
-var d = dnode();
-d.on('remote', function (remote) {
-  remote.transform('connect', function (s) {
-    console.log(s);
-  });
-});
-d.pipe(stream).pipe(d);
