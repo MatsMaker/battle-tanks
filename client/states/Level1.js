@@ -11,47 +11,49 @@ class Level1 {
 
   initTanks() {
     this.game.data.sync.makeOne('initTank', {
-      userId: this.game.data.userId,
-      tank: {
-        alive: true,
-        player: this.game.data.userId,
-        x: this.world.randomX,
-        y: this.world.randomY,
-        angle: 0,
-        bulletContacts: [],
-        life: 5,
-        turretRotation: 0,
-        fire: false,
-        target: {
-          x: this.world.centerX,
-          y: this.world.centerY + 20
-        },
-        move: {
-          left: false,
-          right: false,
-          forward: false,
-          back: false
+        userId: this.game.data.userId,
+        tank: {
+          alive: true,
+          player: this.game.data.userId,
+          x: this.world.randomX,
+          y: this.world.randomY,
+          angle: 0,
+          bulletContacts: [],
+          life: 5,
+          turretRotation: 0,
+          fire: false,
+          target: {
+            x: this.world.centerX,
+            y: this.world.centerY + 20
+          },
+          move: {
+            left: false,
+            right: false,
+            forward: false,
+            back: false
+          }
         }
-      }
-    }).then(response => {
-      this.game.data.tanks = response.data.tanks;
-      this.tanks = response.data.tanks.map(tank => {
-        if (this.isOwner(tank)) {
-          return new OwnTank(this.game, tank.player, tank);
-        }
-        return new Panzer(this.game, tank.player, tank);
-      });
+      })
+      .then(response => {
+        this.game.data.tanks = response.data.tanks;
+        this.tanks = response.data.tanks.map(tank => {
+          tank.initBullet = this.bulletGroup.initBullet.bind(this.bulletGroup);
+          if (this.isOwner(tank)) {
+            return new OwnTank(this.game, tank.player, tank);
+          }
+          return new Panzer(this.game, tank.player, tank);
+        });
 
-      this.tanks.forEach(tank => {
-        tank.create();
-      });
-    })
+        this.tanks.forEach(tank => {
+          tank.create();
+        });
+      })
   }
 
   addTank(tankData) {
-    const newTank = (this.isOwner(tankData))
-      ? new OwnTank(this.game, tankData.player, tankData)
-      : new Panzer(this.game, tankData.player, tankData);
+    const newTank = (this.isOwner(tankData)) ?
+      new OwnTank(this.game, tankData.player, tankData) :
+      new Panzer(this.game, tankData.player, tankData);
     newTank.create();
     this.tanks.push(newTank);
   }
@@ -82,6 +84,14 @@ class Level1 {
     });
   }
 
+  preload() {
+    Tank.preload(this.game);
+    BulletGroup.preload(this.game);
+
+    this.load.image('tm_ground', require('../assets/tilemaps/ground.png'));
+    this.load.tilemap('csv_map', require('file!../assets/csv/map2.csv'));
+  }
+
   init() {
     this.tanks = [];
     this.playerTank;
@@ -94,7 +104,7 @@ class Level1 {
 
     this.game.data.sync.addEventListener('disconnect', response => {
       this.lossUser(response);
-      return {one: false}
+      return { one: false }
     });
   }
 
@@ -102,15 +112,12 @@ class Level1 {
     this.animatedDots.nexAnimatinStep();
   }
 
-  preload() {
-    Tank.preload(this.game);
-    BulletGroup.preload(this.game);
-
-    this.load.image('tm_ground', require('../assets/tilemaps/ground.png'));
-    this.load.tilemap('csv_map', require('file!../assets/csv/map2.csv'));
-  }
-
   create() {
+    this.bulletGroup = new BulletGroup(this.game, {
+      onBeginContact: function (body, bodyB, shapeA, shapeB, equation) {
+        console.log(body, bodyB, shapeA, shapeB, equation);
+      }
+    });
     this.initTanks();
 
     this.physics.startSystem(Phaser.Physics.P2JS);
@@ -122,9 +129,11 @@ class Level1 {
   }
 
   update() {
-    this.game.data.sync.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
-      console.error(err);
-    });
+    this.game.data.sync.makeOne('getTanks', {})
+      .then(this.updateTanks.bind(this))
+      .catch(err => {
+        console.error(err);
+      });
   }
 
 }
