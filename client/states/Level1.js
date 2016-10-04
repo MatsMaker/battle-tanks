@@ -18,7 +18,7 @@ class Level1 {
 
     self.bulletGroup.options.onBulletContact = function (bullet, body, bodyB, shapeA, shapeB, equation) {
       const shutTank = self.tanks.find(tank => tank.player == tankData.player);
-      self.onBulletContactTank(bullet, collisionTank, body, bodyB, shapeA, shapeB, equation)
+      self.onBulletContactTank(bullet, shutTank, body, bodyB, shapeA, shapeB, equation)
     };
 
     tankData.initBullet = function (x, y, rotation, speed, bulletData) {

@@ -1,7 +1,8 @@
 import _ from 'underscore';
 import Phaser from '../Phaser.js';
+import Bullet from './Bullet.js';
 
-const imageKey = 'tankBullet_E-100';
+const imageKey = Bullet.getImageKey();
 
 class BulletsGroup {
 
@@ -11,7 +12,7 @@ class BulletsGroup {
   }
 
   static preload(game) {
-    game.load.image(imageKey, require('../assets/E-100/shot.png'), 1);
+    Bullet.preload(game);
   }
 
   create(options) {
@@ -25,37 +26,27 @@ class BulletsGroup {
     }, options);
     this.group = this.game.add.group();
     this.group.name = this.options.groupName;
-    this.group.enableBody = true;
-    this.group.physicsBodyType = Phaser.Physics.P2JS;
-    this.group.createMultiple(50, this.imageKey, 0, false);
+    // this.group.enableBody = true;
+    // this.group.inputEnableChildren = true;
+    // this.group.physicsBodyType = Phaser.Physics.P2JS;
+    // this.group.createMultiple(50, this.imageKey, 0, false);
   }
 
   initBullet(x, y, rotation, speed) {
     const self = this;
     // return new Promise((resolve, reject) => {
     const maxTimeLife = this.options.maxTimeLifeOfBullet;
-    let bullet = this.group.getFirstDead() //|| this.group.add(this.imageKey, false);
-
-    bullet.reset(x, y);
-    bullet.body.z = 2000;
-    bullet.body.reset(x, y);
-    bullet.body.rotation = rotation;
-    bullet.rotation = rotation;
-    bullet.body.setZeroVelocity();
-    bullet.body.moveForward(speed);
+    const bullet = new Bullet(this.game, x, y, rotation, speed);
+    this.group.add(bullet.sprite);
 
     if (this.options.autoDestroyOfBullet) {
-      this.game.time.events.add(Phaser.Timer.SECOND * maxTimeLife, this.bulletDestroy, bullet);
+      this.game.time.events.add(Phaser.Timer.SECOND * maxTimeLife, this.bulletDestroy, this);
     }
-    bullet.body.onBeginContact.add((body, bodyB, shapeA, shapeB, equation) => {
+    bullet.sprite.body.onBeginContact.add((body, bodyB, shapeA, shapeB, equation) => {
       this.onBulletContact(bullet, body, bodyB, shapeA, shapeB, equation);
     }, this);
 
-    return this.group.getChildIndex(bullet);
-  }
-
-  bulletDestroy(){
-    this.destroy();
+    return this.group.getChildIndex(bullet.sprite);
   }
 
   onBulletContact(bullet, body, bodyB, shapeA, shapeB, equation) {
