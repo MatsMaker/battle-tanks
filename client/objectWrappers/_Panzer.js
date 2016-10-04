@@ -1,4 +1,5 @@
 import Phaser from '../Phaser.js';
+import Bullet from './Bullet.js';
 
 const imageKeyFrame = 'tankBody_E-100';
 const imageKeyTurret = 'tankTurret_E-100';
@@ -30,13 +31,17 @@ class _Panzer {
   }
 
   set alive(value) {
-    this.life = (value) ?
-      5 :
-      0
+    this.life = (value)
+      ? 5
+      : 0
   }
 
   get alive() {
     return this.life > 0;
+  }
+
+  isOwnerFrameBody(body) {
+    return this.frame.body.id === body.id;
   }
 
   static preload(game) {
@@ -56,7 +61,7 @@ class _Panzer {
       angle: this.frame.body.angle,
       bulletContacts: this.bulletContacts,
       fire: false,
-      turretRotation: this.turret.rotation,
+      turretRotation: this.turret.rotation
     }
   }
 
@@ -67,10 +72,7 @@ class _Panzer {
       }
       newData.bulletContacts.forEach((bulletBody, index, bulletArray) => {
         this.hit(bulletBody);
-        this.life--;
-        bulletArray.slice(index, 1);
       });
-      this.bulletContacts = [];
       if (!this.alive) {
         this.kill();
       }
@@ -106,7 +108,7 @@ class _Panzer {
         if (newData.alive) {
           this.create(true);
         }
-        reject({ error: 'isDied' });
+        reject({error: 'isDied'});
       };
       resolve(true);
     });
@@ -114,32 +116,25 @@ class _Panzer {
 
   localSync(newData) {
     return new Promise((resolve, reject) => {
-      return this._isAlive(newData)
-        .then(result => {
-          return this._localSyncFrame(newData);
-        })
-        .then(result => {
-          return this._localSyncTurret(newData);
-        })
-        .then(result => {
-          return this._localSyncContacts(newData);
-        })
-        .then(result => {
-          resolve(true)
-        })
-        .catch(err => {
-          reject(err);
-        })
+      return this._isAlive(newData).then(result => {
+        return this._localSyncFrame(newData);
+      }).then(result => {
+        return this._localSyncTurret(newData);
+      }).then(result => {
+        return this._localSyncContacts(newData);
+      }).then(result => {
+        resolve(true)
+      }).catch(err => {
+        reject(err);
+      })
     });
   }
 
   removeSync() {
     const contrroller = this._controller();
-    this.game.data.sync.makeOne('updateTank', { tank: contrroller })
-      .then(response => {})
-      .catch(err => {
-        console.error(err);
-      });
+    this.game.data.sync.makeOne('updateTank', {tank: contrroller}).then(response => {}).catch(err => {
+      console.error(err);
+    });
   }
 
   create() {
@@ -182,8 +177,8 @@ class _Panzer {
     }
   }
 
-  kill() {
-    console.log('Tank is killed. Owner: ', this.player);
+  kill(killer) {
+    console.log(killer.player, 'killed', this.player);
   }
 
   barrelEdge() {
@@ -211,29 +206,26 @@ class _Panzer {
     if (this.game.time.now > this.nextFire) {
       this.nextFire = this.game.time.now + this.fireRate;
       const coorInitBullet = this.barrelEdge();
-      this.initBullet(coorInitBullet.x, coorInitBullet.y, coorInitBullet.rotation, 800, { player: this.player });
+      this.initBullet(coorInitBullet.x, coorInitBullet.y, coorInitBullet.rotation, 800, {shooter: this});
     }
   }
 
   hit(point) {
     console.frame('Panser is hit point:', point);
+    this.life--;
   }
 
-  contactBy(body, bodyB, shapeA, shapeB, equation) {
-    if (body && body.sprite.key == 'tankBullet_E-100') {
-      this.bulletContacts.push({ x: body.x, y: body.y, body });
-    }
+  contactWithBullet(body, bodyB, shapeA, shapeB, equation) {
+    this.bulletContacts.push({x: body.x, y: body.y, body});
   }
 
   update(newData) {
     // console.warn('objects list :', this.game.world.children.length);
-    this.localSync(newData)
-      .then(resolve => {
-        this.removeSync();
-      })
-      .catch(err => {
-        // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
-      });
+    this.localSync(newData).then(resolve => {
+      this.removeSync();
+    }).catch(err => {
+      // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
+    });
   }
 
 }

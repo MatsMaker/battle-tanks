@@ -3,9 +3,11 @@ const imageKey = 'tankBullet_E-100';
 
 class Bullet {
 
-  constructor(game, x, y, rotation, speed) {
+  constructor(game, x, y, rotation, speed, data = {}) {
     this.game = game;
     this.imageKey = imageKey;
+
+    this.shooter = data.shooter;
 
     this.sprite = new Phaser.Sprite(this.game, x, y, this.imageKey);
     this.game.physics.p2.enableBody(this.sprite);

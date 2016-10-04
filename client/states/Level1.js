@@ -1,24 +1,26 @@
 import Phaser from '../Phaser.js';
 import AnimatedDots from '../objectWrappers/texts/AnimatedDots.js';
 import RoadFromRiver from '../objectWrappers/maps/RoadFromRiver.js';
-import Tank from '../objectWrappers/Tank.js';
 
 import BulletGroup from '../objectWrappers/BulletGroup.js'
-import Panzer from '../objectWrappers/_Panzer.js';
+import Tank from '../objectWrappers/Tank.js';
 import OwnTank from '../objectWrappers/OwnTank.js';
 
 class Level1 {
 
-  onBulletContactTank(bullet, tank, body, bodyB, shapeA, shapeB, equation) {
-    console.log(bullet, tank, body, bodyB, shapeA, shapeB, equation);
+  onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation) {
+    const target = this.tanks.find(tank => tank.isOwnerFrameBody(body));
+    if (target.player == this.game.data.player) {
+      target.contactWithBullet(body, bodyB, shapeA, shapeB, equation);
+    }
+    console.log(bullet, target, body, bodyB, shapeA, shapeB, equation);
   }
 
   _exetndTandkData(tankData) {
     const self = this;
 
     self.bulletGroup.options.onBulletContact = function (bullet, body, bodyB, shapeA, shapeB, equation) {
-      const shutTank = self.tanks.find(tank => tank.player == tankData.player);
-      self.onBulletContactTank(bullet, shutTank, body, bodyB, shapeA, shapeB, equation)
+      self.onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation)
     };
 
     tankData.initBullet = function (x, y, rotation, speed, bulletData) {
@@ -59,7 +61,7 @@ class Level1 {
         if (this.isOwner(extankData)) {
           return new OwnTank(this.game, tank.player, extankData);
         }
-        return new Panzer(this.game, tank.player, extankData);
+        return new Tank(this.game, tank.player, extankData);
       });
 
       this.tanks.forEach(tank => {
@@ -72,7 +74,7 @@ class Level1 {
     const extankData = this._exetndTandkData(tankData);
     const newTank = (this.isOwner(tankData))
       ? new OwnTank(this.game, tankData.player, extankData)
-      : new Panzer(this.game, tankData.player, extankData);
+      : new Tank(this.game, tankData.player, extankData);
     newTank.create();
     this.tanks.push(newTank);
   }
