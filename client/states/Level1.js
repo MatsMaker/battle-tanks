@@ -10,10 +10,7 @@ class Level1 {
 
   onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation) {
     const target = this.tanks.find(tank => tank.isOwnerFrameBody(body));
-    if (target.player == this.game.data.player) {
-      target.contactWithBullet(body, bodyB, shapeA, shapeB, equation);
-    }
-    console.log(bullet, target, body, bodyB, shapeA, shapeB, equation);
+    target.contactWithBullet(body, bodyB, shapeA, shapeB, equation);
   }
 
   _exetndTandkData(tankData) {

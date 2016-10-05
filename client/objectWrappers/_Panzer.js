@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import Phaser from '../Phaser.js';
 import Bullet from './Bullet.js';
 
@@ -67,15 +68,11 @@ class _Panzer {
 
   _localSyncContacts(newData) {
     return new Promise((resolve, reject) => {
-      if (newData.bulletContacts.length === 0) {
-        resolve(true);
-      }
-      newData.bulletContacts.forEach((bulletBody, index, bulletArray) => {
+      this.bulletContacts = _.union(newData.bulletContacts, this.bulletContacts);
+      this.bulletContacts.forEach((bulletBody, index, bulletArray) => {
         this.hit(bulletBody);
+        bulletArray.splice(index, 1);
       });
-      if (!this.alive) {
-        this.kill();
-      }
       resolve(true);
     });
   }
@@ -107,10 +104,13 @@ class _Panzer {
       if (!this.alive) {
         if (newData.alive) {
           this.create(true);
+        } else {
+          this.kill();
+          reject({error: 'isDied'});
         }
-        reject({error: 'isDied'});
-      };
-      resolve(true);
+      } else {
+        resolve(true);
+      }
     });
   }
 
@@ -177,8 +177,9 @@ class _Panzer {
     }
   }
 
-  kill(killer) {
-    console.log(killer.player, 'killed', this.player);
+  kill() {
+    console.log(this.player, 'killed');
+    this.abort();
   }
 
   barrelEdge() {
@@ -211,20 +212,24 @@ class _Panzer {
   }
 
   hit(point) {
-    console.frame('Panser is hit point:', point);
     this.life--;
+    console.log('life after hit:', this.life);
   }
 
   contactWithBullet(body, bodyB, shapeA, shapeB, equation) {
-    this.bulletContacts.push({x: body.x, y: body.y, body});
+    this.bulletContacts.push({x: body.x, y: body.y});
   }
 
   update(newData) {
     // console.warn('objects list :', this.game.world.children.length);
     this.localSync(newData).then(resolve => {
+      console.log('life:', this.life);
       this.removeSync();
     }).catch(err => {
-      // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
+      if (err.error == 'isDied') {
+        return;
+      }
+      console.warn(err);
     });
   }
 
