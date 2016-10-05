@@ -69,19 +69,24 @@ class _Panzer {
 
   _isAlive(newData) {
     return new Promise((resolve, reject) => {
-
-      if (!this.alive && this.frame.alive) {
-        this.abort();
-      }
-      const nowTime = new Date().getTime();
-      if (!newData.alive && this.frame.alive) {
-        // if (this.isKilling) {
-        this.kill();
-        reject({error: 'isDied'});
-        // } else if (newData.restartTime < nowTime){   const initData = {     x: this.game.randomX,     y: this.game.randomY,
-        // alive: true   };   this.create(initData);   resolve(true); } else {   this.abort(); }
-      } else {
+      if (this.alive && newData.alive) {
         resolve(true);
+      } else {
+        if (this.alive && !newData.alive) {
+          this.kill();
+          reject({error: 'isDied'});
+        } else if (!this.alive && newData.alive) {
+          const initData = {
+            x: this.game.randomX,
+            y: this.game.randomY,
+            alive: true
+          }
+          this.create(initData);
+          resolve(true);
+        } else {
+          this.abort();
+          reject({error: 'isDied'});
+        }
       }
     });
   }
@@ -109,11 +114,24 @@ class _Panzer {
 
   _localSyncContacts(newData) {
     return new Promise((resolve, reject) => {
+      // newData.bulletContacts.forEach((bulletBody, index, bulletArray) => {
+      //   this.hit(bulletBody);
+      // });
+      // this.bulletContacts = [];
+
       this.bulletContacts = _.union(newData.bulletContacts, this.bulletContacts);
       this.bulletContacts.forEach((bulletBody, index, bulletArray) => {
+        // console.log('t');
         this.hit(bulletBody);
         bulletArray.splice(index, 1);
       });
+
+      // this.bulletContacts = newData.bulletContacts;
+      // this.bulletContacts.forEach((bulletBody, index, bulletArray) => {
+      //   this.hit(bulletBody);
+      //   bulletArray.splice(index, 1);
+      // });
+
       resolve(true);
     });
   }
