@@ -1,5 +1,5 @@
 import StartMenu from '../objectWrappers/Menu.js';
-import Level1 from './Level1.js';
+import Level from './Level.js';
 import Tank from '../objectWrappers/Tank.js';
 import Phaser from '../Phaser.js';
 
@@ -10,7 +10,7 @@ class MainMenu {
   }
 
   init() {
-    this.state.add('Level1', Level1);
+    this.state.add('Level', Level);
   }
 
   preload() {
@@ -25,7 +25,7 @@ class MainMenu {
     this.menu = new StartMenu(this.game);
 
     this.menu.onStartGame = (button) => {
-      this.state.start('Level1');
+      this.state.start('Level');
     }
   }
 

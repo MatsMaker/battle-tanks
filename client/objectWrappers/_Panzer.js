@@ -8,13 +8,9 @@ const physicsData = 'physicsData';
 
 class _Panzer {
 
-  constructor(game, player, data = {}) {
+  constructor(game, player, data) {
     this.game = game;
-    this.data = {
-      angle: data.angle || 0,
-      x: null,
-      x: null
-    };
+    this.data = _.extend({}, data);
     this.turretRotation = data.turretRotation || 0;
     this.initBullet = data.initBullet || function (x, y, rotation, speed, bulletData) {
       console.error('need set init bullet fn');
@@ -23,8 +19,12 @@ class _Panzer {
 
     this.bulletContacts = [];
 
-    this.frame;
-    this.turret;
+    this.frame = {
+      alive: false
+    };
+    this.turret = {
+      alive: false
+    };
 
     this.imageKeyFrame = imageKeyFrame;
     this.imageKeyTurret = imageKeyTurret;
@@ -62,17 +62,35 @@ class _Panzer {
       angle: this.frame.body.angle,
       bulletContacts: this.bulletContacts,
       fire: false,
-      turretRotation: this.turret.rotation
+      turretRotation: this.turret.rotation,
+      killTime: this.killTime
     }
   }
 
-  _localSyncContacts(newData) {
+  _isAlive(newData) {
     return new Promise((resolve, reject) => {
-      this.bulletContacts = _.union(newData.bulletContacts, this.bulletContacts);
-      this.bulletContacts.forEach((bulletBody, index, bulletArray) => {
-        this.hit(bulletBody);
-        bulletArray.splice(index, 1);
-      });
+
+      if (!this.alive && this.frame.alive) {
+        this.abort();
+      }
+      const nowTime = new Date().getTime();
+      if (!newData.alive && this.frame.alive) {
+        // if (this.isKilling) {
+        this.kill();
+        reject({error: 'isDied'});
+        // } else if (newData.restartTime < nowTime){   const initData = {     x: this.game.randomX,     y: this.game.randomY,
+        // alive: true   };   this.create(initData);   resolve(true); } else {   this.abort(); }
+      } else {
+        resolve(true);
+      }
+    });
+  }
+
+  _localSyncFrame(newData) {
+    return new Promise((resolve, reject) => {
+      this.frame.body.x = newData.x;
+      this.frame.body.y = newData.y;
+      this.frame.body.angle = newData.angle;
       resolve(true);
     });
   }
@@ -89,28 +107,14 @@ class _Panzer {
     });
   }
 
-  _localSyncFrame(newData) {
+  _localSyncContacts(newData) {
     return new Promise((resolve, reject) => {
-      this.frame.body.x = newData.x;
-      this.frame.body.y = newData.y;
-      this.frame.body.angle = newData.angle;
+      this.bulletContacts = _.union(newData.bulletContacts, this.bulletContacts);
+      this.bulletContacts.forEach((bulletBody, index, bulletArray) => {
+        this.hit(bulletBody);
+        bulletArray.splice(index, 1);
+      });
       resolve(true);
-    });
-  }
-
-  _isAlive(newData) {
-    this.life = newData.life;
-    return new Promise((resolve, reject) => {
-      if (!this.alive) {
-        if (newData.alive) {
-          this.create(true);
-        } else {
-          this.kill();
-          reject({error: 'isDied'});
-        }
-      } else {
-        resolve(true);
-      }
     });
   }
 
@@ -137,32 +141,37 @@ class _Panzer {
     });
   }
 
-  create() {
-    this.frame = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyFrame);
-    this.turret = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyTurret);
+  create(data) {
+    this.data = _.extend(this.data, data);
 
-    this.frame.scale.set(0.3, 0.3);
-    this.turret.scale.set(0.3, 0.3);
-
-    this.frame.anchor.set(0.5, 0.5);
-    this.turret.anchor.set(0.3, 0.5);
-    this.turretRadius = 33; // rotating turret radius
-
+    if (this.frame.alive) {
+      this.frame.reset(this.data.x, this.data.y);
+    } else {
+      this.frame = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyFrame);
+      this.frame.scale.set(0.3, 0.3);
+      this.frame.anchor.set(0.5, 0.5);
+      // this.frame.body.debug = true; // debug
+    }
     this.game.physics.p2.enableBody(this.frame);
-
     this.frame.body.clearShapes();
     this.frame.body.loadPolygon(this.physicsData, 'body2');
-
-    this.turret.rotation = this.turretRotation;
     this.frame.body.angular = this.data.angle;
-
     this.frame.body.mass = 1000;
     this.frame.body.damping = 0.999;
     this.frame.body.angularDamping = 0.999;
     this.frame.body.inertia = 1000;
     this.frame.body.sleepSpeedLimit = 1400;
     this.frame.body.dynamic = true;
-    // this.frame.body.debug = true; // debug
+
+    if (this.turret.alive) {
+      this.turret.reset(this.data.x, this.data.y);
+    } else {
+      this.turret = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyTurret);
+    }
+    this.turret.scale.set(0.3, 0.3);
+    this.turret.anchor.set(0.3, 0.5);
+    this.turretRadius = 33; // rotating turret radius
+    this.turret.rotation = this.turretRotation;
 
     this.fireRate = 1000;
     this.nextFire = 0;
@@ -171,15 +180,18 @@ class _Panzer {
 
   abort() {
     this.alive = false;
-    if (this.frame) {
-      this.frame.destroy();
-      this.turret.destroy();
-    }
+    this.frame.destroy();
+    this.turret.destroy();
   }
 
   kill() {
     console.log(this.player, 'killed');
+    this.killTime = new Date().getTime();
     this.abort();
+  }
+
+  respawn() {
+    this.alive = true;
   }
 
   barrelEdge() {
@@ -213,7 +225,6 @@ class _Panzer {
 
   hit(point) {
     this.life--;
-    console.log('life after hit:', this.life);
   }
 
   contactWithBullet(body, bodyB, shapeA, shapeB, equation) {
@@ -223,7 +234,6 @@ class _Panzer {
   update(newData) {
     // console.warn('objects list :', this.game.world.children.length);
     this.localSync(newData).then(resolve => {
-      console.log('life:', this.life);
       this.removeSync();
     }).catch(err => {
       if (err.error == 'isDied') {

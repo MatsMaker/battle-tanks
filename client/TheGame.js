@@ -1,7 +1,7 @@
 import Phaser from './Phaser.js';
 import Boot from './states/Boot.js';
 import Preloader from './states/Preloader.js';
-import Level1 from './states/Level1.js';
+import Level from './states/Level.js';
 
 class TheGame {
 

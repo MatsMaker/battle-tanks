@@ -26,6 +26,9 @@ class AnimatedDots {
     this.origin.text += '.';
   }
 
+  destroy(){
+    this.origin.destroy();
+  }
 }
 
 export default AnimatedDots;
