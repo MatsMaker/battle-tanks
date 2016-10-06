@@ -30,7 +30,6 @@ class Level {
     this.game.data.sync.makeOne('initTank', {
       userId: this.game.data.userId,
       tank: {
-        restart: false,
         alive: true,
         player: this.game.data.userId,
         x: this.world.centerX,

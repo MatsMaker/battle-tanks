@@ -76,7 +76,17 @@ class _Panzer {
     return new Promise((resolve, reject) => {
       if (newData.alive && this.frame.alive) {
         resolve(newData.alive);
-      } else if (this.frame.alive) {
+      } else if (newData.alive && !this.frame.alive) {
+        this.reset(data).then(result => {
+          if (result) {
+            resolve(result);
+          } else {
+            reject(this.alive);
+          }
+        }).cathc(err => {
+          reject(newData.alive);
+        })
+      } else if (!newData.alive && this.frame.alive) {
         this.abort();
         reject(newData.alive);
       } else {
@@ -194,6 +204,13 @@ class _Panzer {
       resolve(this.alive);
     });
   }
+
+  reset(data) {
+    return new Promise((resolve, reject) => {
+      console.log('init fake reset');
+      reject(false);
+    })
+  };
 
   abort() {
     this.alive = false;

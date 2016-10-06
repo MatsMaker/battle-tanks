@@ -111,7 +111,6 @@ class OwnTank extends Tank {
       this.removeSync();
     }).catch(err => {
       console.error(err);
-      // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
     });
   }
 }

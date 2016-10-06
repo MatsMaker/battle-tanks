@@ -1,3 +1,4 @@
+import Phaser from '../Phaser.js';
 import _Panzer from './_Panzer.js';
 import Explosion from './Explosion.js';
 
@@ -14,6 +15,7 @@ class Tank extends _Panzer {
 
   constructor(game, player, data = {}) {
     super(game, player, data);
+    this.respawnDelay = 5;
   }
 
   create(data) {
@@ -39,6 +41,7 @@ class Tank extends _Panzer {
   kill() {
     this.explosion.bigExplosion(this.frame.x, this.frame.y).then(result => {
       super.kill();
+      this.game.time.events.add(Phaser.Timer.SECOND * this.respawnDelay, this.reset, this);
     }).catch(err => {
       console.error(err);
     });
