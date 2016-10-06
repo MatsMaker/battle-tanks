@@ -121,7 +121,6 @@ class _Panzer {
 
       this.bulletContacts = _.union(newData.bulletContacts, this.bulletContacts);
       this.bulletContacts.forEach((bulletBody, index, bulletArray) => {
-        // console.log('t');
         this.hit(bulletBody);
         bulletArray.splice(index, 1);
       });
