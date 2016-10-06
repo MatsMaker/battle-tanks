@@ -28,42 +28,48 @@ class Level {
 
   initTank() {
     this.game.data.sync.makeOne('initTank', {
-        userId: this.game.data.userId,
-        tank: {
-          restart: false,
-          alive: true,
-          player: this.game.data.userId,
-          x: this.world.randomX,
-          y: this.world.randomY,
-          angle: 0,
-          bulletContacts: [],
-          life: 5,
-          turretRotation: 0,
-          fire: false,
-          target: {
-            x: this.world.centerX,
-            y: this.world.centerY + 20
-          },
-          move: {
-            left: false,
-            right: false,
-            forward: false,
-            back: false
-          }
+      userId: this.game.data.userId,
+      tank: {
+        restart: false,
+        alive: true,
+        player: this.game.data.userId,
+        x: this.world.centerX,
+        y: this.world.centerY,
+        angle: 0,
+        bulletContacts: [],
+        life: 5,
+        turretRotation: 0,
+        fire: false,
+        target: {
+          x: this.world.centerX,
+          y: this.world.centerY + 20
+        },
+        move: {
+          left: false,
+          right: false,
+          forward: false,
+          back: false
         }
-      })
-      .then(result => {
-        console.log('user tank is added');
-      })
+      }
+    }).then(result => {
+      console.log('Yours tank was initiated. It is id:', this.game.data.userId);
+    })
   }
 
   addTank(tankData) {
     const extankData = this._exetndTandkData(tankData);
-    const newTank = (this.isOwner(tankData)) ?
-      new OwnTank(this.game, tankData.player, extankData) :
-      new Tank(this.game, tankData.player, extankData);
-    newTank.create();
-    this.tanks.push(newTank);
+    const newTank = (this.isOwner(tankData))
+      ? new OwnTank(this.game, tankData.player, extankData)
+      : new Tank(this.game, tankData.player, extankData);
+    newTank.create().then(result => {
+      if (result) {
+        this.tanks.push(newTank);
+      } else {
+        console.error('error create new tank');
+      }
+    }).catch(err => {
+      console.error(err);
+    })
   }
 
   isOwner(tank) {
@@ -100,7 +106,6 @@ class Level {
     });
   }
 
-
   preload() {
     OwnTank.preload(this.game);
     Tank.preload(this.game);
@@ -121,7 +126,7 @@ class Level {
 
     this.game.data.sync.addEventListener('disconnect', response => {
       this.lossUser(response);
-      return { one: false }
+      return {one: false}
     });
   }
 
@@ -137,11 +142,9 @@ class Level {
   }
 
   update() {
-    this.game.data.sync.makeOne('getTanks', {})
-      .then(this.updateTanks.bind(this))
-      .catch(err => {
-        console.error(err);
-      });
+    this.game.data.sync.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
+      console.error(err);
+    });
   }
 
 }

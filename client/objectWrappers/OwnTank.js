@@ -45,7 +45,7 @@ class OwnTank extends _Panzer {
 
   _localSyncFrame(newData) {
     return new Promise((resolve, reject) => {
-      if (!this._isNewCommand(newData)) {
+      if (!this._isNewCommand(newData) && newData.alive) {
         this.frame.body.x = newData.x;
         this.frame.body.y = newData.y;
         this.frame.body.angle = newData.angle;
@@ -59,27 +59,41 @@ class OwnTank extends _Panzer {
 
   moveLocalSync(newData) {
     return new Promise((resolve, reject) => {
-      if (newData.move.left) {
-        this.frame.body.rotateLeft(50);
-      } else if (newData.move.right) {
-        this.frame.body.rotateRight(50);
+      if (this.alive) {
+        if (newData.move.left) {
+          this.frame.body.rotateLeft(50);
+        } else if (newData.move.right) {
+          this.frame.body.rotateRight(50);
+        } else {
+          this.frame.body.setZeroRotation();
+        }
+        if (newData.move.forward) {
+          this.frame.body.thrust(800000);
+        } else if (newData.move.back) {
+          this.frame.body.reverse(250000);
+        }
+        this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
+        resolve(newData.alive);
       } else {
-        this.frame.body.setZeroRotation();
+        resolve(newData.alive);
       }
-      if (newData.move.forward) {
-        this.frame.body.thrust(800000);
-      } else if (newData.move.back) {
-        this.frame.body.reverse(250000);
-      }
-      this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
-      resolve(true);
     });
   }
 
   create(data) {
-    super.create(data);
-    this.cursors = this.game.input.keyboard.createCursorKeys();
-    this.game.camera.follow(this.frame);
+    return new Promise((resolve, resject) => {
+      super.create(data).then(result => {
+        if (result) {
+          this.cursors = this.game.input.keyboard.createCursorKeys();
+          this.game.camera.follow(this.frame);
+          resolve(true);
+        } else {
+          resject(false);
+        }
+      }).catch(err => {
+        resject(err);
+      })
+    })
   }
 
   update(newData) {
