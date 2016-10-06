@@ -202,7 +202,6 @@ class _Panzer {
   }
 
   kill() {
-    console.log(this.player + ' was died');
     this.abort();
   }
 

@@ -1,13 +1,15 @@
 import Phaser from '../Phaser.js';
-import _Panzer from './_Panzer.js';
+import Tank from './Tank.js';
 
 const imageKeyFrame = 'tankBody_E-100-green';
 const imageKeyTurret = 'tankTurret_E-100-green';
 const physicsData = 'physicsData';
 
-class OwnTank extends _Panzer {
+class OwnTank extends Tank {
 
   static preload(game) {
+    super.preload(game);
+
     game.load.image(imageKeyFrame, require('../assets/E-100/green/body2.png'), 1);
     game.load.image(imageKeyTurret, require('../assets/E-100/green/turret.png'), 1);
 
@@ -78,6 +80,11 @@ class OwnTank extends _Panzer {
         resolve(newData.alive);
       }
     });
+  }
+
+  kill() {
+    console.warn('You died');
+    super.kill();
   }
 
   create(data) {

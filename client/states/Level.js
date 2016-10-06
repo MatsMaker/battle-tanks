@@ -3,7 +3,7 @@ import AnimatedDots from '../objectWrappers/texts/AnimatedDots.js';
 import Map1 from '../objectWrappers/maps/Map1.js';
 
 import BulletGroup from '../objectWrappers/BulletGroup.js'
-import Tank from '../objectWrappers/Tank.js';
+import AlienTank from '../objectWrappers/AlienTank.js';
 import OwnTank from '../objectWrappers/OwnTank.js';
 
 class Level {
@@ -60,7 +60,7 @@ class Level {
     const extankData = this._exetndTandkData(tankData);
     const newTank = (this.isOwner(tankData))
       ? new OwnTank(this.game, tankData.player, extankData)
-      : new Tank(this.game, tankData.player, extankData);
+      : new AlienTank(this.game, tankData.player, extankData);
     newTank.create().then(result => {
       if (result) {
         this.tanks.push(newTank);
@@ -108,7 +108,7 @@ class Level {
 
   preload() {
     OwnTank.preload(this.game);
-    Tank.preload(this.game);
+    AlienTank.preload(this.game);
     BulletGroup.preload(this.game);
     Map1.preload(this.game);
   }
