@@ -69,7 +69,7 @@ io.on('connection', socket => {
           });
         }
         data = {
-          tanks: tanks
+          done: true
         };
         break;
 

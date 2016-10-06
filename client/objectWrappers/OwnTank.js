@@ -1,13 +1,24 @@
 import Phaser from '../Phaser.js';
 import _Panzer from './_Panzer.js';
-const imageKeyBody = 'tankBody_E-100';
-const imageKeyTurret = 'tankTurret_E-100';
+
+const imageKeyFrame = 'tankBody_E-100-green';
+const imageKeyTurret = 'tankTurret_E-100-green';
 const physicsData = 'physicsData';
 
 class OwnTank extends _Panzer {
 
+  static preload(game) {
+    game.load.image(imageKeyFrame, require('../assets/E-100/green/body2.png'), 1);
+    game.load.image(imageKeyTurret, require('../assets/E-100/green/turret.png'), 1);
+
+    game.load.physics(physicsData, require('file!../assets/E-100/E-100.json'));
+  }
+
   constructor(game, player, data) {
     super(game, player, data);
+    this.imageKeyFrame = imageKeyFrame;
+    this.imageKeyTurret = imageKeyTurret;
+
     this.cursors;
   }
 
@@ -29,11 +40,7 @@ class OwnTank extends _Panzer {
   }
 
   _isNewCommand(newData) {
-    return newData.move.left ||
-      newData.move.right ||
-      newData.move.forward ||
-      newData.move.back ||
-      newData.fire;
+    return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire;
   }
 
   _localSyncFrame(newData) {
@@ -69,30 +76,22 @@ class OwnTank extends _Panzer {
     });
   }
 
-  create(isRespawn) {
-    super.create();
+  create(data) {
+    super.create(data);
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.game.camera.follow(this.frame);
   }
 
-  respawn() {
-    this.create();
-    this.removeSync();
-  }
-
   update(newData) {
     // console.warn('objects list :', this.game.world.children.length);
-    this.localSync(newData)
-      .then(resolve => {
-        return this.moveLocalSync(newData);
-      })
-      .then(resolve => {
-        this.removeSync();
-      })
-      .catch(err => {
-        console.error(err);
-        // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
-      });
+    this.localSync(newData).then(resolve => {
+      return this.moveLocalSync(newData);
+    }).then(resolve => {
+      this.removeSync();
+    }).catch(err => {
+      console.error(err);
+      // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
+    });
   }
 }
 
