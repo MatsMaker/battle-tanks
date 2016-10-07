@@ -47,7 +47,7 @@ class OwnTank extends Tank {
 
   _localSyncFrame(newData) {
     return new Promise((resolve, reject) => {
-      if (!this._isNewCommand(newData) && newData.alive) {
+      if (!this._isNewCommand(newData) && this.frame.alive) {
         this.frame.body.x = newData.x;
         this.frame.body.y = newData.y;
         this.frame.body.angle = newData.angle;

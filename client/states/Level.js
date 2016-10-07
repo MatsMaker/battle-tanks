@@ -43,6 +43,7 @@ class Level {
           x: this.world.centerX,
           y: this.world.centerY + 20
         },
+        createTime: new Date().getTime(),
         move: {
           left: false,
           right: false,
@@ -60,7 +61,7 @@ class Level {
     const newTank = (this.isOwner(tankData))
       ? new OwnTank(this.game, tankData.player, extankData)
       : new AlienTank(this.game, tankData.player, extankData);
-    newTank.create().then(result => {
+    newTank.create(extankData).then(result => {
       if (result) {
         this.tanks.push(newTank);
       } else {
@@ -99,8 +100,11 @@ class Level {
     const lossUserId = response.data.userId;
     this.tanks.forEach((tank, index, arrayTanks) => {
       if (tank.player == lossUserId) {
-        tank.abort();
-        arrayTanks.splice(index, 1);
+        tank.abort().then(resolve => {
+          arrayTanks.splice(index, 1);
+        }).catch(err => {
+          console.error(err);
+        });
       }
     });
   }
