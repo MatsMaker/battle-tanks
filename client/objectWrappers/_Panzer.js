@@ -115,20 +115,23 @@ class _Panzer {
 
   localSync(newData) {
     return new Promise((resolve, reject) => {
-
-      return this._localSyncContacts(newData).then(result => {
-        return this._localSyncFrame(newData);
-      }).then(result => {
-        return this._localSyncTurret(newData);
-      }).then(result => {
+      if (!this.alive) {
         resolve(true);
-      }).catch(err => {
-        if (!err) {
-          resolve(err);
-        } else {
-          reject(err);
-        }
-      })
+      } else {
+        return this._localSyncContacts(newData).then(result => {
+          return this._localSyncFrame(newData);
+        }).then(result => {
+          return this._localSyncTurret(newData);
+        }).then(result => {
+          resolve(true);
+        }).catch(err => {
+          if (!err) {
+            resolve(err);
+          } else {
+            reject(err);
+          }
+        })
+      }
     });
   }
 
@@ -204,9 +207,7 @@ class _Panzer {
   }
 
   abort() {
-    console.log('abort', this.player);
     return new Promise((resolve, reject) => {
-      this.alive = false;
       // this.frame.body.removeNextStep = true;
       this.frame.destroy();
       this.turret.destroy();
