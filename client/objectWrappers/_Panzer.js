@@ -165,7 +165,7 @@ class _Panzer {
       this.frame.body.inertia = 1000;
       this.frame.body.sleepSpeedLimit = 1400;
       this.frame.body.dynamic = true;
-      this.frame.body.debug = true; // debug
+      // this.frame.body.debug = true; // debug
 
       if (this.turret && !this.turret.alive) {
         this.turret.reset(this.data.x, this.data.y);
@@ -189,21 +189,7 @@ class _Panzer {
   reset(dataTank) {
     const newData = newData || {};
     console.log('reset :', this.player);
-    return new Promise((resolve, reject) => {
-      return this.create(newData).then(result => {
-        if (result) {
-          resolve(result);
-        } else {
-          reject(reject)
-        }
-      }).catch(err => {
-        reject(err)
-      })
-    })
-    return new Promise((resolve, reject) => {
-      console.log('init fake reset');
-      reject(false);
-    })
+    return this.create(newData);
   }
 
   abort() {

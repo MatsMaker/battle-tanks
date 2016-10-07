@@ -77,6 +77,7 @@ class Level {
   }
 
   updateTanks(response) {
+    const nowTime = new Date().getTime();
     this.game.data.tanks = response.data.tanks;
     const userTankIndex = response.data.tanks.findIndex(tank => this.game.data.userId == tank.player);
 
@@ -88,7 +89,15 @@ class Level {
       let selectTankIndex = this.tanks.findIndex(lTank => lTank.player == rTank.player);
 
       if (selectTankIndex > -1) {
-        this.tanks[selectTankIndex].update(rTank);
+        if (rTank.alive) {
+          this.tanks[selectTankIndex].update(rTank);
+        } else if (!rTank.alive && rTank.createTime < nowTime) {
+          this.tanks[selectTankIndex].reset(rTank).then(result => {
+            
+          }).catch(err => {
+
+          });
+        }
       } else {
         this.addTank(rTank);
       }
