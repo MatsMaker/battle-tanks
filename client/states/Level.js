@@ -92,6 +92,8 @@ class Level {
         if (rTank.alive) {
           this.tanks[selectTankIndex].update(rTank);
         } else if (!rTank.alive) {
+          rTank.x = this.game.world.randomX;
+          rTank.y = this.game.world.randomY;
           this.tanks[selectTankIndex].reset(rTank);
         }
       } else {

@@ -160,14 +160,10 @@ class _Panzer {
         this.data = _.extend(this.data, data);
       }
 
-      // if (this.frame && !this.frame.alive) {
-      //   this.frame.reset(this.data.x, this.data.y);
-      // } else {
-        this.frame = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyFrame);
-        this.frame.scale.set(0.3, 0.3);
-        this.frame.anchor.set(0.5, 0.5);
-        this.game.physics.p2.enableBody(this.frame);
-      // }
+      this.frame = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyFrame);
+      this.frame.scale.set(0.3, 0.3);
+      this.frame.anchor.set(0.5, 0.5);
+      this.game.physics.p2.enableBody(this.frame);
       this.frame.body.clearShapes();
       this.frame.body.loadPolygon(this.physicsData, 'body2');
       this.frame.body.angular = this.data.angle;
@@ -179,11 +175,7 @@ class _Panzer {
       this.frame.body.dynamic = true;
       this.frame.body.debug = true; // debug
 
-      // if (this.turret && !this.turret.alive) {
-      //   this.turret.reset(this.data.x, this.data.y);
-      // } else {
-        this.turret = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyTurret);
-      // }
+      this.turret = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyTurret);
       this.turret.scale.set(0.3, 0.3);
       this.turret.anchor.set(0.3, 0.5);
       this.turretRadius = 33; // rotating turret radius
