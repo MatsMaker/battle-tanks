@@ -10,14 +10,17 @@ class Level {
 
   onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation) {
     const target = this.tanks.find(tank => tank.isOwnerFrameBody(body));
-    target.contactWithBullet(body, bodyB, shapeA, shapeB, equation);
+    target.contactWithBullet(bullet.sprite, bodyB, shapeA, shapeB, equation);
+    bullet.destroy();
   }
 
   _exetndTandkData(tankData) {
     const self = this;
 
     self.bulletGroup.options.onBulletContact = function (bullet, body, bodyB, shapeA, shapeB, equation) {
-      self.onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation)
+      if (bullet.imageKey != body.sprite.key) {
+        self.onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation)
+      }
     };
 
     tankData.initBullet = function (x, y, rotation, speed, bulletData) {
@@ -43,7 +46,7 @@ class Level {
           x: this.world.centerX,
           y: this.world.centerY + 20
         },
-        createTime: new Date().getTime(),
+        deathTime: 0,
         move: {
           left: false,
           right: false,
@@ -91,10 +94,6 @@ class Level {
       if (selectTankIndex > -1) {
         if (rTank.alive) {
           this.tanks[selectTankIndex].update(rTank);
-        } else if (!rTank.alive) {
-          rTank.x = this.game.world.randomX;
-          rTank.y = this.game.world.randomY;
-          this.tanks[selectTankIndex].reset(rTank);
         }
       } else {
         this.addTank(rTank);
@@ -116,6 +115,14 @@ class Level {
     });
   }
 
+  respawn() {
+    console.log('respawn');
+    const deadTanks = this.tanks.filter(tank => !tank.alive && this.isOwner(tank));
+    deadTanks.forEach(tank => {
+      tank.reset({x: this.game.world.randomX, y: this.game.world.randomY});
+    });
+  }
+
   preload() {
     OwnTank.preload(this.game);
     AlienTank.preload(this.game);
@@ -125,6 +132,7 @@ class Level {
 
   init() {
     this.tanks = [];
+    this.resetDelay = 5000;
 
     this.background = this.stage.game.add.sprite(-80, -80, 'kdeWallpapers');
     this.background.scale.set(0.5);
@@ -149,6 +157,8 @@ class Level {
 
     this.bulletGroup = new BulletGroup(this.game);
     this.bulletGroup.create();
+
+    this.game.time.events.loop(this.resetDelay, this.respawn, this);
   }
 
   update() {

@@ -54,20 +54,20 @@ class Explosion {
   }
 
   hit(point) {
-    const explosion = this.game.add.sprite(point.x, point.y, tankExplosion);
+    const explosion = this.game.add.sprite(point.x, point.y, this.explosionImageKey);
     explosion.scale.set(0.15, 0.15);
     explosion.angle = point.angle || 0;
 
-    let play = this.explosion.animations.add('play', [
+    let play = explosion.animations.add('play', [
       0, 8
     ], 10);
 
-    this.explosion.anchor.set(0.5, 0.5);
+    explosion.anchor.set(0.5, 0.5);
     play.play(10, false, true);
 
     setTimeout(() => {
       if (play.isFinished) {
-        this.explosion.destroy();
+        explosion.destroy();
       }
     }, 300);
   }

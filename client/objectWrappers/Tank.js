@@ -15,7 +15,6 @@ class Tank extends _Panzer {
 
   constructor(game, player, data = {}) {
     super(game, player, data);
-    this.resetDelay = 3000;
   }
 
   create(data) {
@@ -44,6 +43,11 @@ class Tank extends _Panzer {
     }).catch(err => {
       console.error(err);
     });
+  }
+
+  hit(point) {
+    super.hit(point);
+    this.explosion.hit(point);
   }
 
 }

@@ -25,10 +25,6 @@ class _Panzer {
     this.imageKeyFrame = imageKeyFrame;
     this.imageKeyTurret = imageKeyTurret;
     this.physicsData = physicsData;
-
-    this.resetDelay = 3000;
-    this.createTime = 0;
-    this.resetData = {};
   }
 
   set alive(value) {
@@ -55,31 +51,43 @@ class _Panzer {
   _controller() {
     return {
       player: this.player,
-      x: (this.alive)
+      x: (this.frame.alive)
         ? this.frame.body.x
         : this.data.x,
-      y: (this.alive)
+      y: (this.frame.alive)
         ? this.frame.body.y
         : this.data.y,
       life: this.life,
       alive: this.alive,
-      angle: (this.alive)
+      angle: (this.frame.alive)
         ? this.frame.body.angle
         : this.data.angle,
       bulletContacts: this.bulletContacts,
       fire: false,
       turretRotation: this.turret.rotation,
-      resetDelay: this.resetDelay,
-      createTime: this.createTime
+      deathTime: this.deathTime
     }
   }
 
   _localSyncBase(newData = {}) {
-    if (!this.frame.alive) {
-      return this.create(newData);
+    if (!this.alive && this.frame.alive) {
+      return new Promise((resolve, reject) => {
+        this.abort().then(result => {
+          if (!result) {
+            reject(false);
+          } else {
+            resolve(true);
+          }
+        });
+      })
     } else {
       return new Promise((resolve, reject) => {
-        resolve(true);
+        if (this.alive && !this.frame.alive) {
+          return this.create(newData);
+        } else {
+          this.life = newData.life;
+          resolve(true);
+        }
       })
     }
   }
@@ -107,43 +115,36 @@ class _Panzer {
 
   _localSyncContacts(newData) {
     return new Promise((resolve, reject) => {
-
       this.bulletContacts = _.union(newData.bulletContacts, this.bulletContacts);
       this.bulletContacts.forEach((bulletBody, index, bulletArray) => {
         this.hit(bulletBody);
         bulletArray.splice(index, 1);
       });
-
       if (!this.alive) {
         return this.kill();
       } else {
         resolve(true);
       }
-
     });
   }
 
   localSync(newData) {
     return new Promise((resolve, reject) => {
-      if (!this.alive) {
+      return this._localSyncBase(newData).then(result => {
+        return this._localSyncContacts(newData);
+      }).then(result => {
+        return this._localSyncFrame(newData);
+      }).then(result => {
+        return this._localSyncTurret(newData);
+      }).then(result => {
         resolve(true);
-      } else {
-        return this._localSyncBase(newData).then(result => {
-          return this._localSyncContacts(newData);
-        }).then(result => {
-          return this._localSyncFrame(newData);
-        }).then(result => {
-          return this._localSyncTurret(newData);
-        }).then(result => {
-          resolve(true);
-        }).catch(err => {
-          if (!err) {
-            resolve(err);
-          } else {
-            reject(err);
-          }
-        })
-      }
+      }).catch(err => {
+        if (!err) {
+          resolve(err);
+        } else {
+          reject(err);
+        }
+      })
     });
   }
 
@@ -173,7 +174,7 @@ class _Panzer {
       this.frame.body.inertia = 1000;
       this.frame.body.sleepSpeedLimit = 1400;
       this.frame.body.dynamic = true;
-      this.frame.body.debug = true; // debug
+      // this.frame.body.debug = true; // debug
 
       this.turret = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyTurret);
       this.turret.scale.set(0.3, 0.3);
@@ -184,7 +185,7 @@ class _Panzer {
       this.fireRate = 1000;
       this.nextFire = 0;
       this.alive = true;
-      this.createTime = new Date().getTime();
+      this.deathTime = 0;
 
       resolve(this.alive);
     })
@@ -212,7 +213,7 @@ class _Panzer {
   kill() {
     return new Promise((resolve, reject) => {
       this.alive = false;
-      this.createTime = new Date().getTime() + this.resetDelay;
+      this.deathTime = new Date().getTime();
       resolve(true);
     });
   }
@@ -251,10 +252,10 @@ class _Panzer {
     this.life--;
   }
 
-  contactWithBullet(body, bodyB, shapeA, shapeB, equation) {
+  contactWithBullet(bullet, bodyB, shapeA, shapeB, equation) {
     const collisionPoint = {
-      x: body.x,
-      y: body.y
+      x: bullet.x,
+      y: bullet.y
     };
     this.bulletContacts.push(collisionPoint);
   }
