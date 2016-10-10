@@ -91,7 +91,9 @@ class OwnTank extends Tank {
     return new Promise((resolve, resject) => {
       super.create(data).then(result => {
         if (result) {
-          this.cursors = this.game.input.keyboard.createCursorKeys();
+          if (!this.cursors) {
+            this.cursors = this.game.input.keyboard.createCursorKeys();
+          }
           this.game.camera.follow(this.frame);
           resolve(true);
         } else {

@@ -91,12 +91,8 @@ class Level {
       if (selectTankIndex > -1) {
         if (rTank.alive) {
           this.tanks[selectTankIndex].update(rTank);
-        } else if (!rTank.alive && rTank.createTime < nowTime) {
-          this.tanks[selectTankIndex].reset(rTank).then(result => {
-            
-          }).catch(err => {
-
-          });
+        } else if (!rTank.alive && !rTank.createTime < nowTime) {
+          this.tanks[selectTankIndex].reset(rTank);
         }
       } else {
         this.addTank(rTank);

@@ -26,7 +26,7 @@ class _Panzer {
     this.imageKeyTurret = imageKeyTurret;
     this.physicsData = physicsData;
 
-    this.resetDelay = 0;
+    this.resetDelay = 3000;
     this.createTime = 0;
     this.resetData = {};
   }
@@ -74,6 +74,16 @@ class _Panzer {
     }
   }
 
+  _localSyncBase(newData = {}) {
+    if (!this.frame.alive) {
+      return this.create(newData);
+    } else {
+      return new Promise((resolve, reject) => {
+        resolve(true);
+      })
+    }
+  }
+
   _localSyncFrame(newData) {
     return new Promise((resolve, reject) => {
       this.frame.body.x = newData.x;
@@ -118,7 +128,9 @@ class _Panzer {
       if (!this.alive) {
         resolve(true);
       } else {
-        return this._localSyncContacts(newData).then(result => {
+        return this._localSyncBase(newData).then(result => {
+          return this._localSyncContacts(newData);
+        }).then(result => {
           return this._localSyncFrame(newData);
         }).then(result => {
           return this._localSyncTurret(newData);
@@ -148,14 +160,14 @@ class _Panzer {
         this.data = _.extend(this.data, data);
       }
 
-      if (this.frame && !this.frame.alive) {
-        this.frame.reset(this.data.x, this.data.y);
-      } else {
+      // if (this.frame && !this.frame.alive) {
+      //   this.frame.reset(this.data.x, this.data.y);
+      // } else {
         this.frame = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyFrame);
         this.frame.scale.set(0.3, 0.3);
         this.frame.anchor.set(0.5, 0.5);
-      }
-      this.game.physics.p2.enableBody(this.frame);
+        this.game.physics.p2.enableBody(this.frame);
+      // }
       this.frame.body.clearShapes();
       this.frame.body.loadPolygon(this.physicsData, 'body2');
       this.frame.body.angular = this.data.angle;
@@ -165,13 +177,13 @@ class _Panzer {
       this.frame.body.inertia = 1000;
       this.frame.body.sleepSpeedLimit = 1400;
       this.frame.body.dynamic = true;
-      // this.frame.body.debug = true; // debug
+      this.frame.body.debug = true; // debug
 
-      if (this.turret && !this.turret.alive) {
-        this.turret.reset(this.data.x, this.data.y);
-      } else {
+      // if (this.turret && !this.turret.alive) {
+      //   this.turret.reset(this.data.x, this.data.y);
+      // } else {
         this.turret = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyTurret);
-      }
+      // }
       this.turret.scale.set(0.3, 0.3);
       this.turret.anchor.set(0.3, 0.5);
       this.turretRadius = 33; // rotating turret radius
@@ -186,15 +198,20 @@ class _Panzer {
     })
   }
 
-  reset(dataTank) {
-    const newData = newData || {};
+  reset(dataTank = {}) {
+    if (dataTank) {
+      this.data = _.extend(this.data, dataTank);
+    }
+    this.alive = true;
     console.log('reset :', this.player);
-    return this.create(newData);
+    this.removeSync();
+    console.log(this.game.world.children.length);
+    return this.alive;
   }
 
   abort() {
     return new Promise((resolve, reject) => {
-      // this.frame.body.removeNextStep = true;
+      this.frame.body.removeNextStep = true;
       this.frame.destroy();
       this.turret.destroy();
       resolve(false);
@@ -203,8 +220,9 @@ class _Panzer {
 
   kill() {
     return new Promise((resolve, reject) => {
+      this.alive = false;
       this.createTime = new Date().getTime() + this.resetDelay;
-      return this.abort();
+      resolve(true);
     });
   }
 
