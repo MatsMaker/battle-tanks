@@ -203,7 +203,7 @@ class _Panzer {
 
   abort() {
     return new Promise((resolve, reject) => {
-      this.frame.body.removeNextStep = true;
+      // this.frame.body.removeNextStep = true;
       this.frame.destroy();
       this.turret.destroy();
       resolve(false);

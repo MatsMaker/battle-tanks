@@ -71,6 +71,30 @@ class Explosion {
       }
     }, 300);
   }
+
+  zilch(point) {
+    const explosion = this.game.add.sprite(point.x, point.y, this.explosionImageKey);
+    explosion.scale.set(0.15, 0.15);
+    explosion.angle = point.angle || 0;
+
+    let play = explosion.animations.add('play', [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ], 10);
+
+    explosion.anchor.set(0.5, 0.5);
+    play.play(10, false, true);
+
+    setTimeout(() => {
+      if (play.isFinished) {
+        explosion.destroy();
+      }
+    }, 300);
+  }
 }
 
 export default Explosion;

@@ -1,5 +1,6 @@
 import Phaser from '../Phaser.js';
 const imageKey = 'tankBullet_E-100';
+import Explosion from './Explosion.js';
 
 class Bullet {
 
@@ -15,6 +16,8 @@ class Bullet {
     this.sprite.body.rotation = rotation;
     this.sprite.body.setZeroVelocity();
     this.sprite.body.moveForward(speed);
+
+    this.explosion = new Explosion(this.game);
   }
 
   static setAttr(sprite, x, y, rotation, speed) {
@@ -29,6 +32,7 @@ class Bullet {
   }
 
   static preload(game) {
+    Explosion.preload(game);
     game.load.image(imageKey, require('../assets/E-100/shot.png'), 1);
   }
 
@@ -44,6 +48,14 @@ class Bullet {
       this.sprite.destroy();
     }
   }
+
+  drop() {
+    if (this.sprite.alive) {
+      this.explosion.zilch(this.sprite);
+      this.destroy();
+    }
+  }
+
 }
 
 export default Bullet;
