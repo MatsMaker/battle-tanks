@@ -205,7 +205,6 @@ class _Panzer {
     this.alive = true;
     console.log('reset :', this.player);
     this.removeSync();
-    console.log(this.game.world.children.length);
     return this.alive;
   }
 
