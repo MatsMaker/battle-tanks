@@ -25,6 +25,7 @@ class _Panzer {
     this.imageKeyFrame = imageKeyFrame;
     this.imageKeyTurret = imageKeyTurret;
     this.physicsData = physicsData;
+    this.newData = {};
   }
 
   set alive(value) {
@@ -70,10 +71,15 @@ class _Panzer {
     }
   }
 
-  _localSyncContacts(newData, result = {}) {
+  _localSyncContacts(result = {}) {
+    const newData = this.newData;
     if (!newData.alive && newData.deathTime < newData.createTime) {
       return this.kill();
-    } else {
+    } else if (!newData.alive && newData.deathTime > newData.createTime && this.frame.alive) {
+      return this.abort();
+    } else if (newData.alive && !this.frame.alive) {
+      return this.create(newData);
+    } else if (newData.alive && this.frame.alive) {
       return new Promise((resolve, reject) => {
         this.bulletContacts = _.union(newData.bulletContacts, this.bulletContacts);
         this.bulletContacts.forEach((bulletBody, index, bulletArray) => {
@@ -83,10 +89,16 @@ class _Panzer {
         result.alive = this.alive;
         resolve(result);
       });
+    } else {
+      return new Promise((resolve, reject) => {
+        result.alive = this.alive;
+        resolve(result);
+      });
     }
   }
 
-  _localSyncFrame(newData, result = {}) {
+  _localSyncFrame(result = {}) {
+    const newData = this.newData;
     return new Promise((resolve, reject) => {
       if (result.alive) {
         this.frame.body.x = newData.x;
@@ -102,7 +114,8 @@ class _Panzer {
     });
   }
 
-  _localSyncTurret(newData, result = {}) {
+  _localSyncTurret(result = {}) {
+    const newData = this.newData;
     return new Promise((resolve, reject) => {
       if (result.alive) {
         this.turret.x = this.frame.body.x;
@@ -111,7 +124,6 @@ class _Panzer {
         if (newData.fire) {
           this.fire(newData.target);
         }
-
         result.turretAlive = true;
         resolve(result);
       } else {
@@ -121,11 +133,11 @@ class _Panzer {
     });
   }
 
-  localSync(newData) {
-    return this._localSyncContacts(newData).then(result => {
-      return this._localSyncFrame(newData, result);
+  localSync() {
+    return this._localSyncContacts().then(result => {
+      return this._localSyncFrame(result);
     }).then(result => {
-      return this._localSyncTurret(newData, result);
+      return this._localSyncTurret(result);
     })
   }
 
@@ -168,15 +180,25 @@ class _Panzer {
       this.createTime = new Date().getTime();
 
       resolve({alive: this.alive});
-    })
+    });
   }
 
   reset(dataTank = {}) {
+    this.newData.alive = true;
+    this.newData.deathTime = null;
+    this.newData.createTime = new Date().getTime();
+    this.newData.bulletContacts = [];
+
+    this.alive = this.newData.alive;
+    this.deathTime = this.newData.deathTime;
+    this.createTime = this.newData.createTime;
+    this.bulletContacts = this.newData.bulletContacts;
+
     console.log('reset :', this.player);
-    this.alive = true;
   }
 
   abort() {
+    console.log('abort');
     return new Promise((resolve, reject) => {
       // this.frame.body.removeNextStep = true;
       this.alive = false;
@@ -238,8 +260,9 @@ class _Panzer {
     this.bulletContacts.push(collisionPoint);
   }
 
-  update(newData) {
-    return this.localSync(newData).then(resolve => {
+  update(newData = {}) {
+    this.newData = _.extend(this.newData, newData);
+    return this.localSync().then(resolve => {
       return this.removeSync();
     })
   }

@@ -111,7 +111,7 @@ class Level {
 
   respawn() {
     console.log('respawn');
-    const deadTanks = this.tanks.filter(tank => !tank.alive);
+    const deadTanks = this.tanks.filter(tank => !tank.alive && this.isOwner(tank));
     deadTanks.forEach(tank => {
       tank.reset({x: this.game.world.randomX, y: this.game.world.randomY});
     });
@@ -126,7 +126,7 @@ class Level {
 
   init() {
     this.tanks = [];
-    this.resetDelay = 5000;
+    this.resetDelay = 10000;
 
     this.background = this.stage.game.add.sprite(-80, -80, 'kdeWallpapers');
     this.background.scale.set(0.5);
@@ -152,7 +152,7 @@ class Level {
     this.bulletGroup = new BulletGroup(this.game);
     this.bulletGroup.create();
 
-    // this.game.time.events.loop(this.resetDelay, this.respawn, this);
+    this.game.time.events.loop(this.resetDelay, this.respawn, this);
   }
 
   update() {

@@ -41,11 +41,13 @@ class OwnTank extends Tank {
     return superController;
   }
 
-  _isNewCommand(newData) {
+  _isNewCommand() {
+    const newData = this.newData;
     return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire;
   }
 
-  _localSyncFrame(newData, result = {}) {
+  _localSyncFrame(result = {}) {
+    const newData = this.newData;
     if (this._isNewCommand(newData)) {
       return this.moveLocalSync(newData, result);
     } else {
@@ -53,7 +55,8 @@ class OwnTank extends Tank {
     }
   }
 
-  moveLocalSync(newData, result = {}) {
+  moveLocalSync(result = {}) {
+    const newData = this.newData;
     return new Promise((resolve, reject) => {
       if (result.alive) {
         if (newData.move.left) {

@@ -28,7 +28,7 @@ class Tank extends _Panzer {
           resolve(result);
         } else {
           result.explosionInit = false;
-          resolve(result)
+          resolve(result);
         }
       })
     });
