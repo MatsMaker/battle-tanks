@@ -188,11 +188,14 @@ class _Panzer {
     this.newData.deathTime = null;
     this.newData.createTime = new Date().getTime();
     this.newData.bulletContacts = [];
+    this.newData = _.extend(this.newData, dataTank);
 
     this.alive = this.newData.alive;
     this.deathTime = this.newData.deathTime;
     this.createTime = this.newData.createTime;
     this.bulletContacts = this.newData.bulletContacts;
+    this.data.x = this.newData.x;
+    this.data.y = this.newData.y;
 
     console.log('reset :', this.player);
   }
