@@ -11,7 +11,8 @@ class Level {
   onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation) {
     const target = this.tanks.find(tank => tank.isOwnerFrameBody(body));
     target.contactWithBullet(bullet.sprite, bodyB, shapeA, shapeB, equation);
-    bullet.destroy();
+    this.game.time.events.add(200, bullet.drop, bullet);
+    console.log(bullet, body, bodyB, shapeA, shapeB, equation);
   }
 
   _exetndTandkData(tankData) {
