@@ -18,7 +18,7 @@ class BulletsGroup {
   create(options) {
     this.options = _.extend({
       groupName: 'BulletsGroup',
-      maxTimeLifeOfBullet: 10,
+      maxTimeLifeOfBullet: 1,
       autoDestroyOfBullet: true,
       onBulletContact: function (bullet, body, bodyB, shapeA, shapeB, equation) {
         console.log(bullet, body, bodyB, shapeA, shapeB, equation);
@@ -35,7 +35,7 @@ class BulletsGroup {
     this.group.add(bullet.sprite);
 
     if (this.options.autoDestroyOfBullet) {
-      this.game.time.events.add(Phaser.Timer.SECOND * maxTimeLife, bullet.destroy, bullet);
+      this.game.time.events.add(Phaser.Timer.SECOND * maxTimeLife, bullet.drop, bullet);
     }
     bullet.sprite.body.onBeginContact.add((body, bodyB, shapeA, shapeB, equation) => {
       this.onBulletContact(bullet, body, bodyB, shapeA, shapeB, equation);

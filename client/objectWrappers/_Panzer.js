@@ -19,16 +19,13 @@ class _Panzer {
 
     this.bulletContacts = [];
 
-    this.frame = {
-      alive: false
-    };
-    this.turret = {
-      alive: false
-    };
+    this.frame;
+    this.turret;
 
     this.imageKeyFrame = imageKeyFrame;
     this.imageKeyTurret = imageKeyTurret;
     this.physicsData = physicsData;
+    this.newData = {};
   }
 
   set alive(value) {
@@ -55,100 +52,93 @@ class _Panzer {
   _controller() {
     return {
       player: this.player,
-      x: this.frame.body.x,
-      y: this.frame.body.y,
+      x: (this.frame.alive)
+        ? this.frame.body.x
+        : this.data.x,
+      y: (this.frame.alive)
+        ? this.frame.body.y
+        : this.data.y,
       life: this.life,
       alive: this.alive,
-      angle: this.frame.body.angle,
+      angle: (this.frame.alive)
+        ? this.frame.body.angle
+        : this.data.angle,
       bulletContacts: this.bulletContacts,
       fire: false,
       turretRotation: this.turret.rotation,
-      killTime: this.killTime
+      deathTime: this.deathTime,
+      createTime: this.createTime
     }
   }
 
-  _isAlive(newData) {
-    return new Promise((resolve, reject) => {
-      if (this.alive && newData.alive) {
-        resolve(true);
-      } else {
-        if (this.alive && !newData.alive) {
-          this.kill();
-          reject({error: 'isDied'});
-        } else if (!this.alive && newData.alive) {
-          const initData = {
-            x: this.game.randomX,
-            y: this.game.randomY,
-            alive: true
-          }
-          this.create(initData);
-          resolve(true);
-        } else {
-          this.abort();
-          reject({error: 'isDied'});
-        }
-      }
-    });
-  }
-
-  _localSyncFrame(newData) {
-    return new Promise((resolve, reject) => {
-      this.frame.body.x = newData.x;
-      this.frame.body.y = newData.y;
-      this.frame.body.angle = newData.angle;
-      resolve(true);
-    });
-  }
-
-  _localSyncTurret(newData) {
-    return new Promise((resolve, reject) => {
-      this.turret.x = this.frame.body.x;
-      this.turret.y = this.frame.body.y;
-      this.turret.rotation = newData.turretRotation;
-      if (newData.fire) {
-        this.fire(newData.target);
-      }
-      resolve(true);
-    });
-  }
-
-  _localSyncContacts(newData) {
-    return new Promise((resolve, reject) => {
-      // newData.bulletContacts.forEach((bulletBody, index, bulletArray) => {
-      //   this.hit(bulletBody);
-      // });
-      // this.bulletContacts = [];
-
-      this.bulletContacts = _.union(newData.bulletContacts, this.bulletContacts);
-      this.bulletContacts.forEach((bulletBody, index, bulletArray) => {
-        this.hit(bulletBody);
-        bulletArray.splice(index, 1);
+  _localSyncContacts(result = {}) {
+    const newData = this.newData;
+    if (!newData.alive && newData.deathTime < newData.createTime) {
+      return this.kill();
+    } else if (!newData.alive && newData.deathTime > newData.createTime && this.frame.alive) {
+      return this.abort();
+    } else if (newData.alive && !this.frame.alive) {
+      return this.create(newData);
+    } else if (newData.alive && this.frame.alive) {
+      return new Promise((resolve, reject) => {
+        this.bulletContacts = _.union(newData.bulletContacts, this.bulletContacts);
+        this.bulletContacts.forEach((bulletBody, index, bulletArray) => {
+          this.hit(bulletBody);
+          bulletArray.splice(index, 1);
+        });
+        result.alive = this.alive;
+        resolve(result);
       });
+    } else {
+      return new Promise((resolve, reject) => {
+        result.alive = this.alive;
+        resolve(result);
+      });
+    }
+  }
 
-      // this.bulletContacts = newData.bulletContacts;
-      // this.bulletContacts.forEach((bulletBody, index, bulletArray) => {
-      //   this.hit(bulletBody);
-      //   bulletArray.splice(index, 1);
-      // });
+  _localSyncFrame(result = {}) {
+    const newData = this.newData;
+    return new Promise((resolve, reject) => {
+      if (result.alive) {
+        this.frame.body.x = newData.x;
+        this.frame.body.y = newData.y;
+        this.frame.body.angle = newData.angle;
 
-      resolve(true);
+        result.frameAlive = true;
+        resolve(result);
+      } else {
+        result.frameAlive = false;
+        resolve(result);
+      }
     });
   }
 
-  localSync(newData) {
+  _localSyncTurret(result = {}) {
+    const newData = this.newData;
     return new Promise((resolve, reject) => {
-      return this._isAlive(newData).then(result => {
-        return this._localSyncFrame(newData);
-      }).then(result => {
-        return this._localSyncTurret(newData);
-      }).then(result => {
-        return this._localSyncContacts(newData);
-      }).then(result => {
-        resolve(true)
-      }).catch(err => {
-        reject(err);
-      })
+      if (result.alive) {
+        this.turret.x = this.frame.body.x;
+        this.turret.y = this.frame.body.y;
+        this.turret.rotation = newData.turretRotation;
+        if (newData.fire) {
+          this.fire(newData.target);
+        }
+        result.turretAlive = true;
+        resolve(result);
+      } else {
+        result.turretAlive = false;
+        resolve(result);
+      }
     });
+  }
+
+  localSync() {
+    return this._localSyncContacts().then(result => {
+      return this._localSyncFrame(result);
+    }).then(result => {
+      return this._localSyncTurret(result);
+    })
   }
 
   removeSync() {
@@ -158,65 +148,83 @@ class _Panzer {
     });
   }
 
-  create(data) {
-    this.data = _.extend(this.data, data);
+  create(data = {}) {
+    return new Promise((resolve, reject) => {
+      this.data = _.extend(this.data, data);
 
-    if (this.frame.alive) {
-      this.frame.reset(this.data.x, this.data.y);
-    } else {
       this.frame = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyFrame);
       this.frame.scale.set(0.3, 0.3);
       this.frame.anchor.set(0.5, 0.5);
+      this.game.physics.p2.enableBody(this.frame);
+      this.frame.body.clearShapes();
+      this.frame.body.loadPolygon(this.physicsData, 'body2');
+      this.frame.body.angular = this.data.angle;
+      this.frame.body.mass = 1000;
+      this.frame.body.damping = 0.999;
+      this.frame.body.angularDamping = 0.999;
+      this.frame.body.inertia = 1000;
+      this.frame.body.sleepSpeedLimit = 1400;
+      this.frame.body.dynamic = true;
       // this.frame.body.debug = true; // debug
-    }
-    this.game.physics.p2.enableBody(this.frame);
-    this.frame.body.clearShapes();
-    this.frame.body.loadPolygon(this.physicsData, 'body2');
-    this.frame.body.angular = this.data.angle;
-    this.frame.body.mass = 1000;
-    this.frame.body.damping = 0.999;
-    this.frame.body.angularDamping = 0.999;
-    this.frame.body.inertia = 1000;
-    this.frame.body.sleepSpeedLimit = 1400;
-    this.frame.body.dynamic = true;
 
-    if (this.turret.alive) {
-      this.turret.reset(this.data.x, this.data.y);
-    } else {
       this.turret = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyTurret);
-    }
-    this.turret.scale.set(0.3, 0.3);
-    this.turret.anchor.set(0.3, 0.5);
-    this.turretRadius = 33; // rotating turret radius
-    this.turret.rotation = this.turretRotation;
+      this.turret.scale.set(0.3, 0.3);
+      this.turret.anchor.set(0.3, 0.5);
+      this.turretRadius = 33; // rotating turret radius
+      this.turret.rotation = this.turretRotation;
 
-    this.fireRate = 1000;
-    this.nextFire = 0;
-    this.alive = true;
+      this.fireRate = 1000;
+      this.nextFire = 0;
+      this.alive = true;
+      this.deathTime = null;
+      this.createTime = new Date().getTime();
+
+      resolve({alive: this.alive});
+    });
+  }
+
+  reset(dataTank = {}) {
+    this.newData.alive = true;
+    this.newData.deathTime = null;
+    this.newData.createTime = new Date().getTime();
+    this.newData.bulletContacts = [];
+
+    this.alive = this.newData.alive;
+    this.deathTime = this.newData.deathTime;
+    this.createTime = this.newData.createTime;
+    this.bulletContacts = this.newData.bulletContacts;
+
+    console.log('reset :', this.player);
   }
 
   abort() {
-    this.alive = false;
-    this.frame.destroy();
-    this.turret.destroy();
+    console.log('abort');
+    return new Promise((resolve, reject) => {
+      // this.frame.body.removeNextStep = true;
+      this.alive = false;
+      this.frame.destroy();
+      this.turret.destroy();
+      resolve({alive: this.alive});
+    });
   }
 
   kill() {
-    console.log(this.player, 'killed');
-    this.killTime = new Date().getTime();
-    this.abort();
-  }
-
-  respawn() {
-    this.alive = true;
+    console.log('kill');
+    return new Promise((resolve, reject) => {
+      this.alive = false;
+      this.createTime = null;
+      this.deathTime = new Date().getTime();
+      resolve({alive: this.alive});
+    });
   }
 
   barrelEdge() {
     // http://flashgamedev.ru/viewtopic.php?f=6&t=3948
     const x0 = this.turret.x;
     const y0 = this.turret.y - this.turretRadius;
+    const angleFix = 1.5708; // 45 gradusov
 
-    const radians = this.turret.rotation + 1.5708;
+    const radians = this.turret.rotation + angleFix;
 
     const rx = x0 - this.turret.x;
     const ry = y0 - this.turret.y;
@@ -231,33 +239,32 @@ class _Panzer {
   }
 
   fire(target) {
-    if (!this.alive)
-      return;
     if (this.game.time.now > this.nextFire) {
       this.nextFire = this.game.time.now + this.fireRate;
       const coorInitBullet = this.barrelEdge();
       this.initBullet(coorInitBullet.x, coorInitBullet.y, coorInitBullet.rotation, 800, {shooter: this});
     }
+    return;
   }
 
   hit(point) {
+    console.log('hit');
     this.life--;
   }
 
-  contactWithBullet(body, bodyB, shapeA, shapeB, equation) {
-    this.bulletContacts.push({x: body.x, y: body.y});
+  contactWithBullet(bullet, bodyB, shapeA, shapeB, equation) {
+    const collisionPoint = {
+      x: bullet.x,
+      y: bullet.y
+    };
+    this.bulletContacts.push(collisionPoint);
   }
 
-  update(newData) {
-    // console.warn('objects list :', this.game.world.children.length);
-    this.localSync(newData).then(resolve => {
-      this.removeSync();
-    }).catch(err => {
-      if (err.error == 'isDied') {
-        return;
-      }
-      console.warn(err);
-    });
+  update(newData = {}) {
+    this.newData = _.extend(this.newData, newData);
+    return this.localSync().then(resolve => {
+      return this.removeSync();
+    })
   }
 
 }

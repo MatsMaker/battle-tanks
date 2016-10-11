@@ -3,21 +3,24 @@ import AnimatedDots from '../objectWrappers/texts/AnimatedDots.js';
 import Map1 from '../objectWrappers/maps/Map1.js';
 
 import BulletGroup from '../objectWrappers/BulletGroup.js'
-import Tank from '../objectWrappers/Tank.js';
+import AlienTank from '../objectWrappers/AlienTank.js';
 import OwnTank from '../objectWrappers/OwnTank.js';
 
 class Level {
 
   onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation) {
     const target = this.tanks.find(tank => tank.isOwnerFrameBody(body));
-    target.contactWithBullet(body, bodyB, shapeA, shapeB, equation);
+    target.contactWithBullet(bullet.sprite, bodyB, shapeA, shapeB, equation);
+    bullet.destroy();
   }
 
   _exetndTandkData(tankData) {
     const self = this;
 
     self.bulletGroup.options.onBulletContact = function (bullet, body, bodyB, shapeA, shapeB, equation) {
-      self.onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation)
+      if (bullet.imageKey != body.sprite.key) {
+        self.onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation)
+      }
     };
 
     tankData.initBullet = function (x, y, rotation, speed, bulletData) {
@@ -28,42 +31,44 @@ class Level {
 
   initTank() {
     this.game.data.sync.makeOne('initTank', {
-        userId: this.game.data.userId,
-        tank: {
-          restart: false,
-          alive: true,
-          player: this.game.data.userId,
-          x: this.world.randomX,
-          y: this.world.randomY,
-          angle: 0,
-          bulletContacts: [],
-          life: 5,
-          turretRotation: 0,
-          fire: false,
-          target: {
-            x: this.world.centerX,
-            y: this.world.centerY + 20
-          },
-          move: {
-            left: false,
-            right: false,
-            forward: false,
-            back: false
-          }
+      userId: this.game.data.userId,
+      tank: {
+        alive: true,
+        player: this.game.data.userId,
+        x: this.world.centerX,
+        y: this.world.centerY,
+        angle: 0,
+        bulletContacts: [],
+        life: 5,
+        turretRotation: 0,
+        fire: false,
+        target: {
+          x: this.world.centerX,
+          y: this.world.centerY + 20
+        },
+        deathTime: 0,
+        move: {
+          left: false,
+          right: false,
+          forward: false,
+          back: false
         }
-      })
-      .then(result => {
-        console.log('user tank is added');
-      })
+      }
+    }).then(result => {
+      console.log('Yours tank was initiated. It is id:', this.game.data.userId);
+    })
   }
 
   addTank(tankData) {
     const extankData = this._exetndTandkData(tankData);
-    const newTank = (this.isOwner(tankData)) ?
-      new OwnTank(this.game, tankData.player, extankData) :
-      new Tank(this.game, tankData.player, extankData);
-    newTank.create();
-    this.tanks.push(newTank);
+    const newTank = (this.isOwner(tankData))
+      ? new OwnTank(this.game, tankData.player, extankData)
+      : new AlienTank(this.game, tankData.player, extankData);
+    newTank.create(extankData).then(result => {
+      this.tanks.push(newTank);
+    }).catch(err => {
+      console.error(err);
+    })
   }
 
   isOwner(tank) {
@@ -71,6 +76,7 @@ class Level {
   }
 
   updateTanks(response) {
+    const nowTime = new Date().getTime();
     this.game.data.tanks = response.data.tanks;
     const userTankIndex = response.data.tanks.findIndex(tank => this.game.data.userId == tank.player);
 
@@ -94,22 +100,33 @@ class Level {
     const lossUserId = response.data.userId;
     this.tanks.forEach((tank, index, arrayTanks) => {
       if (tank.player == lossUserId) {
-        tank.abort();
-        arrayTanks.splice(index, 1);
+        tank.abort().then(resolve => {
+          arrayTanks.splice(index, 1);
+        }).catch(err => {
+          console.error(err);
+        });
       }
     });
   }
 
+  respawn() {
+    console.log('respawn');
+    const deadTanks = this.tanks.filter(tank => !tank.alive && this.isOwner(tank));
+    deadTanks.forEach(tank => {
+      tank.reset({x: this.game.world.randomX, y: this.game.world.randomY});
+    });
+  }
 
   preload() {
     OwnTank.preload(this.game);
-    Tank.preload(this.game);
+    AlienTank.preload(this.game);
     BulletGroup.preload(this.game);
     Map1.preload(this.game);
   }
 
   init() {
     this.tanks = [];
+    this.resetDelay = 10000;
 
     this.background = this.stage.game.add.sprite(-80, -80, 'kdeWallpapers');
     this.background.scale.set(0.5);
@@ -121,7 +138,7 @@ class Level {
 
     this.game.data.sync.addEventListener('disconnect', response => {
       this.lossUser(response);
-      return { one: false }
+      return {one: false}
     });
   }
 
@@ -134,14 +151,15 @@ class Level {
 
     this.bulletGroup = new BulletGroup(this.game);
     this.bulletGroup.create();
+
+    this.game.time.events.loop(this.resetDelay, this.respawn, this);
   }
 
   update() {
-    this.game.data.sync.makeOne('getTanks', {})
-      .then(this.updateTanks.bind(this))
-      .catch(err => {
-        console.error(err);
-      });
+    // console.warn('objects list :', this.game.world.children.length);
+    this.game.data.sync.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
+      console.error(err);
+    });
   }
 
 }

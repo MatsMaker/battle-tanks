@@ -1,13 +1,15 @@
 import Phaser from '../Phaser.js';
-import _Panzer from './_Panzer.js';
+import Tank from './Tank.js';
 
 const imageKeyFrame = 'tankBody_E-100-green';
 const imageKeyTurret = 'tankTurret_E-100-green';
 const physicsData = 'physicsData';
 
-class OwnTank extends _Panzer {
+class OwnTank extends Tank {
 
   static preload(game) {
+    super.preload(game);
+
     game.load.image(imageKeyFrame, require('../assets/E-100/green/body2.png'), 1);
     game.load.image(imageKeyTurret, require('../assets/E-100/green/turret.png'), 1);
 
@@ -35,64 +37,70 @@ class OwnTank extends _Panzer {
       x: this.game.input.x + this.game.camera.x,
       y: this.game.input.y + this.game.camera.y
     };
-    superController.turretRotation = this.turret.rotation;
+    superController.turretRotation = this.game.physics.arcade.angleToPointer(this.turret);
     return superController;
   }
 
-  _isNewCommand(newData) {
+  _isNewCommand() {
+    const newData = this.newData;
     return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire;
   }
 
-  _localSyncFrame(newData) {
+  _localSyncFrame(result = {}) {
+    const newData = this.newData;
+    if (this._isNewCommand(newData)) {
+      return this.moveLocalSync(newData, result);
+    } else {
+      return super._localSyncFrame(newData, result);
+    }
+  }
+
+  moveLocalSync(result = {}) {
+    const newData = this.newData;
     return new Promise((resolve, reject) => {
-      if (!this._isNewCommand(newData)) {
-        this.frame.body.x = newData.x;
-        this.frame.body.y = newData.y;
-        this.frame.body.angle = newData.angle;
-        resolve(true);
+      if (result.alive) {
+        if (newData.move.left) {
+          this.frame.body.rotateLeft(50);
+        } else if (newData.move.right) {
+          this.frame.body.rotateRight(50);
+        } else {
+          this.frame.body.setZeroRotation();
+        }
+        if (newData.move.forward) {
+          this.frame.body.thrust(800000);
+        } else if (newData.move.back) {
+          this.frame.body.reverse(250000);
+        }
+        result.moveSync = true;
+        resolve(result);
       } else {
-        resolve('isNewCommand');
+        result.moveSync = false;
+        resolve(result);
       }
     });
 
   }
 
-  moveLocalSync(newData) {
-    return new Promise((resolve, reject) => {
-      if (newData.move.left) {
-        this.frame.body.rotateLeft(50);
-      } else if (newData.move.right) {
-        this.frame.body.rotateRight(50);
-      } else {
-        this.frame.body.setZeroRotation();
-      }
-      if (newData.move.forward) {
-        this.frame.body.thrust(800000);
-      } else if (newData.move.back) {
-        this.frame.body.reverse(250000);
-      }
-      this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
-      resolve(true);
-    });
-  }
+  // kill() {   console.warn('You died');   return super.kill(); }
 
   create(data) {
-    super.create(data);
-    this.cursors = this.game.input.keyboard.createCursorKeys();
-    this.game.camera.follow(this.frame);
+    return new Promise((resolve, reject) => {
+      super.create(data).then(result => {
+        if (result.alive) {
+          if (!this.cursors) {
+            this.cursors = this.game.input.keyboard.createCursorKeys();
+          }
+          this.game.camera.follow(this.frame);
+          result.cameraFollow = true;
+          resolve(result);
+        } else {
+          result.cameraFollow = false;
+          resolve(result)
+        }
+      })
+    })
   }
 
-  update(newData) {
-    // console.warn('objects list :', this.game.world.children.length);
-    this.localSync(newData).then(resolve => {
-      return this.moveLocalSync(newData);
-    }).then(resolve => {
-      this.removeSync();
-    }).catch(err => {
-      console.error(err);
-      // if (err.error == 'isDied') {   return; } console.warn(err); this._hostLocalSync();
-    });
-  }
 }
 
 export default OwnTank;
