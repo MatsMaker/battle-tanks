@@ -37,13 +37,13 @@ class Tank extends _Panzer {
     });
   }
 
-  kill() {
-    this.explosion.bigExplosion(this.frame.x, this.frame.y).then(result => {
-      super.kill();
-    }).catch(err => {
-      console.error(err);
-    });
-  }
+  // kill() {
+  //   this.explosion.bigExplosion(this.frame.x, this.frame.y).then(result => {
+  //   }).catch(err => {
+  //     console.error(err);
+  //   });
+  //   return super.kill();
+  // }
 
   hit(point) {
     super.hit(point);

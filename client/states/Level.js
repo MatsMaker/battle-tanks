@@ -92,9 +92,7 @@ class Level {
       let selectTankIndex = this.tanks.findIndex(lTank => lTank.player == rTank.player);
 
       if (selectTankIndex > -1) {
-        if (rTank.alive) {
-          this.tanks[selectTankIndex].update(rTank);
-        }
+        this.tanks[selectTankIndex].update(rTank);
       } else {
         this.addTank(rTank);
       }
@@ -162,6 +160,7 @@ class Level {
   }
 
   update() {
+    // console.warn('objects list :', this.game.world.children.length);
     this.game.data.sync.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
       console.error(err);
     });

@@ -15,10 +15,10 @@ class AlienTank extends Tank {
     game.load.physics(physicsData, require('file!../assets/E-100/E-100.json'));
   }
 
-  kill() {
-    console.warn(this.player + ' died');
-    super.kill();
-  }
+  // kill() {
+  //   console.warn(this.player + ' died');
+  //   return super.kill();
+  // }
 
   constructor(game, player, data = {}) {
     super(game, player, data);

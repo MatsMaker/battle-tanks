@@ -82,10 +82,10 @@ class OwnTank extends Tank {
     });
   }
 
-  kill() {
-    console.warn('You died');
-    super.kill();
-  }
+  // kill() {
+  //   console.warn('You died');
+  //   return super.kill();
+  // }
 
   create(data) {
     return new Promise((resolve, resject) => {
