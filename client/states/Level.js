@@ -65,11 +65,7 @@ class Level {
       ? new OwnTank(this.game, tankData.player, extankData)
       : new AlienTank(this.game, tankData.player, extankData);
     newTank.create(extankData).then(result => {
-      if (result) {
-        this.tanks.push(newTank);
-      } else {
-        console.error('error create new tank');
-      }
+      this.tanks.push(newTank);
     }).catch(err => {
       console.error(err);
     })
@@ -115,7 +111,7 @@ class Level {
 
   respawn() {
     console.log('respawn');
-    const deadTanks = this.tanks.filter(tank => !tank.alive && this.isOwner(tank));
+    const deadTanks = this.tanks.filter(tank => !tank.alive);
     deadTanks.forEach(tank => {
       tank.reset({x: this.game.world.randomX, y: this.game.world.randomY});
     });
@@ -156,7 +152,7 @@ class Level {
     this.bulletGroup = new BulletGroup(this.game);
     this.bulletGroup.create();
 
-    this.game.time.events.loop(this.resetDelay, this.respawn, this);
+    // this.game.time.events.loop(this.resetDelay, this.respawn, this);
   }
 
   update() {

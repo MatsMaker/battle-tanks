@@ -37,7 +37,7 @@ class OwnTank extends Tank {
       x: this.game.input.x + this.game.camera.x,
       y: this.game.input.y + this.game.camera.y
     };
-    superController.turretRotation = this.turret.rotation;
+    superController.turretRotation = this.game.physics.arcade.angleToPointer(this.turret);
     return superController;
   }
 
@@ -45,23 +45,17 @@ class OwnTank extends Tank {
     return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire;
   }
 
-  _localSyncFrame(newData) {
-    return new Promise((resolve, reject) => {
-      if (!this._isNewCommand(newData) && this.frame.alive) {
-        this.frame.body.x = newData.x;
-        this.frame.body.y = newData.y;
-        this.frame.body.angle = newData.angle;
-        resolve(true);
-      } else {
-        resolve('isNewCommand');
-      }
-    });
-
+  _localSyncFrame(newData, result = {}) {
+    if (this._isNewCommand(newData)) {
+      return this.moveLocalSync(newData, result);
+    } else {
+      return super._localSyncFrame(newData, result);
+    }
   }
 
-  moveLocalSync(newData) {
+  moveLocalSync(newData, result = {}) {
     return new Promise((resolve, reject) => {
-      if (this.alive) {
+      if (result.alive) {
         if (newData.move.left) {
           this.frame.body.rotateLeft(50);
         } else if (newData.move.right) {
@@ -74,47 +68,36 @@ class OwnTank extends Tank {
         } else if (newData.move.back) {
           this.frame.body.reverse(250000);
         }
-        this.turret.rotation = this.game.physics.arcade.angleToPointer(this.turret);
-        resolve(newData.alive);
+        result.moveSync = true;
+        resolve(result);
       } else {
-        resolve(newData.alive);
+        result.moveSync = false;
+        resolve(result);
       }
     });
+
   }
 
-  // kill() {
-  //   console.warn('You died');
-  //   return super.kill();
-  // }
+  // kill() {   console.warn('You died');   return super.kill(); }
 
   create(data) {
-    return new Promise((resolve, resject) => {
+    return new Promise((resolve, reject) => {
       super.create(data).then(result => {
-        if (result) {
+        if (result.alive) {
           if (!this.cursors) {
             this.cursors = this.game.input.keyboard.createCursorKeys();
           }
           this.game.camera.follow(this.frame);
-          resolve(true);
+          result.cameraFollow = true;
+          resolve(result);
         } else {
-          resject(false);
+          result.cameraFollow = false;
+          resolve(result)
         }
-      }).catch(err => {
-        resject(err);
       })
     })
   }
 
-  update(newData) {
-    // console.warn('objects list :', this.game.world.children.length);
-    this.localSync(newData).then(resolve => {
-      return this.moveLocalSync(newData);
-    }).then(resolve => {
-      this.removeSync();
-    }).catch(err => {
-      console.error(err);
-    });
-  }
 }
 
 export default OwnTank;

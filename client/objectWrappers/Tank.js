@@ -20,34 +20,30 @@ class Tank extends _Panzer {
   create(data) {
     return new Promise((resolve, reject) => {
       super.create(data).then(result => {
-        if (result) {
-
+        if (result.alive) {
           this.explosion = (!this.explosion)
             ? new Explosion(this.game)
             : this.explosion;
-
+          result.explosionInit = true;
           resolve(result);
         } else {
-          reject(false);
+          result.explosionInit = false;
+          resolve(result)
         }
-
-      }).catch(err => {
-        reject(err);
-      });
+      })
     });
   }
 
-  // kill() {
-  //   this.explosion.bigExplosion(this.frame.x, this.frame.y).then(result => {
-  //   }).catch(err => {
-  //     console.error(err);
-  //   });
-  //   return super.kill();
-  // }
+  kill() {
+    this.explosion.bigExplosion(this.frame.x, this.frame.y).then(result => {}).catch(err => {
+      console.error(err);
+    });
+    return super.kill();
+  }
 
   hit(point) {
-    super.hit(point);
     this.explosion.hit(point);
+    return super.hit(point);
   }
 
 }
