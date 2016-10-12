@@ -45,7 +45,6 @@ class BulletsGroup {
   }
 
   onBulletContact(bullet, body, bodyB, shapeA, shapeB, equation) {
-    console.log(equation[0]);
     if (body == null) { // fly out from map
       bullet.destroy();
     } else {

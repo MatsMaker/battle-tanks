@@ -21,9 +21,9 @@ class Level {
   _exetndTandkData(tankData) {
     const self = this;
 
-    self.bulletGroup.options.onBulletContact = function (bullet, body, bodyB, shapeA, shapeB, equation) {
+    self.bulletGroup.options.onBulletContact = function (bullet, body, bodyB, shapeA, shapeB, equation, multiplier) {
       if (bullet.imageKey != body.sprite.key) {
-        self.onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation)
+        self.onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation, multiplier)
       }
     };
 

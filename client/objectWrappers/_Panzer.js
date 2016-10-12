@@ -100,7 +100,7 @@ class _Panzer {
   _localSyncFrame(result = {}) {
     const newData = this.newData;
     return new Promise((resolve, reject) => {
-      if (result.alive) {
+      if (result.alive && this.frame.body.angularVelocity === 0) {
         this.frame.body.x = newData.x;
         this.frame.body.y = newData.y;
         this.frame.body.angle = newData.angle;
@@ -160,10 +160,10 @@ class _Panzer {
       this.frame.body.loadPolygon(this.physicsData, 'body2');
       this.frame.body.angular = this.data.angle;
       this.frame.body.mass = 1000;
-      this.frame.body.damping = 0.999;
-      this.frame.body.angularDamping = 0.999;
-      this.frame.body.inertia = 1000;
-      this.frame.body.sleepSpeedLimit = 1400;
+      this.frame.body.damping = 0.99;
+      this.frame.body.angularDamping = 0.9999999;
+      // this.frame.body.inertia = 1000;
+      // this.frame.body.sleepSpeedLimit = 1400;
       this.frame.body.dynamic = true;
       // this.frame.body.debug = true; // debug
 
@@ -256,6 +256,7 @@ class _Panzer {
   }
 
   contactWithBullet(bullet, bodyB, shapeA, shapeB, equation) {
+    console.log(bodyB, shapeA, shapeB, equation);
     const collisionPoint = {
       x: bullet.x,
       y: bullet.y

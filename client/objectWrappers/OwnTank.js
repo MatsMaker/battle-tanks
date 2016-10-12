@@ -41,47 +41,10 @@ class OwnTank extends Tank {
     return superController;
   }
 
-  _isNewCommand() {
-    const newData = this.newData;
-    return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire;
+  kill() {
+    console.warn('You died');
+    return super.kill();
   }
-
-  _localSyncFrame(result = {}) {
-    const newData = this.newData;
-    if (this._isNewCommand(newData)) {
-      return this.moveLocalSync(newData, result);
-    } else {
-      return super._localSyncFrame(newData, result);
-    }
-  }
-
-  moveLocalSync(result = {}) {
-    const newData = this.newData;
-    return new Promise((resolve, reject) => {
-      if (result.alive) {
-        if (newData.move.left) {
-          this.frame.body.rotateLeft(50);
-        } else if (newData.move.right) {
-          this.frame.body.rotateRight(50);
-        } else {
-          this.frame.body.setZeroRotation();
-        }
-        if (newData.move.forward) {
-          this.frame.body.thrust(800000);
-        } else if (newData.move.back) {
-          this.frame.body.reverse(250000);
-        }
-        result.moveSync = true;
-        resolve(result);
-      } else {
-        result.moveSync = false;
-        resolve(result);
-      }
-    });
-
-  }
-
-  // kill() {   console.warn('You died');   return super.kill(); }
 
   create(data) {
     return new Promise((resolve, reject) => {
