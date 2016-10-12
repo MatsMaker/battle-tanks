@@ -26,6 +26,8 @@ class _Panzer {
     this.imageKeyTurret = imageKeyTurret;
     this.physicsData = physicsData;
     this.newData = {};
+
+    this.mass = 1000;
   }
 
   set alive(value) {
@@ -159,13 +161,12 @@ class _Panzer {
       this.frame.body.clearShapes();
       this.frame.body.loadPolygon(this.physicsData, 'body2');
       this.frame.body.angular = this.data.angle;
-      this.frame.body.mass = 1000;
-      this.frame.body.damping = 0.99;
-      this.frame.body.angularDamping = 0.9999999;
-      // this.frame.body.inertia = 1000;
-      // this.frame.body.sleepSpeedLimit = 1400;
+      this.frame.body.mass = this.mass;
+      this.frame.body.damping = 0.999;
+      this.frame.body.angularDamping = 0.99999999999999;
+      // this.frame.body.inertia = 1000; this.frame.body.sleepSpeedLimit = 1400;
       this.frame.body.dynamic = true;
-      // this.frame.body.debug = true; // debug
+      this.frame.body.debug = true; // debug
 
       this.turret = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyTurret);
       this.turret.scale.set(0.3, 0.3);

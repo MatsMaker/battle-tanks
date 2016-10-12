@@ -15,7 +15,7 @@ class Bullet {
     this.sprite.anchor.set(0.5, 0.2);
     this.sprite.body.setCircle(3);
     this.sprite.rotation = rotation;
-    this.sprite.body.mass = 10;
+    this.sprite.body.mass = 30;
     this.sprite.body.damping = 0.5;
     this.sprite.body.angularDamping = 0.5;
     this.sprite.body.rotation = rotation;

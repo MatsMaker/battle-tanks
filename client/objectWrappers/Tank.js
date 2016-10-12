@@ -15,6 +15,7 @@ class Tank extends _Panzer {
 
   constructor(game, player, data = {}) {
     super(game, player, data);
+    this.enginePower = 800000;
   }
 
   create(data) {
@@ -53,16 +54,16 @@ class Tank extends _Panzer {
     return new Promise((resolve, reject) => {
       if (result.alive) {
         if (newData.move.left) {
-          this.frame.body.rotateLeft(50);
+          this.frame.body.rotateLeft(40);
         } else if (newData.move.right) {
-          this.frame.body.rotateRight(50);
+          this.frame.body.rotateRight(40);
         } else {
           this.frame.body.setZeroRotation();
         }
         if (newData.move.forward) {
-          this.frame.body.thrust(800000);
+          this.frame.body.thrust(this.enginePower);
         } else if (newData.move.back) {
-          this.frame.body.reverse(250000);
+          this.frame.body.reverse(this.enginePower * 0.5);
         }
         result.moveSync = true;
         resolve(result);
