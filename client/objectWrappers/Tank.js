@@ -25,6 +25,9 @@ class Tank extends _Panzer {
           this.explosion = (!this.explosion)
             ? new Explosion(this.game)
             : this.explosion;
+
+          this.interfaceInit();
+
           result.explosionInit = true;
           resolve(result);
         } else {
@@ -35,6 +38,27 @@ class Tank extends _Panzer {
     });
   }
 
+  interfaceInit() {
+    const style = {
+      fill: '#FC26ED',
+      fontSize: '24px'
+    };
+    this.interface = this.game.add.text(this.frame.x, this.frame.y, '', style);
+    this.interface.anchor.x = 0.5;
+    this.interface.anchor.y = 0;
+  }
+
+  _licalSyncInterface(result = {}) {
+    this.interface.x = this.frame.x;
+    this.interface.y = this.frame.y - 32
+    let text = '';
+    for (let i = 0; i < this.life; i++) {
+      text += '.';
+    }
+    this.interface.text = text;
+    this.interface.alive = result.alive;
+  }
+
   _isNewCommand() {
     const newData = this.newData;
     return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire;
@@ -42,6 +66,7 @@ class Tank extends _Panzer {
 
   _localSyncFrame(result = {}) {
     const newData = this.newData;
+    this._licalSyncInterface(result);
     if (this._isNewCommand(newData)) {
       return this.moveLocalSync(newData, result);
     } else {
@@ -79,6 +104,14 @@ class Tank extends _Panzer {
       console.error(err);
     });
     return super.kill();
+  }
+
+  abort() {
+    return new Promise((resolve, reject) => {
+      return super.abort().then(result => {
+        this.interface.destroy();
+      });
+    });
   }
 
   armorPenetration(bullet) {

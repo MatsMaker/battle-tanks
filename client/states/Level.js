@@ -10,7 +10,7 @@ class Level {
 
   onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation) {
     const target = this.tanks.find(tank => tank.isOwnerFrameBody(body));
-    const multiplier = equation[0].multiplier;
+    const multiplier = equation[0].multiplier; //when multiplier == 0, reflection is error calculation?
     target.contactWithBullet(bullet.x, bullet.y, multiplier);
     if (multiplier == 0) {
       this.game.time.events.add(200, bullet.drop, bullet);
@@ -18,8 +18,6 @@ class Level {
       target.armorPenetration(bullet);
     }
     console.log('-------------');
-    // console.log(target.frame.rotation, this.game.physics.arcade.angleToPointer(bullet.sprite), target.frame.rotation -
-    // this.game.physics.arcade.angleToPointer(bullet.sprite)); console.log(body, bodyB, shapeA, shapeB, equation);
   }
 
   _exetndTandkData(tankData) {
