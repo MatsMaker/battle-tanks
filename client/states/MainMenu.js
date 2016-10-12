@@ -1,6 +1,5 @@
 import StartMenu from '../objectWrappers/Menu.js';
 import Level from './Level.js';
-import Tank from '../objectWrappers/Tank.js';
 import Phaser from '../Phaser.js';
 
 class MainMenu {
@@ -14,8 +13,6 @@ class MainMenu {
   }
 
   preload() {
-    this.game.physics.startSystem(Phaser.Physics.P2JS);
-    Tank.preload(this.game);
   }
 
   create() {

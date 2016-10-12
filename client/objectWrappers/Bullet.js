@@ -12,10 +12,17 @@ class Bullet {
 
     this.sprite = new Phaser.Sprite(this.game, x, y, this.imageKey);
     this.game.physics.p2.enableBody(this.sprite);
+    this.sprite.anchor.set(0.5, 0.2);
+    this.sprite.body.setCircle(3);
     this.sprite.rotation = rotation;
+    this.sprite.body.mass = 100;
+    this.sprite.body.damping = 0.1;
+    this.sprite.body.needsUpdate = true;
+    this.sprite.body.angularDamping = 0.1;
     this.sprite.body.rotation = rotation;
     this.sprite.body.setZeroVelocity();
     this.sprite.body.moveForward(speed);
+    // this.sprite.body.debug = true; // debug
 
     this.explosion = new Explosion(this.game);
   }
@@ -26,7 +33,7 @@ class Bullet {
     sprite.body.rotation = rotation;
     sprite.rotation = rotation;
     sprite.body.setZeroVelocity();
-    sprite.body.moveForward(speed);
+    sprite.body.moveForward(speed * 10);
 
     return sprite;
   }

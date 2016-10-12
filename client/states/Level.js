@@ -12,7 +12,10 @@ class Level {
     const target = this.tanks.find(tank => tank.isOwnerFrameBody(body));
     target.contactWithBullet(bullet.sprite, bodyB, shapeA, shapeB, equation);
     this.game.time.events.add(200, bullet.drop, bullet);
-    console.log(bullet, body, bodyB, shapeA, shapeB, equation);
+
+    console.log('-------------');
+    // console.log(target.frame.rotation, this.game.physics.arcade.angleToPointer(bullet.sprite), target.frame.rotation -
+    // this.game.physics.arcade.angleToPointer(bullet.sprite)); console.log(body, bodyB, shapeA, shapeB, equation);
   }
 
   _exetndTandkData(tankData) {
@@ -144,6 +147,10 @@ class Level {
   }
 
   create() {
+    this.game.physics.startSystem(Phaser.Physics.P2JS);
+    this.game.physics.p2.setImpactEvents(true);
+    this.game.canvas.style.cursor = "crosshair";
+
     this.background.destroy();
     this.animatedDots.destroy();
 
