@@ -54,22 +54,27 @@ class Explosion {
   }
 
   hit(point) {
-    const explosion = this.game.add.sprite(point.x, point.y, this.explosionImageKey);
-    explosion.scale.set(0.15, 0.15);
-    explosion.angle = point.angle || 0;
+    return new Promise((resolve, reject) => {
+      const explosion = this.game.add.sprite(point.x, point.y, this.explosionImageKey);
+      explosion.scale.set(0.15, 0.15);
+      explosion.angle = point.angle || 0;
 
-    let play = explosion.animations.add('play', [
-      0, 8
-    ], 10);
+      let play = explosion.animations.add('play', [
+        0, 8
+      ], 10);
 
-    explosion.anchor.set(0.5, 0.5);
-    play.play(10, false, true);
+      explosion.anchor.set(0.5, 0.5);
+      play.play(10, false, true);
 
-    setTimeout(() => {
-      if (play.isFinished) {
-        explosion.destroy();
-      }
-    }, 300);
+      setTimeout(() => {
+        if (play.isFinished) {
+          explosion.destroy();
+          resolve(true);
+        } else {
+          reject('not destroy');
+        }
+      }, 300);
+    });
   }
 
   zilch(point) {

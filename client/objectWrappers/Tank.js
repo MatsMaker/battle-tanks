@@ -81,9 +81,9 @@ class Tank extends _Panzer {
     return super.kill();
   }
 
-  hit(point) {
-    this.explosion.hit(point);
-    return super.hit(point);
+  armorPenetration(bullet) {
+    this.explosion.hit(bullet.sprite);
+    bullet.destroy();
   }
 
 }

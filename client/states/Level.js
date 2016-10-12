@@ -10,9 +10,13 @@ class Level {
 
   onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation) {
     const target = this.tanks.find(tank => tank.isOwnerFrameBody(body));
-    target.contactWithBullet(bullet.sprite, bodyB, shapeA, shapeB, equation);
-    this.game.time.events.add(200, bullet.drop, bullet);
-
+    const multiplier = equation[0].multiplier;
+    target.contactWithBullet(bullet.x, bullet.y, multiplier);
+    if (multiplier == 0) {
+      this.game.time.events.add(200, bullet.drop, bullet);
+    } else {
+      target.armorPenetration(bullet);
+    }
     console.log('-------------');
     // console.log(target.frame.rotation, this.game.physics.arcade.angleToPointer(bullet.sprite), target.frame.rotation -
     // this.game.physics.arcade.angleToPointer(bullet.sprite)); console.log(body, bodyB, shapeA, shapeB, equation);
@@ -149,6 +153,7 @@ class Level {
   create() {
     this.game.physics.startSystem(Phaser.Physics.P2JS);
     this.game.physics.p2.setImpactEvents(true);
+    this.game.physics.p2.restitution = 0.9;
     this.game.canvas.style.cursor = "crosshair";
 
     this.background.destroy();

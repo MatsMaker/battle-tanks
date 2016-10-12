@@ -164,9 +164,8 @@ class _Panzer {
       this.frame.body.mass = this.mass;
       this.frame.body.damping = 0.999;
       this.frame.body.angularDamping = 0.99999999999999;
-      // this.frame.body.inertia = 1000; this.frame.body.sleepSpeedLimit = 1400;
       this.frame.body.dynamic = true;
-      this.frame.body.debug = true; // debug
+      // this.frame.body.debug = true; // debug
 
       this.turret = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyTurret);
       this.turret.scale.set(0.3, 0.3);
@@ -253,14 +252,17 @@ class _Panzer {
 
   hit(point) {
     console.log('hit');
-    this.life--;
+    console.log('multiplier', point.multiplier);
+    this.life -= point.multiplier / 23000;
   }
 
-  contactWithBullet(bullet, bodyB, shapeA, shapeB, equation) {
-    console.log(bodyB, shapeA, shapeB, equation);
+  contactWithBullet(x, y, multiplier) {
+    // console.log('bullet', bullet); console.log('body', body); console.log('bodyB', bodyB); console.log('shapeA', shapeA);
+    // console.log('shapeB', shapeB); console.log('equation', equation);
     const collisionPoint = {
-      x: bullet.x,
-      y: bullet.y
+      x,
+      y,
+      multiplier
     };
     this.bulletContacts.push(collisionPoint);
   }
