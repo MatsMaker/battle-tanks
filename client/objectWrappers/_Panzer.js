@@ -163,7 +163,8 @@ class _Panzer {
       this.data = _.extend(this.data, data);
 
       this.frame = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyFrame);
-      this.frame.scale.set(0.3, 0.3);
+      // this.frame.scale.set(0.3, 0.3);
+      this.frame.scale.set(0.6, 0.65);
       this.frame.anchor.set(0.5, 0.5);
       this.game.physics.p2.enableBody(this.frame);
       this.frame.body.clearShapes();
@@ -176,7 +177,8 @@ class _Panzer {
       // this.frame.body.debug = true; // debug
 
       this.turret = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyTurret);
-      this.turret.scale.set(0.3, 0.3);
+      // this.turret.scale.set(0.3, 0.3);
+      this.turret.scale.set(0.6, 0.65);
       this.turret.anchor.set(0.3, 0.5);
       this.turretRadius = 33; // rotating turret radius
       this.turret.rotation = this.turretRotation;

@@ -10,8 +10,8 @@ class OwnTank extends Tank {
   static preload(game) {
     super.preload(game);
 
-    game.load.image(imageKeyFrame, require('../assets/E-100/green/body2.png'), 1);
-    game.load.image(imageKeyTurret, require('../assets/E-100/green/turret.png'), 1);
+    game.load.image(imageKeyFrame, require('../assets/E-100/green/body_40x76.png'), 1);
+    game.load.image(imageKeyTurret, require('../assets/E-100/green/turret_79x27.png'), 1);
 
     game.load.physics(physicsData, require('file!../assets/E-100/E-100.json'));
   }

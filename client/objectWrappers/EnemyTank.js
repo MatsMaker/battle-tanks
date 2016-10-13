@@ -9,8 +9,8 @@ class EnemyTank extends Tank {
   static preload(game) {
     super.preload(game);
 
-    game.load.image(imageKeyFrame, require('../assets/E-100/brown-saturation/body2.png'), 1);
-    game.load.image(imageKeyTurret, require('../assets/E-100/brown-saturation/turret.png'), 1);
+    game.load.image(imageKeyFrame, require('../assets/E-100/brown-saturation/body_40x76.png'), 1);
+    game.load.image(imageKeyTurret, require('../assets/E-100/brown-saturation/turret_79x27.png'), 1);
 
     game.load.physics(physicsData, require('file!../assets/E-100/E-100.json'));
   }
