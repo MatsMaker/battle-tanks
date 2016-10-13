@@ -6,7 +6,7 @@ import Level from './states/Level.js';
 class TheGame {
 
   constructor(userId, reduser) {
-    this.game = new Phaser.Game(800, 600, Phaser.AUTO, '', Boot);
+    this.game = new Phaser.Game(700, 700, Phaser.AUTO, '', Boot);
     this.game.data = {
       sync: reduser,
       userId: userId,

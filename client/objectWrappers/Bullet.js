@@ -33,7 +33,7 @@ class Bullet {
     sprite.body.rotation = rotation;
     sprite.rotation = rotation;
     sprite.body.setZeroVelocity();
-    sprite.body.moveForward(speed * 10);
+    sprite.body.moveForward(speed);
 
     return sprite;
   }

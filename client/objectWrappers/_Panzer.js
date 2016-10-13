@@ -27,7 +27,11 @@ class _Panzer {
     this.physicsData = physicsData;
     this.newData = {};
 
+    this.fireRate = 1000;
+    this.bulletForce = 900;
+    this.nextFire = 0;
     this.mass = 1000;
+    this.multiplierIndexDamage = 23000;
   }
 
   set alive(value) {
@@ -173,8 +177,6 @@ class _Panzer {
       this.turretRadius = 33; // rotating turret radius
       this.turret.rotation = this.turretRotation;
 
-      this.fireRate = 1000;
-      this.nextFire = 0;
       this.alive = true;
       this.deathTime = null;
       this.createTime = new Date().getTime();
@@ -221,10 +223,10 @@ class _Panzer {
     });
   }
 
-  barrelEdge() {
+  barrelEdge(radius) {
     // http://flashgamedev.ru/viewtopic.php?f=6&t=3948
     const x0 = this.turret.x;
-    const y0 = this.turret.y - this.turretRadius;
+    const y0 = this.turret.y - (radius || this.turretRadius);
     const angleFix = 1.5708; // 45 gradusov
 
     const radians = this.turret.rotation + angleFix;
@@ -245,7 +247,7 @@ class _Panzer {
     if (this.game.time.now > this.nextFire) {
       this.nextFire = this.game.time.now + this.fireRate;
       const coorInitBullet = this.barrelEdge();
-      this.initBullet(coorInitBullet.x, coorInitBullet.y, coorInitBullet.rotation, 800, {shooter: this});
+      this.initBullet(coorInitBullet.x, coorInitBullet.y, coorInitBullet.rotation, this.bulletForce, {shooter: this});
     }
     return;
   }
@@ -253,12 +255,10 @@ class _Panzer {
   hit(point) {
     console.log('hit');
     console.log('multiplier', point.multiplier);
-    this.life -= point.multiplier / 23000;
+    this.life -= point.multiplier / this.multiplierIndexDamage;
   }
 
   contactWithBullet(x, y, multiplier) {
-    // console.log('bullet', bullet); console.log('body', body); console.log('bodyB', bodyB); console.log('shapeA', shapeA);
-    // console.log('shapeB', shapeB); console.log('equation', equation);
     const collisionPoint = {
       x,
       y,

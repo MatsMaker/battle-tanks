@@ -4,7 +4,7 @@ const imageKeyFrame = 'tankBody_E-100-brown';
 const imageKeyTurret = 'tankTurret_E-100-brown';
 const physicsData = 'physicsData';
 
-class AlienTank extends Tank {
+class EnemyTank extends Tank {
 
   static preload(game) {
     super.preload(game);
@@ -27,4 +27,4 @@ class AlienTank extends Tank {
   }
 }
 
-export default AlienTank;
+export default EnemyTank;

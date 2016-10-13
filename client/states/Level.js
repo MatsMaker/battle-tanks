@@ -3,7 +3,7 @@ import AnimatedDots from '../objectWrappers/texts/AnimatedDots.js';
 import Map1 from '../objectWrappers/maps/Map1.js';
 
 import BulletGroup from '../objectWrappers/BulletGroup.js'
-import AlienTank from '../objectWrappers/AlienTank.js';
+import EnemyTank from '../objectWrappers/EnemyTank.js';
 import OwnTank from '../objectWrappers/OwnTank.js';
 
 class Level {
@@ -11,6 +11,7 @@ class Level {
   onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation) {
     const target = this.tanks.find(tank => tank.isOwnerFrameBody(body));
     const multiplier = equation[0].multiplier; //when multiplier == 0, reflection is error calculation?
+    console.log(equation);
     target.contactWithBullet(bullet.x, bullet.y, multiplier);
     if (multiplier == 0) {
       this.game.time.events.add(200, bullet.drop, bullet);
@@ -69,7 +70,7 @@ class Level {
     const extankData = this._exetndTandkData(tankData);
     const newTank = (this.isOwner(tankData))
       ? new OwnTank(this.game, tankData.player, extankData)
-      : new AlienTank(this.game, tankData.player, extankData);
+      : new EnemyTank(this.game, tankData.player, extankData);
     newTank.create(extankData).then(result => {
       this.tanks.push(newTank);
     }).catch(err => {
@@ -125,7 +126,7 @@ class Level {
 
   preload() {
     OwnTank.preload(this.game);
-    AlienTank.preload(this.game);
+    EnemyTank.preload(this.game);
     BulletGroup.preload(this.game);
     Map1.preload(this.game);
   }

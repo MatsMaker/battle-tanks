@@ -15,6 +15,8 @@ class Tank extends _Panzer {
 
   constructor(game, player, data = {}) {
     super(game, player, data);
+
+    this.mass = 1000;
     this.enginePower = 800000;
   }
 
@@ -40,8 +42,8 @@ class Tank extends _Panzer {
 
   interfaceInit() {
     const style = {
-      fill: '#FC26ED',
-      fontSize: '24px'
+      fill: '#14FC40',
+      fontSize: '16px'
     };
     this.interface = this.game.add.text(this.frame.x, this.frame.y, '', style);
     this.interface.anchor.x = 0.5;
@@ -53,7 +55,7 @@ class Tank extends _Panzer {
     this.interface.y = this.frame.y - 32
     let text = '';
     for (let i = 0; i < this.life; i++) {
-      text += '.';
+      text += '-';
     }
     this.interface.text = text;
     this.interface.alive = result.alive;

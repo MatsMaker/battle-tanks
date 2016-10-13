@@ -18,7 +18,7 @@ class BulletsGroup {
   create(options) {
     this.options = _.extend({
       groupName: 'BulletsGroup',
-      maxTimeLifeOfBullet: 1,
+      maxTimeLifeOfBullet: 0.9,
       autoDestroyOfBullet: true,
       onBulletContact: function (bullet, body, bodyB, shapeA, shapeB, equation) {
         console.log(bullet, body, bodyB, shapeA, shapeB, equation);

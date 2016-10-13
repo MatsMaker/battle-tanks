@@ -23,6 +23,7 @@ class Explosion {
 
       explosion.scale.set(scale, scale);
       explosion.anchor.set(0.5, 0.5);
+      explosion.angle = this.game.rnd.integerInRange(-180, 180);
 
       let play = explosion.animations.add('explosion', [
         0,
@@ -57,7 +58,7 @@ class Explosion {
     return new Promise((resolve, reject) => {
       const explosion = this.game.add.sprite(point.x, point.y, this.explosionImageKey);
       explosion.scale.set(0.15, 0.15);
-      explosion.angle = point.angle || 0;
+      explosion.angle = point.angle || this.game.rnd.integerInRange(-180, 180);
 
       let play = explosion.animations.add('play', [
         0, 8
@@ -80,7 +81,7 @@ class Explosion {
   zilch(point) {
     const explosion = this.game.add.sprite(point.x, point.y, this.explosionImageKey);
     explosion.scale.set(0.15, 0.15);
-    explosion.angle = point.angle || 0;
+    explosion.angle = point.angle || this.game.rnd.integerInRange(-180, 180);
 
     let play = explosion.animations.add('play', [
       8,
