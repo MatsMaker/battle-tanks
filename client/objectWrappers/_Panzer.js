@@ -45,7 +45,11 @@ class _Panzer {
   }
 
   isOwnerFrameBody(body) {
-    return this.frame.body.id === body.id;
+    if (this.frame.body && body) {
+      return this.frame.body.id === body.id;
+    } else {
+      return false;
+    }
   }
 
   static preload(game) {
@@ -203,7 +207,6 @@ class _Panzer {
   }
 
   abort() {
-    console.log('abort');
     return new Promise((resolve, reject) => {
       // this.frame.body.removeNextStep = true;
       this.alive = false;
@@ -214,7 +217,6 @@ class _Panzer {
   }
 
   kill() {
-    console.log('kill');
     return new Promise((resolve, reject) => {
       this.alive = false;
       this.createTime = null;
@@ -253,8 +255,6 @@ class _Panzer {
   }
 
   hit(point) {
-    console.log('hit');
-    console.log('multiplier', point.multiplier);
     this.life -= point.multiplier / this.multiplierIndexDamage;
   }
 

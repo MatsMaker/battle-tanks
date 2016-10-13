@@ -20,7 +20,7 @@ class OwnTank extends Tank {
     super(game, player, data);
     this.imageKeyFrame = imageKeyFrame;
     this.imageKeyTurret = imageKeyTurret;
-    this.viewingRange = 100;
+    // this.viewingRange = 100;
 
     this.cursors;
   }
@@ -47,16 +47,17 @@ class OwnTank extends Tank {
     return super.kill();
   }
 
-  updateCamera() {
-    const cameraPosition = this.barrelEdge(this.viewingRange);
-    this.game.camera.focusOnXY(cameraPosition.x, cameraPosition.y);
-  }
-
-  _localSyncTurret(result = {}) {
-    const newData = this.newData;
-    this.updateCamera();
-    return super._localSyncTurret(newData, result = {});
-  }
+  //view range
+  // updateCamera() {
+  //   const cameraPosition = this.barrelEdge(this.viewingRange);
+  //   this.game.camera.focusOnXY(cameraPosition.x, cameraPosition.y);
+  // }
+  //
+  // _localSyncTurret(result = {}) {
+  //   const newData = this.newData;
+  //   this.updateCamera();
+  //   return super._localSyncTurret(newData, result = {});
+  // }
 
   hit(point) {
     this.game.camera.shake(0.005, 100);
@@ -71,7 +72,7 @@ class OwnTank extends Tank {
           if (!this.cursors) {
             this.cursors = this.game.input.keyboard.createCursorKeys();
           }
-          // this.game.camera.follow(this.frame);
+          this.game.camera.follow(this.frame);
           result.cameraFollow = true;
           resolve(result);
         } else {

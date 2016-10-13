@@ -10,15 +10,17 @@ class Level {
 
   onBulletContactTank(bullet, body, bodyB, shapeA, shapeB, equation) {
     const target = this.tanks.find(tank => tank.isOwnerFrameBody(body));
-    const multiplier = equation[0].multiplier; //when multiplier == 0, reflection is error calculation?
-    console.log(equation);
-    target.contactWithBullet(bullet.x, bullet.y, multiplier);
-    if (multiplier == 0) {
-      this.game.time.events.add(200, bullet.drop, bullet);
+    if (target === undefined) {
+      return;
     } else {
-      target.armorPenetration(bullet);
+      const multiplier = equation[0].multiplier; //when multiplier == 0, reflection is error calculation?
+      target.contactWithBullet(bullet.x, bullet.y, multiplier);
+      if (multiplier == 0) {
+        bullet.ricochet();
+      } else {
+        target.armorPenetration(bullet);
+      }
     }
-    console.log('-------------');
   }
 
   _exetndTandkData(tankData) {
@@ -117,7 +119,6 @@ class Level {
   }
 
   respawn() {
-    console.log('respawn');
     const deadTanks = this.tanks.filter(tank => !tank.alive && this.isOwner(tank));
     deadTanks.forEach(tank => {
       tank.reset({x: this.game.world.randomX, y: this.game.world.randomY});

@@ -47,6 +47,13 @@ class Bullet {
     return imageKey;
   }
 
+  ricochet() {
+    const animLife = this.game.rnd.integerInRange(50, 300);
+    this.sprite.body.damping = 0.9999999;
+    this.sprite.body.angularDamping = 0.9999999;
+    this.game.time.events.add(animLife, this.drop, this);
+  }
+
   destroy() {
     if (this.sprite.parent) {
       this.sprite.parent.remove(this.sprite, true);
