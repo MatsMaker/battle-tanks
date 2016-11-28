@@ -1,7 +1,7 @@
 'use strict';
 
 var path = require('path');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+// var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var phaserModule = path.join(__dirname, '/node_modules/phaser/');
 var phaser = path.join(phaserModule, 'build/custom/phaser-split.js'),
@@ -53,5 +53,5 @@ module.exports = {
   progress: true,
   colors: true,
   watch: true,
-  plugins: [new HtmlWebpackPlugin()]
+  plugins: [/*new HtmlWebpackPlugin()*/]
 };

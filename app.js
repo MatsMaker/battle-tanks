@@ -45,6 +45,7 @@ app.set('view engine', 'pug');
  * Public.
  */
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public/client')));
 /**
  * Routers.
  */
@@ -54,7 +55,6 @@ const server = http.createServer(app);
 server.listen(process.env.PORT);
 
 
-const cntrlClient = require('./controllers/client');
-
+const cntrlClient = require('./controllers/client').connect;
 const io = require('socket.io')(server);
 cntrlClient(io, sessionObj);

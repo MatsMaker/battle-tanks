@@ -3,7 +3,11 @@ const _ = require('underscore');
 const usersArePlaying = [];
 const tanks = [];
 
-module.exports = (io, sessionObj) => {
+exports.getPlay = (req, res) => {
+  res.render('game', {pageTitle: 'Tank'});
+};
+
+exports.connect = (io, sessionObj) => {
 
   io.use((socket, next) => {
     sessionObj(socket.request, socket.request.res, next);
