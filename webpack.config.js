@@ -11,7 +11,7 @@ var phaser = path.join(phaserModule, 'build/custom/phaser-split.js'),
 module.exports = {
   entry: path.join(__dirname, '/client', 'main.js'),
   output: {
-    path: 'static',
+    path: 'public/client',
     filename: 'index_bundle.js'
   },
   module: {
@@ -21,8 +21,7 @@ module.exports = {
         loaders: ["style", "css?sourceMap", "sass?sourceMap"]
       }, {
         test: /.(jpg|png)$/,
-        loader: 'file',
-        // include: path.join(__dirname, 'assets')
+        loader: 'file'
       }, {
         test: /.js$/,
         exclude: /node_modules/,
