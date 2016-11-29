@@ -1,12 +1,23 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('../models/User');
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  User.findById(id, (err, user) => {
+    done(err, user);
+  });
+});
 /**
  * Sign in using Email and Password.
  */
 passport.use(new LocalStrategy({
-  usernameField: 'email'
-}, (email, done) => {
+  usernameField: 'email',
+  passwordField: 'password'
+}, (email, password, done) => {
   User.findOne({
     email: email.toLowerCase()
   }, (err, user) => {

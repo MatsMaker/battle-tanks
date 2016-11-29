@@ -3,14 +3,17 @@ html(lang="en")
   head
     title=pageTitle
   body
-    h1 Sign in
+    h1 Sign up
     if message
       div.message
         h3= message
-    form(action='/signin' method='post')
+    form(action='/signup' method='post')
 
       label(for='email') Email:
       input(name='email' require=true id='email')
+
+      label(for='name') Name:
+      input(name='name' require=true id='name')
 
       label(for='password') Password:
       input(name='password' require=true id='password')

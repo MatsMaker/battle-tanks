@@ -1,8 +1,11 @@
 const http = require('http');
 const path = require('path');
 const express = require('express');
+const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+const passport = require('passport');
+require('./config/passport');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const app = express();
@@ -35,7 +38,11 @@ var sessionObj = session({
   })
 });
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(sessionObj);
+app.use(passport.initialize());
+app.use(passport.session());
 /**
  * View engine setup.
  */
