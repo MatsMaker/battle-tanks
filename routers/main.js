@@ -3,11 +3,10 @@ const router = express.Router();
 const path = require('path');
 
 const cntrlIndex = require('../controllers/index');
-const cntrlClient = require('../controllers/client');
+const cntrlPlay = require('../controllers/play');
 const cntrlSignin = require('../controllers/signin');
 const cntrlSignUp = require('../controllers/signup');
 const cntrlNoPage = require('../controllers/noPage');
-
 
 /**
  * API keys and Passport configuration.
@@ -19,7 +18,7 @@ router.use((req, res, next) => {
 });
 
 router.get('/', cntrlIndex.index);
-router.get('/play', passportConfig.isAuthenticated, cntrlClient.getPlay);
+router.get('/play', passportConfig.isAuthenticated, cntrlPlay.getPlay);
 
 router.get('/signin', cntrlSignin.getSignin);
 router.post('/signin', cntrlSignin.postSignin);
