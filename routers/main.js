@@ -4,8 +4,7 @@ const path = require('path');
 
 const cntrlIndex = require('../controllers/index');
 const cntrlPlay = require('../controllers/play');
-const cntrlSignin = require('../controllers/signin');
-const cntrlSignUp = require('../controllers/signup');
+const cntrlUser = require('../controllers/user');
 const cntrlNoPage = require('../controllers/noPage');
 
 /**
@@ -20,12 +19,12 @@ router.use((req, res, next) => {
 router.get('/', cntrlIndex.index);
 router.get('/play', passportConfig.isAuthenticated, cntrlPlay.getPlay);
 
-router.get('/signin', cntrlSignin.getSignin);
-router.post('/signin', cntrlSignin.postSignin);
-router.get('/signout', cntrlSignin.getSignOut);
+router.get('/signin', cntrlUser.getSignin);
+router.post('/signin', cntrlUser.postSignin);
+router.get('/signout', cntrlUser.getSignOut);
 
-router.get('/signup', cntrlSignUp.getSignUp);
-router.post('/signup', cntrlSignUp.postSignUp);
+router.get('/signup', cntrlUser.getSignUp);
+router.post('/signup', cntrlUser.postSignUp);
 
 router.get('/*', cntrlNoPage.noPage);
 
