@@ -13,7 +13,8 @@ module.exports = (server) => {
   require('../config/passport');
   const passportSocketIo = require('passport.socketio');
 
-  io.of('/').use(passportSocketIo.authorize({
+  const game = io.of('/game');
+  game.use(passportSocketIo.authorize({
     key: process.env.SESSION_SID,
     secret: process.env.SESSION_SECRET,
     store: sessionStore,
@@ -70,7 +71,7 @@ module.exports = (server) => {
         }
       }
       // console.log(socket.request.session);
-      io.emit('message', {
+      game.emit('message', {
         type: response.type,
         data: data
       });

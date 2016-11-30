@@ -2,8 +2,8 @@ var io = require('socket.io-client');
 
 class Reduser {
 
-  constructor() {
-    this.socket = io('http://192.168.0.28:8000');
+  constructor(host) {
+    this.socket = io.connect(host || 'http://192.168.0.28:8000/game');
     this.eventList = {};
   }
 
