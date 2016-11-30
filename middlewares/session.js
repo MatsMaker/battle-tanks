@@ -1,5 +1,5 @@
 const session = require('express-session');
-const sessionStore = require('./sessionStore').mongoStore;
+const sessionStore = require('./sessionStore');
 /**
  * Session.
  */
