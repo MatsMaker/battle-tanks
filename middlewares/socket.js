@@ -13,7 +13,7 @@ module.exports = (server) => {
   require('../config/passport');
   const passportSocketIo = require('passport.socketio');
 
-  const game = io.of('/game');
+  const game = io.of(`/game`);
   game.use(passportSocketIo.authorize({
     key: process.env.SESSION_SID,
     secret: process.env.SESSION_SECRET,
@@ -29,7 +29,7 @@ module.exports = (server) => {
     }
   })).on('connection', socket => {
 
-    socket.on('message', response => {
+    socket.on('data', response => {
       let data;
       if (socket.request.user && socket.request.user.logged_in) {
         // console.log(socket.request.user);
@@ -71,7 +71,7 @@ module.exports = (server) => {
         }
       }
       // console.log(socket.request.session);
-      game.emit('message', {
+      game.emit('data', {
         type: response.type,
         data: data
       });

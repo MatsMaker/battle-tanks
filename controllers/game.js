@@ -4,9 +4,8 @@ const tanks = [];
 
 exports.auth = (response, socket) => {
 
-  const userId = (response.data.auth !== null)
-    ? response.data.auth
-    : new Date().getTime();
+  const userId = socket.request.user.profile.name;
+
   const userIndex = usersArePlaying.findIndex(user => user.userId == userId);
   if (userIndex > -1) {
     usersArePlaying[userIndex].connectedId = socket.id;

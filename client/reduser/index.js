@@ -8,10 +8,7 @@ class Reduser {
   }
 
   emitMessage(type, data) {
-    this.socket.emit('message', {
-      type: type,
-      data
-    });
+    this.socket.emit(type, data);
   }
 
   onMessage(response) {
@@ -44,7 +41,8 @@ class Reduser {
 
   connect() {
     return new Promise((resolve, reject) => {
-      this.socket.on('message', (response) => {
+
+      this.socket.on('auth', (response) => {
         this.onMessage(response);
       });
 
@@ -62,6 +60,4 @@ class Reduser {
 
 }
 
-const reduser = new Reduser();
-
-export default reduser;
+export default Reduser;
