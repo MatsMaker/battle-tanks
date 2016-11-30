@@ -1,14 +1,17 @@
 const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
+const sessionStore = require('./sessionStore');
 /**
  * Session.
  */
 module.exports = session({
-  resave: true,
+  key: process.env.SESSION_SID,
+  resave: false,
   saveUninitialized: true,
   secret: process.env.SESSION_SECRET,
-  store: new MongoStore({
-    url: process.env.MONGODB_URI || process.env.MONGOLAB_URI,
-    autoReconnect: true
-  })
+  store: sessionStore,
+  rolling: true,
+  cookie: {
+    secure: false,
+    maxAge: 2419200000
+  }
 })

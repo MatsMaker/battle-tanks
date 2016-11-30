@@ -2,8 +2,8 @@ var io = require('socket.io-client');
 
 class Reduser {
 
-  constructor(host) {
-    this.socket = io(host || 'http://192.168.0.28:8000/');
+  constructor() {
+    this.socket = io('http://192.168.0.28:8000');
     this.eventList = {};
   }
 
@@ -49,7 +49,7 @@ class Reduser {
       });
 
       this.socket.on('connect', () => {
-        console.info('connect socket id:', this.socket.id);
+        // console.info('connect socket id:', this.socket.id);
         resolve(this.socket.id);
       });
 

@@ -1,58 +1,79 @@
-const mwSession = require('./session');
-const socket = require('socket.io');
+// const mwSession = require('./session');
+const socketio = require('socket.io');
 const cntrlGame = require('../controllers/game');
+const sessionStore = require('./sessionStore');
 
 module.exports = (server) => {
 
-  const io = socket(server);
+  const io = socketio(server);
 
-  io.use((socket, next) => {
-    mwSession(socket.request, socket.request.res, next);
-  });
+  // io.use((socket, next) => {   mwSession(socket.request, socket.request.res, next); });
 
-  io.sockets.on('connection', socket => {
+  const passport = require('passport');
+  require('../config/passport');
+  const passportSocketIo = require('passport.socketio');
+
+  io.of('/').use(passportSocketIo.authorize({
+    key: process.env.SESSION_SID,
+    secret: process.env.SESSION_SECRET,
+    store: sessionStore,
+    passport: passport,
+    cookieParser: require('cookie-parser'),
+    success: (data, accept) => {
+      accept(null, true);
+    },
+    fail: (data, message, error, accept) => {
+      console.log(message);
+      accept(null, !error);
+    }
+  })).on('connection', socket => {
 
     socket.on('message', response => {
       let data;
-      switch (response.type) {
+      if (socket.request.user && socket.request.user.logged_in) {
+        // console.log(socket.request.user);
+        switch (response.type) {
 
-        case 'auth':
-          data = {
-            userId: cntrlGame.auth(response, socket)
-          };
-          break;
+          case 'auth':
+            data = {
+              userId: cntrlGame.auth(response, socket)
+            };
+            break;
 
-        case 'getTanks':
-          data = {
-            tanks: cntrlGame.getTanks(response)
-          };
-          break;
+          case 'getTanks':
+            data = {
+              tanks: cntrlGame.getTanks(response)
+            };
+            break;
 
-        case 'updateTank':
-          data = {
-            result: cntrlGame.updateTank(response)
-          };
-          break;
+          case 'updateTank':
+            data = {
+              result: cntrlGame.updateTank(response)
+            };
+            break;
 
-        case 'initTank':
-          data = {
-            done: cntrlGame.initTank(response)
-          };
-          break;
+          case 'initTank':
+            data = {
+              done: cntrlGame.initTank(response)
+            };
+            break;
 
-        default:
-          data = {
-            error: 'not right type request'
-          }
+          default:
+            data = {
+              error: 'not right type request'
+            }
+        }
+      } else {
+        data = {
+          type: 'error',
+          error: 'notAuthorized'
+        }
       }
-
       // console.log(socket.request.session);
-
       io.emit('message', {
         type: response.type,
         data: data
       });
-
     })
 
     socket.on('disconnect', response => {
