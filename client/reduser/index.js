@@ -3,7 +3,7 @@ var io = require('socket.io-client');
 class Reduser {
 
   constructor(host) {
-    this.socket = io.connect(host || 'http://192.168.0.28:8000/game');
+    this.socket = io.connect(host || 'http://192.168.0.28:8000');
     this.eventList = {};
   }
 
@@ -43,6 +43,18 @@ class Reduser {
     return new Promise((resolve, reject) => {
 
       this.socket.on('auth', (response) => {
+        this.onMessage(response);
+      });
+
+      this.socket.on('getTanks', (response) => {
+        this.onMessage(response);
+      });
+
+      this.socket.on('initTank', (response) => {
+        this.onMessage(response);
+      });
+
+      this.socket.on('updateTank', (response) => {
         this.onMessage(response);
       });
 

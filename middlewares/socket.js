@@ -28,54 +28,44 @@ module.exports = (server) => {
       accept(null, !error);
     }
   })).on('connection', socket => {
+    // socket.join(socket.request.sessionID);
 
-    socket.on('data', response => {
-      let data;
-      if (socket.request.user && socket.request.user.logged_in) {
-        // console.log(socket.request.user);
-        switch (response.type) {
-
-          case 'auth':
-            data = {
-              userId: cntrlGame.auth(response, socket)
-            };
-            break;
-
-          case 'getTanks':
-            data = {
-              tanks: cntrlGame.getTanks(response)
-            };
-            break;
-
-          case 'updateTank':
-            data = {
-              result: cntrlGame.updateTank(response)
-            };
-            break;
-
-          case 'initTank':
-            data = {
-              done: cntrlGame.initTank(response)
-            };
-            break;
-
-          default:
-            data = {
-              error: 'not right type request'
-            }
-        }
-      } else {
-        data = {
-          type: 'error',
-          error: 'notAuthorized'
-        }
-      }
-      // console.log(socket.request.session);
-      game.emit('data', {
-        type: response.type,
-        data: data
+    setInterval(() => {
+      game.emit('getTanks', {
+        type: 'getTanks',
+        tanks: cntrlGame.getTanks()
       });
-    })
+    }, 5);
+
+    socket.on('auth', (id, response) => {
+      game.to(id).emit('auth', {
+        type: 'auth',
+        userId: cntrlGame.auth(response, socket)
+      });
+      // game.to(socket.request.sessionID).emit('auth', {
+      //   type: 'auth',
+      //   userId: cntrlGame.auth(response, socket)
+      // });
+      // game.emit('auth', {
+      //   type: 'auth',
+      //   userId: cntrlGame.auth(response, socket)
+      // });
+    });
+
+    socket.on('updateTank', response => {
+      game.emit('updateTank', {
+        type: 'updateTank',
+        result: cntrlGame.updateTank(response)
+      });
+    });
+
+    socket.on('initTank', response => {
+      const result = cntrlGame.initTank(response);
+      game.emit('initTank', {
+        type: 'initTank',
+        done: result
+      });
+    });
 
     socket.on('disconnect', response => {
       io.emit('message', {
@@ -84,7 +74,6 @@ module.exports = (server) => {
           userId: cntrlGame.disconnect(socket)
         }
       });
-
     });
 
   });

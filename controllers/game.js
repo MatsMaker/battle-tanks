@@ -38,8 +38,8 @@ exports.getTanks = () => {
 
 exports.updateTank = response => {
   tanks.forEach((tank, index, tanksArray) => {
-    if (tank.player === response.data.tank.player) {
-      tanksArray[index] = _.extend(tanksArray[index], response.data.tank);
+    if (tank.player === response.tank.player) {
+      tanksArray[index] = _.extend(tanksArray[index], response.tank);
     }
   });
   return true;
@@ -47,14 +47,14 @@ exports.updateTank = response => {
 
 exports.initTank = response => {
   let userTank = tanks.find(tank => {
-    return response.data.userId == tank.player
+    return response.userId == tank.player
   });
   if (userTank === undefined) {
-    tanks.push(response.data.tank);
+    tanks.push(response.tank);
   } else {
     tanks.forEach((tank, index, tanksArray) => {
-      if (tank.player == response.data.userId) {
-        tanksArray[index] = response.data.tank
+      if (tank.player == response.userId) {
+        tanksArray[index] = response.tank
       }
     });
   }

@@ -9,7 +9,7 @@ const reduser = new Reduser('http://192.168.0.28:8000/game');
 reduser.connect().then(response => {
   return reduser.makeOne('auth', {});
 }).then(response => {
-  const userId = response.data.userId;
+  const userId = response.userId;
   theGame = new TheGame(userId, reduser);
   return theGame.init();
 }).then(result => {
