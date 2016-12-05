@@ -4,16 +4,21 @@ const tanks = [];
 
 exports.auth = (response, socket) => {
 
-  const userId = socket.request.user.profile.name;
-
-  const userIndex = usersArePlaying.findIndex(user => user.userId == userId);
-  if (userIndex > -1) {
-    usersArePlaying[userIndex].connectedId = socket.id;
+  if (!socket.request.user.logged_in) {
+    return false;
   } else {
-    usersArePlaying.push({userId: userId, connectedId: socket.id});
-  }
 
-  return userId;
+    const userId = socket.request.user.profile.name;
+
+    const userIndex = usersArePlaying.findIndex(user => user.userId == userId);
+    if (userIndex > -1) {
+      usersArePlaying[userIndex].connectedId = socket.id;
+    } else {
+      usersArePlaying.push({userId: userId, connectedId: socket.id});
+    }
+
+    return userId;
+  }
 }
 
 exports.disconnect = socket => {
@@ -34,7 +39,6 @@ exports.disconnect = socket => {
 exports.getTanks = () => {
   return tanks;
 }
-
 
 exports.updateTank = response => {
   tanks.forEach((tank, index, tanksArray) => {

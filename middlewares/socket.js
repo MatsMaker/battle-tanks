@@ -1,14 +1,14 @@
-// const mwSession = require('./session');
 const socketio = require('socket.io');
 const cntrlGame = require('../controllers/game');
 const sessionStore = require('./sessionStore');
+
+const connectedUsers = {};
 
 module.exports = (server) => {
 
   const io = socketio(server);
 
-  // io.use((socket, next) => {   mwSession(socket.request, socket.request.res, next); });
-
+  //socket.request.user && socket.request.user.logged_in
   const passport = require('passport');
   require('../config/passport');
   const passportSocketIo = require('passport.socketio');
@@ -28,7 +28,7 @@ module.exports = (server) => {
       accept(null, !error);
     }
   })).on('connection', socket => {
-    // socket.join(socket.request.sessionID);
+    connectedUsers[socket.request.sessionID] = socket;
 
     setInterval(() => {
       game.emit('getTanks', {
@@ -37,37 +37,27 @@ module.exports = (server) => {
       });
     }, 5);
 
-    socket.on('auth', (id, response) => {
-      game.to(id).emit('auth', {
+    socket.on('auth', response => {
+      connectedUsers[socket.request.sessionID].emit('auth', {
         type: 'auth',
         userId: cntrlGame.auth(response, socket)
       });
-      // game.to(socket.request.sessionID).emit('auth', {
-      //   type: 'auth',
-      //   userId: cntrlGame.auth(response, socket)
-      // });
-      // game.emit('auth', {
-      //   type: 'auth',
-      //   userId: cntrlGame.auth(response, socket)
-      // });
     });
 
     socket.on('updateTank', response => {
-      game.emit('updateTank', {
-        type: 'updateTank',
-        result: cntrlGame.updateTank(response)
-      });
+      cntrlGame.updateTank(response);
     });
 
     socket.on('initTank', response => {
       const result = cntrlGame.initTank(response);
-      game.emit('initTank', {
+      connectedUsers[socket.request.sessionID].emit('initTank', {
         type: 'initTank',
         done: result
       });
     });
 
     socket.on('disconnect', response => {
+      delete connectedUsers[socket.request.sessionID];
       io.emit('message', {
         type: 'disconnect',
         data: {

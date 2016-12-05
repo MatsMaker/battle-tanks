@@ -10,8 +10,13 @@ reduser.connect().then(response => {
   return reduser.makeOne('auth', {});
 }).then(response => {
   const userId = response.userId;
-  theGame = new TheGame(userId, reduser);
-  return theGame.init();
+  if(userId){
+    console.log(userId);
+    theGame = new TheGame(userId, reduser);
+    return theGame.init();
+  }else{
+    throw 'notAuth';
+  }
 }).then(result => {
   return theGame.run();
 }).then(result => {}).catch(err => {
