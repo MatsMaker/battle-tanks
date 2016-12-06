@@ -34,7 +34,7 @@ module.exports = (server) => {
         type: 'getTanks',
         tanks: cntrlGame.getTanks()
       });
-    }, 5);
+    }, 20);
 
     socket.on('auth', response => {
       connectedUsers[socket.request.sessionID].emit('auth', {

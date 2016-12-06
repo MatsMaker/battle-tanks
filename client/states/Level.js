@@ -85,24 +85,7 @@ class Level {
   }
 
   updateTanks(response) {
-    const nowTime = new Date().getTime();
     this.game.data.tanks = response.tanks;
-    const userTankIndex = response.tanks.findIndex(tank => this.game.data.userId == tank.player);
-
-    if (userTankIndex == -1) {
-      this.initTank();
-    }
-
-    response.tanks.forEach(rTank => {
-      let selectTankIndex = this.tanks.findIndex(lTank => lTank.player == rTank.player);
-
-      if (selectTankIndex > -1) {
-        this.tanks[selectTankIndex].update(rTank);
-      } else {
-        this.addTank(rTank);
-      }
-
-    });
   }
 
   lossUser(response) {
@@ -172,7 +155,26 @@ class Level {
     this.game.time.events.loop(this.resetDelay, this.respawn, this);
   }
 
-  update() {}
+  update() {
+    const tanks = this.game.data.tanks;
+    const userTankIndex = tanks.findIndex(tank => this.game.data.userId == tank.player);
+
+    if (userTankIndex == -1) {
+      this.initTank();
+    }
+
+    tanks.forEach(rTank => {
+      let selectTankIndex = this.tanks.findIndex(lTank => lTank.player == rTank.player);
+
+      if (selectTankIndex > -1) {
+        this.tanks[selectTankIndex].update(rTank);
+      } else {
+        this.addTank(rTank);
+      }
+
+    });
+
+  }
 
 }
 

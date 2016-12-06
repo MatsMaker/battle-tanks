@@ -17,26 +17,28 @@ class Tank extends _Panzer {
     super(game, player, data);
 
     this.mass = 1000;
-    this.enginePower = 70000;
+    this.enginePower = 800000;
   }
 
   create(data) {
     return new Promise((resolve, reject) => {
-      super.create(data).then(result => {
-        if (result.alive) {
-          this.explosion = (!this.explosion)
-            ? new Explosion(this.game)
-            : this.explosion;
+      super
+        .create(data)
+        .then(result => {
+          if (result.alive) {
+            this.explosion = (!this.explosion)
+              ? new Explosion(this.game)
+              : this.explosion;
 
-          this.interfaceInit();
+            this.interfaceInit();
 
-          result.explosionInit = true;
-          resolve(result);
-        } else {
-          result.explosionInit = false;
-          resolve(result);
-        }
-      })
+            result.explosionInit = true;
+            resolve(result);
+          } else {
+            result.explosionInit = false;
+            resolve(result);
+          }
+        })
     });
   }
 
@@ -45,7 +47,10 @@ class Tank extends _Panzer {
       fill: '#14FC40',
       fontSize: '16px'
     };
-    this.interface = this.game.add.text(this.frame.x, this.frame.y, '', style);
+    this.interface = this
+      .game
+      .add
+      .text(this.frame.x, this.frame.y, '', style);
     this.interface.anchor.x = 0.5;
     this.interface.anchor.y = 0;
   }
@@ -63,61 +68,46 @@ class Tank extends _Panzer {
 
   _isNewCommand() {
     const newData = this.newData;
-    return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire;
-  }
-
-  _localSyncFrame(result = {}) {
-    const newData = this.newData;
-    this._licalSyncInterface(result);
-    if (this._isNewCommand(newData)) {
-      return this.moveLocalSync(newData, result);
+    if (newData.move) {
+      return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire;
     } else {
-      return super._localSyncFrame(newData, result);
+      return false;
     }
   }
 
-  moveLocalSync(result = {}) {
-    const newData = this.newData;
-    return new Promise((resolve, reject) => {
-      if (result.alive) {
-        if (newData.move.left) {
-          this.frame.body.rotateLeft(40);
-        } else if (newData.move.right) {
-          this.frame.body.rotateRight(40);
-        } else {
-          this.frame.body.setZeroRotation();
-        }
-        if (newData.move.forward) {
-          this.frame.body.thrust(this.enginePower);
-        } else if (newData.move.back) {
-          this.frame.body.reverse(this.enginePower * 0.5);
-        }
-        result.moveSync = true;
-        resolve(result);
-      } else {
-        result.moveSync = false;
-        resolve(result);
-      }
-    });
-  }
+  // _localSyncFrame(result = {}) {
+  //   const newData = this.newData;
+  //   this._licalSyncInterface(result);
+  //   return super._localSyncFrame(newData, result);
+  // }
 
   kill() {
-    this.explosion.bigExplosion(this.frame.x, this.frame.y).then(result => {}).catch(err => {
-      console.error(err);
-    });
+    this
+      .explosion
+      .bigExplosion(this.frame.x, this.frame.y)
+      .then(result => {})
+      .catch(err => {
+        console.error(err);
+      });
     return super.kill();
   }
 
   abort() {
     return new Promise((resolve, reject) => {
-      return super.abort().then(result => {
-        this.interface.destroy();
-      });
+      return super
+        .abort()
+        .then(result => {
+          this
+            .interface
+            .destroy();
+        });
     });
   }
 
   armorPenetration(bullet) {
-    this.explosion.hit(bullet.sprite);
+    this
+      .explosion
+      .hit(bullet.sprite);
     bullet.destroy();
   }
 

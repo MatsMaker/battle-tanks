@@ -10,7 +10,7 @@ class _Panzer {
 
   constructor(game, player, data) {
     this.game = game;
-    this.data = _.extend({}, data);
+    this.data = Object.assign({}, data);
     this.turretRotation = data.turretRotation || 0;
     this.initBullet = data.initBullet || function (x, y, rotation, speed, bulletData) {
       console.error('need set init bullet fn');
@@ -110,7 +110,7 @@ class _Panzer {
   _localSyncFrame(result = {}) {
     const newData = this.newData;
     return new Promise((resolve, reject) => {
-      if (result.alive && this.frame.body.angularVelocity === 0) {
+      if (result.alive /*&& this.frame.body.angularVelocity === 0*/) {
         this.frame.body.x = newData.x;
         this.frame.body.y = newData.y;
         this.frame.body.angle = newData.angle;
@@ -151,16 +151,9 @@ class _Panzer {
     })
   }
 
-  removeSync() {
-    const contrroller = this._controller();
-    this.game.data.sync.makeOne('updateTank', {tank: contrroller}).then(response => {}).catch(err => {
-      console.error(err);
-    });
-  }
-
   create(data = {}) {
     return new Promise((resolve, reject) => {
-      this.data = _.extend(this.data, data);
+      Object.assign(this.data, data);
 
       this.frame = this.game.add.sprite(this.data.x, this.data.y, this.imageKeyFrame);
       // this.frame.scale.set(0.3, 0.3);
@@ -196,7 +189,7 @@ class _Panzer {
     this.newData.deathTime = null;
     this.newData.createTime = new Date().getTime();
     this.newData.bulletContacts = [];
-    this.newData = _.extend(this.newData, dataTank);
+    Object.assign(this.newData, dataTank);
 
     this.alive = this.newData.alive;
     this.deathTime = this.newData.deathTime;
@@ -270,10 +263,8 @@ class _Panzer {
   }
 
   update(newData = {}) {
-    this.newData = _.extend(this.newData, newData);
-    return this.localSync().then(resolve => {
-      return this.removeSync();
-    })
+    Object.assign(this.newData, newData);
+    return this.localSync();
   }
 
 }
