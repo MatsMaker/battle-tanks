@@ -8,6 +8,18 @@ var phaser = path.join(phaserModule, 'build/custom/phaser-split.js'),
   pixi = path.join(phaserModule, 'build/custom/pixi.js'),
   p2 = path.join(phaserModule, 'build/custom/p2.js');
 
+var isDevelopment = process.env.NODE_ENV != 'production';
+
+var plugins = [];
+if (isDevelopment) {} else {
+  plugins.push(new webpack.optimize.UglifyJsPlugin({
+    compress: {
+      warnings: false
+    },
+    comments: false
+  }))
+}
+
 module.exports = {
   entry: path.join(__dirname, '/client', 'main.js'),
   output: {
@@ -25,7 +37,7 @@ module.exports = {
       }, {
         test: /.js$/,
         exclude: /node_modules/,
-        loader: 'babel',
+        loader: 'babel-loader',
         query: {
           presets: ['es2015']
         }
@@ -49,13 +61,11 @@ module.exports = {
     }
   },
   split: true,
-  devtool: 'eval',
+  devtool: (isDevelopment)
+    ? 'source-map'
+    : 'cheap-module-source-map',
   progress: true,
   colors: true,
-  watch: true,
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      compress: { warnings: false }
-    })
-  ]
+  watch: isDevelopment,
+  plugins: plugins
 };
