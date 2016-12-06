@@ -21,10 +21,14 @@ if (isDevelopment) {} else {
 }
 
 module.exports = {
-  entry: path.join(__dirname, '/client', 'main.js'),
+  entry: {
+    'game_client': path.join(__dirname, '/game', 'main.js'),
+    'index': path.join(__dirname, '/client', 'index.js'),
+  },
   output: {
-    path: 'public/client',
-    filename: 'index_bundle.js'
+    path: 'public',
+    filename: '[name].bundle.js',
+    chunkFilename: '[id].bundle.js'
   },
   module: {
     loaders: [
