@@ -24,7 +24,6 @@ module.exports = (server) => {
       accept(null, true);
     },
     fail: (data, message, error, accept) => {
-      console.log(message);
       accept(null, !error);
     }
   })).on('connection', socket => {

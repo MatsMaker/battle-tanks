@@ -11,7 +11,6 @@ reduser.connect().then(response => {
 }).then(response => {
   const userId = response.userId;
   if(userId){
-    console.log(userId);
     theGame = new TheGame(userId, reduser);
     return theGame.init();
   }else{
