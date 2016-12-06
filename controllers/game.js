@@ -4,17 +4,21 @@ const tanks = [];
 
 exports.auth = (response, socket) => {
 
-  const userId = (response.data.auth !== null)
-    ? response.data.auth
-    : new Date().getTime();
-  const userIndex = usersArePlaying.findIndex(user => user.userId == userId);
-  if (userIndex > -1) {
-    usersArePlaying[userIndex].connectedId = socket.id;
+  if (!socket.request.user.logged_in) {
+    return false;
   } else {
-    usersArePlaying.push({userId: userId, connectedId: socket.id});
-  }
 
-  return userId;
+    const userId = socket.request.user.profile.name;
+
+    const userIndex = usersArePlaying.findIndex(user => user.userId == userId);
+    if (userIndex > -1) {
+      usersArePlaying[userIndex].connectedId = socket.id;
+    } else {
+      usersArePlaying.push({userId: userId, connectedId: socket.id});
+    }
+
+    return userId;
+  }
 }
 
 exports.disconnect = socket => {
@@ -36,11 +40,10 @@ exports.getTanks = () => {
   return tanks;
 }
 
-
 exports.updateTank = response => {
   tanks.forEach((tank, index, tanksArray) => {
-    if (tank.player === response.data.tank.player) {
-      tanksArray[index] = _.extend(tanksArray[index], response.data.tank);
+    if (tank.player === response.tank.player) {
+      tanksArray[index] = _.extend(tanksArray[index], response.tank);
     }
   });
   return true;
@@ -48,14 +51,14 @@ exports.updateTank = response => {
 
 exports.initTank = response => {
   let userTank = tanks.find(tank => {
-    return response.data.userId == tank.player
+    return response.userId == tank.player
   });
   if (userTank === undefined) {
-    tanks.push(response.data.tank);
+    tanks.push(response.tank);
   } else {
     tanks.forEach((tank, index, tanksArray) => {
-      if (tank.player == response.data.userId) {
-        tanksArray[index] = response.data.tank
+      if (tank.player == response.userId) {
+        tanksArray[index] = response.tank
       }
     });
   }

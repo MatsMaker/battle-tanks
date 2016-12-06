@@ -17,7 +17,7 @@ class Tank extends _Panzer {
     super(game, player, data);
 
     this.mass = 1000;
-    this.enginePower = 800000;
+    this.enginePower = 70000;
   }
 
   create(data) {

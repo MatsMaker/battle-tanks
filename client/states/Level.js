@@ -86,14 +86,14 @@ class Level {
 
   updateTanks(response) {
     const nowTime = new Date().getTime();
-    this.game.data.tanks = response.data.tanks;
-    const userTankIndex = response.data.tanks.findIndex(tank => this.game.data.userId == tank.player);
+    this.game.data.tanks = response.tanks;
+    const userTankIndex = response.tanks.findIndex(tank => this.game.data.userId == tank.player);
 
     if (userTankIndex == -1) {
       this.initTank();
     }
 
-    response.data.tanks.forEach(rTank => {
+    response.tanks.forEach(rTank => {
       let selectTankIndex = this.tanks.findIndex(lTank => lTank.player == rTank.player);
 
       if (selectTankIndex > -1) {
@@ -106,7 +106,7 @@ class Level {
   }
 
   lossUser(response) {
-    const lossUserId = response.data.userId;
+    const lossUserId = response.userId;
     this.tanks.forEach((tank, index, arrayTanks) => {
       if (tank.player == lossUserId) {
         tank.abort().then(resolve => {
@@ -144,6 +144,11 @@ class Level {
 
     this.map = new Map1(this.game);
 
+    this.game.data.sync.addEventListener('getTanks', response => {
+      this.updateTanks.bind(this)(response);
+      return {one: false}
+    });
+
     this.game.data.sync.addEventListener('disconnect', response => {
       this.lossUser(response);
       return {one: false}
@@ -170,9 +175,9 @@ class Level {
 
   update() {
     // console.warn('objects list :', this.game.world.children.length);
-    this.game.data.sync.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
-      console.error(err);
-    });
+    // this.game.data.sync.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
+    //   console.error(err);
+    // });
   }
 
 }

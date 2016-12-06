@@ -1,18 +1,21 @@
 require('./styles/main.scss');
 import TheGame from './TheGame.js';
-import reduser from './reduser/index.js';
+import Reduser from './reduser/index.js';
 
 let theGame;
 
-const authData = localStorage.getItem('auth');
+const reduser = new Reduser('http://192.168.0.28:8000/game');
 
 reduser.connect().then(response => {
-  return reduser.makeOne('auth', {auth: authData});
+  return reduser.makeOne('auth', {});
 }).then(response => {
-  const userId = response.data.userId;
-  localStorage.setItem('auth', userId);
-  theGame = new TheGame(userId, reduser);
-  return theGame.init();
+  const userId = response.userId;
+  if(userId){
+    theGame = new TheGame(userId, reduser);
+    return theGame.init();
+  }else{
+    throw 'notAuth';
+  }
 }).then(result => {
   return theGame.run();
 }).then(result => {}).catch(err => {

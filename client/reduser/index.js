@@ -3,15 +3,12 @@ var io = require('socket.io-client');
 class Reduser {
 
   constructor(host) {
-    this.socket = io.connect(host || 'http://192.168.0.28:8000/game');
+    this.socket = io.connect(host || 'http://192.168.0.28:8000');
     this.eventList = {};
   }
 
   emitMessage(type, data) {
-    this.socket.emit('message', {
-      type: type,
-      data
-    });
+    this.socket.emit(type, data);
   }
 
   onMessage(response) {
@@ -44,7 +41,20 @@ class Reduser {
 
   connect() {
     return new Promise((resolve, reject) => {
-      this.socket.on('message', (response) => {
+
+      this.socket.on('auth', (response) => {
+        this.onMessage(response);
+      });
+
+      this.socket.on('getTanks', (response) => {
+        this.onMessage(response);
+      });
+
+      this.socket.on('initTank', (response) => {
+        this.onMessage(response);
+      });
+
+      this.socket.on('updateTank', (response) => {
         this.onMessage(response);
       });
 
@@ -62,6 +72,4 @@ class Reduser {
 
 }
 
-const reduser = new Reduser();
-
-export default reduser;
+export default Reduser;
