@@ -56,13 +56,11 @@ module.exports = (server) => {
     });
 
     socket.on('disconnect', response => {
-      delete connectedUsers[socket.request.sessionID];
-      io.emit('message', {
-        type: 'disconnect',
-        data: {
-          userId: cntrlGame.disconnect(socket)
-        }
+      game.emit('lossUser', {
+        type: 'lossUser',
+        userId: cntrlGame.disconnect(socket)
       });
+      delete connectedUsers[socket.request.sessionID];
     });
 
   });

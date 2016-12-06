@@ -58,15 +58,20 @@ class Reduser {
         this.onMessage(response);
       });
 
+      this.socket.on('lossUser', (response) => {
+        this.onMessage(response);
+      });
+
       this.socket.on('connect', () => {
         // console.info('connect socket id:', this.socket.id);
         resolve(this.socket.id);
       });
 
       this.socket.on('disconnect', e => {
-        console.error(e, ' socket.id:', this.socket.id);
+        console.error(e, 'disconnect socket.id:', this.socket.id);
         reject(e);
       });
+
     });
   }
 

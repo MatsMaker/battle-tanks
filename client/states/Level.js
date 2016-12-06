@@ -143,16 +143,7 @@ class Level {
     this.animatedDots.setAnchor('centration');
 
     this.map = new Map1(this.game);
-
-    this.game.data.sync.addEventListener('getTanks', response => {
-      this.updateTanks.bind(this)(response);
-      return {one: false}
-    });
-
-    this.game.data.sync.addEventListener('disconnect', response => {
-      this.lossUser(response);
-      return {one: false}
-    });
+    this.bulletGroup = new BulletGroup(this.game);
   }
 
   create() {
@@ -166,19 +157,22 @@ class Level {
 
     this.physics.startSystem(Phaser.Physics.P2JS);
     this.map.create();
-
-    this.bulletGroup = new BulletGroup(this.game);
     this.bulletGroup.create();
+
+    this.game.data.sync.addEventListener('getTanks', response => {
+      this.updateTanks.bind(this)(response);
+      return {one: false}
+    });
+
+    this.game.data.sync.addEventListener('lossUser', response => {
+      this.lossUser(response);
+      return {one: false}
+    });
 
     this.game.time.events.loop(this.resetDelay, this.respawn, this);
   }
 
-  update() {
-    // console.warn('objects list :', this.game.world.children.length);
-    // this.game.data.sync.makeOne('getTanks', {}).then(this.updateTanks.bind(this)).catch(err => {
-    //   console.error(err);
-    // });
-  }
+  update() {}
 
 }
 
