@@ -1,8 +1,7 @@
 <template lang="pug">
 div(class="col-sm-6 col-sm-offset-3")
   button(class="btn btn-primary" v-on:click="getQuote()") Make a test reuest
-  p(v-if="seen")
-    Now you see me after test request
+  p(v-if="seen") Now you see me after test request
 </template>
 
 <script>
