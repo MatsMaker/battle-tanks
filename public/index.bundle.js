@@ -12223,8 +12223,6 @@
 	//
 	//
 	//
-	//
-	//
 	
 	exports.default = {
 	  data: function data() {
@@ -12260,7 +12258,7 @@
 	        _vm.getQuote()
 	      }
 	    }
-	  }, ["Make a test reuest"]), " ", (_vm.seen) ? _h('p', ["\n    Now you see me after test request\n  "]) : _vm._e()])
+	  }, ["Make a test reuest"]), (_vm.seen) ? _h('p', [_h('Now', ["you see me after test request"])]) : _vm._e()])
 	},staticRenderFns: []}
 	module.exports.render._withStripped = true
 	if (false) {

@@ -28,11 +28,11 @@ module.exports = {
   output: {
     path: 'public',
     filename: '[name].bundle.js',
-    chunkFilename: '[id].bundle.js'
+    chunkFilename: '[id].bundle.js',
   },
   vue: {
     loaders: {
-      js: 'babel',
+      js: 'babel'
     }
   },
   module: {
@@ -45,14 +45,11 @@ module.exports = {
         loader: 'file'
       }, {
         test: /\.vue$/,
-        loader: 'vue'
+        loader: 'vue?sourceMap'
       }, {
         test: /.js$/,
         exclude: /node_modules/,
         loader: 'babel',
-        // query: {
-        //   presets: ['es2015']
-        // },
         exclude: /node_modules/
       }, {
         test: /p2.js/,
