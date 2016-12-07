@@ -23,12 +23,17 @@ if (isDevelopment) {} else {
 module.exports = {
   entry: {
     'game_client': path.join(__dirname, '/game', 'main.js'),
-    'index': path.join(__dirname, '/client', 'index.js'),
+    'index': path.join(__dirname, '/client', 'index.js')
   },
   output: {
     path: 'public',
     filename: '[name].bundle.js',
     chunkFilename: '[id].bundle.js'
+  },
+  vue: {
+    loaders: {
+      js: 'babel',
+    }
   },
   module: {
     loaders: [
@@ -39,12 +44,16 @@ module.exports = {
         test: /.(jpg|png)$/,
         loader: 'file'
       }, {
+        test: /\.vue$/,
+        loader: 'vue'
+      }, {
         test: /.js$/,
         exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          presets: ['es2015']
-        }
+        loader: 'babel',
+        // query: {
+        //   presets: ['es2015']
+        // },
+        exclude: /node_modules/
       }, {
         test: /p2.js/,
         loader: "script"

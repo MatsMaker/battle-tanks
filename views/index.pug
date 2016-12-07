@@ -1,22 +1,19 @@
 doctype html
 html(lang="en")
-  head
-    title=pageTitle
-  body
-    h1 Home page
-    ul
-      if user
-        li
-          a(href='/play' ) Play
-        li
-          a(href='/signout') Sign out
-      else
-        li
-          a(href='/signin') Sign in
-        li
-          a(href='/signup') Sign up
-
-    div(id="app-3")
-      p(v-if="seen") Now you see me
-
-    script(type='text/javascript' src='/index.bundle.js')
+    head
+        title=pageTitle
+    body
+        h1 Home page
+        ul
+            if user
+                li
+                    a(href='/play' ) Play
+                li
+                    a(href='/signout') Sign out
+            else
+                li
+                    a(href='/signin') Sign in
+                li
+                    a(href='/signup') Sign up
+        div(id='vue-app')
+        script(type='text/javascript' src='/index.bundle.js')

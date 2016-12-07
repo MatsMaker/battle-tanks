@@ -5,6 +5,7 @@ const path = require('path');
 const cntrlIndex = require('../controllers/index');
 const cntrlPlay = require('../controllers/play');
 const cntrlUser = require('../controllers/user');
+const cntrlApi = require('../controllers/api');
 const cntrlNoPage = require('../controllers/noPage');
 
 /**
@@ -25,6 +26,8 @@ router.get('/signout', cntrlUser.getSignOut);
 
 router.get('/signup', cntrlUser.getSignUp);
 router.post('/signup', cntrlUser.postSignUp);
+
+router.get('/api/test-reuest', cntrlApi.getTestReuest)
 
 router.get('/*', cntrlNoPage.noPage);
 
