@@ -53,11 +53,21 @@ class Tank extends _Panzer {
       .text(this.frame.x, this.frame.y, '', style);
     this.interface.anchor.x = 0.5;
     this.interface.anchor.y = 0;
+
+    this.label = this
+      .game
+      .add
+      .text(this.frame.x, this.frame.y, this.player, {fill: 'white',fontSize: '12px'});
+    this.label.anchor.x = 0.5;
+    this.label.anchor.y = 0.3;
   }
 
   _licalSyncInterface(result = {}) {
+    this.label.x = this.frame.x;
+    this.label.y = this.frame.y - 32;
+
     this.interface.x = this.frame.x;
-    this.interface.y = this.frame.y - 32
+    this.interface.y = this.frame.y - 32;
     let text = '';
     for (let i = 0; i < this.life; i++) {
       text += '-';
@@ -75,11 +85,11 @@ class Tank extends _Panzer {
     }
   }
 
-  // _localSyncFrame(result = {}) {
-  //   const newData = this.newData;
-  //   this._licalSyncInterface(result);
-  //   return super._localSyncFrame(newData, result);
-  // }
+  _localSyncFrame(result = {}) {
+    const newData = this.newData;
+    this._licalSyncInterface(result);
+    return super._localSyncFrame(newData, result);
+  }
 
   kill() {
     this
@@ -97,9 +107,9 @@ class Tank extends _Panzer {
       return super
         .abort()
         .then(result => {
-          this
-            .interface
-            .destroy();
+          this.interface.destroy();
+          this.interface.destroy();
+          this.label.destroy();
         });
     });
   }

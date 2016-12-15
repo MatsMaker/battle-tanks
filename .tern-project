@@ -1,0 +1,24 @@
+{
+  "ecmaVersion": 6,
+  "libs": [
+    "browser",
+    "jquery",
+    "phaser"
+  ],
+  "loadEagerly": [
+    "**/*.js"
+  ],
+  "dontLoad": [
+    "**/*.js"
+  ],
+  "plugins": {
+    "complete_strings": {
+      "maxLength": 15
+    },
+    "node": {},
+    "doc_comment": {
+      "fullDocs": true,
+      "strong": true
+    }
+  }
+}
