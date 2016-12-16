@@ -119,9 +119,6 @@ class Level {
     this.tanks = [];
     this.resetDelay = 10000;
 
-    this.background = this.stage.game.add.sprite(-80, -80, 'kdeWallpapers');
-    this.background.scale.set(0.5);
-
     this.animatedDots = new AnimatedDots(this.game, this.game.world.centerX, this.game.world.centerY, '');
     this.animatedDots.setAnchor('centration');
 
@@ -134,8 +131,7 @@ class Level {
     this.game.physics.p2.setImpactEvents(true);
     this.game.physics.p2.restitution = 0.9;
     this.game.canvas.style.cursor = "crosshair";
-
-    this.background.destroy();
+    
     this.animatedDots.destroy();
 
     this.physics.startSystem(Phaser.Physics.P2JS);

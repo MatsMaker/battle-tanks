@@ -10,6 +10,7 @@ class MainMenu {
 
   init() {
     this.state.add('Level', Level);
+    this.load.image('kdeWallpapers', require('../assets/covers/kde-wallpapers.png'));
   }
 
   preload() {

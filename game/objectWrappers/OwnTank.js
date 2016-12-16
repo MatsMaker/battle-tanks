@@ -123,11 +123,7 @@ class OwnTank extends Tank {
   }
 
   removeSync(controller = this._controller()) {
-    this
-      .game
-      .data
-      .sync
-      .makeOne('updateTank', {tank: controller});
+    this.game.data.sync.makeOne('updateTank', {tank: controller});
   }
 
   isCommand() {
@@ -145,6 +141,7 @@ class OwnTank extends Tank {
       this.removeSync();
     } else {
       super.update(newData);
+      this.removeSync();
     }
   }
 

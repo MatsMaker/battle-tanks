@@ -1,4 +1,4 @@
-import MainMenu from './MainMenu.js';
+import Level from './Level.js';
 import AnimatedDots from '../objectWrappers/texts/AnimatedDots.js';
 
 class Preloader {
@@ -11,11 +11,7 @@ class Preloader {
   }
 
   preload() {
-    this.load.image('kdeWallpapers', require('../assets/covers/kde-wallpapers.png'));
-
-    this.load.spritesheet('btn_greenGo', require('../assets/buttons/green-go.png'), 150, 150);
-
-    this.state.add('MainMenu', MainMenu);
+    this.state.add('Level', Level);
   }
 
   loadUpdate() {
@@ -23,7 +19,7 @@ class Preloader {
   }
 
   create() {
-    this.state.start('MainMenu');
+    this.state.start('Level');
   }
 
 }

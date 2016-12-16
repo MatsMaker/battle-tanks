@@ -80823,9 +80823,9 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _MainMenu = __webpack_require__(13);
+	var _Level = __webpack_require__(15);
 	
-	var _MainMenu2 = _interopRequireDefault(_MainMenu);
+	var _Level2 = _interopRequireDefault(_Level);
 	
 	var _AnimatedDots = __webpack_require__(16);
 	
@@ -80851,11 +80851,7 @@
 	  }, {
 	    key: 'preload',
 	    value: function preload() {
-	      this.load.image('kdeWallpapers', __webpack_require__(11));
-	
-	      this.load.spritesheet('btn_greenGo', __webpack_require__(37), 150, 150);
-	
-	      this.state.add('MainMenu', _MainMenu2.default);
+	      this.state.add('Level', _Level2.default);
 	    }
 	  }, {
 	    key: 'loadUpdate',
@@ -80865,7 +80861,7 @@
 	  }, {
 	    key: 'create',
 	    value: function create() {
-	      this.state.start('MainMenu');
+	      this.state.start('Level');
 	    }
 	  }]);
 	
@@ -80875,112 +80871,8 @@
 	exports.default = Preloader;
 
 /***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _Menu = __webpack_require__(14);
-	
-	var _Menu2 = _interopRequireDefault(_Menu);
-	
-	var _Level = __webpack_require__(15);
-	
-	var _Level2 = _interopRequireDefault(_Level);
-	
-	var _Phaser = __webpack_require__(2);
-	
-	var _Phaser2 = _interopRequireDefault(_Phaser);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var MainMenu = function () {
-	  function MainMenu() {
-	    _classCallCheck(this, MainMenu);
-	
-	    this.background;
-	  }
-	
-	  _createClass(MainMenu, [{
-	    key: 'init',
-	    value: function init() {
-	      this.state.add('Level', _Level2.default);
-	    }
-	  }, {
-	    key: 'preload',
-	    value: function preload() {}
-	  }, {
-	    key: 'create',
-	    value: function create() {
-	      var _this = this;
-	
-	      this.background = this.game.add.sprite(-80, -80, 'kdeWallpapers');
-	      this.background.scale.set(0.5);
-	
-	      this.menu = new _Menu2.default(this.game);
-	
-	      this.menu.onStartGame = function (button) {
-	        _this.state.start('Level');
-	      };
-	    }
-	  }]);
-	
-	  return MainMenu;
-	}();
-	
-	exports.default = MainMenu;
-
-/***/ },
-/* 14 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var StartMenu = function () {
-	  function StartMenu(game) {
-	    _classCallCheck(this, StartMenu);
-	
-	    this.game = game;
-	    this.buttons = {};
-	
-	    // Start button
-	    this.buttons.startGame = this.game.add.button(this.game.world.centerX, this.game.world.centerY, 'btn_greenGo', this.eventListener, this, 2, 1, 0);
-	    this.buttons.startGame.name = 'start';
-	    this.buttons.startGame.anchor.setTo(0.5, 0.5);
-	    //
-	  }
-	
-	  _createClass(StartMenu, [{
-	    key: 'eventListener',
-	    value: function eventListener(button) {
-	      if (button.name == 'start' && this.onStartGame) {
-	        this.onStartGame(button);
-	      }
-	    }
-	  }]);
-	
-	  return StartMenu;
-	}();
-	
-	exports.default = StartMenu;
-
-/***/ },
+/* 13 */,
+/* 14 */,
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -81155,9 +81047,6 @@
 	      this.tanks = [];
 	      this.resetDelay = 10000;
 	
-	      this.background = this.stage.game.add.sprite(-80, -80, 'kdeWallpapers');
-	      this.background.scale.set(0.5);
-	
 	      this.animatedDots = new _AnimatedDots2.default(this.game, this.game.world.centerX, this.game.world.centerY, '');
 	      this.animatedDots.setAnchor('centration');
 	
@@ -81174,7 +81063,6 @@
 	      this.game.physics.p2.restitution = 0.9;
 	      this.game.canvas.style.cursor = "crosshair";
 	
-	      this.background.destroy();
 	      this.animatedDots.destroy();
 	
 	      this.physics.startSystem(_Phaser2.default.Physics.P2JS);
@@ -83412,7 +83300,8 @@
 	    value: function _isNewCommand() {
 	      var newData = this.newData;
 	      if (newData.move) {
-	        return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire;
+	        var hadContacts = newData.bulletContacts.length > 0;
+	        return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire || hadContacts;
 	      } else {
 	        return false;
 	      }
@@ -83989,6 +83878,7 @@
 	        this.removeSync();
 	      } else {
 	        _get(OwnTank.prototype.__proto__ || Object.getPrototypeOf(OwnTank.prototype), 'update', this).call(this, newData);
+	        this.removeSync();
 	      }
 	    }
 	  }, {
@@ -84032,12 +83922,7 @@
 	module.exports = __webpack_require__.p + "af12f038fd201ab3e5a0429185ea2b5c.png";
 
 /***/ },
-/* 37 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__.p + "9dd6cf1bce3b86d6b7f16bcf650d5a70.png";
-
-/***/ },
+/* 37 */,
 /* 38 */
 /***/ function(module, exports, __webpack_require__) {
 

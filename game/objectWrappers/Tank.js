@@ -79,7 +79,8 @@ class Tank extends _Panzer {
   _isNewCommand() {
     const newData = this.newData;
     if (newData.move) {
-      return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire;
+      const hadContacts = newData.bulletContacts.length > 0;
+      return newData.move.left || newData.move.right || newData.move.forward || newData.move.back || newData.fire || hadContacts;
     } else {
       return false;
     }
