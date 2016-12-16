@@ -39,6 +39,7 @@
     "socket.io-client": "^1.4.8",
     "underscore": "^1.8.3",
     "vue": "^2.1.4",
+    "vue-material": "^0.5.0",
     "vue-resource": "^1.0.3",
     "vue-router": "^2.1.1"
   },

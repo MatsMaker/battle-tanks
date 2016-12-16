@@ -2,14 +2,12 @@ doctype html
 html(lang="en")
     head
         title=pageTitle
+        link(rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic")
+        link(rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons")
     body
-        h1 Home page
-        ul
-            if user
-                div(id='vue-app')
-                script(type='text/javascript' src='/index.bundle.js')
-            else
-                li
-                    a(href='/signin') Sign in
-                li
-                    a(href='/signup') Sign up
+        if user
+            div(id='vue-app')
+            script(type='text/javascript' src='/index.bundle.js')
+        else
+            a(href='/signin') Sign in
+            a(href='/signup') Sign up

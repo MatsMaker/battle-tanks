@@ -38,7 +38,7 @@ module.exports = {
   module: {
     loaders: [
       {
-        test: /.scss$/,
+        test: /.(css|scss)$/,
         loaders: ["style", "css?sourceMap", "sass?sourceMap"]
       }, {
         test: /.(jpg|png)$/,
