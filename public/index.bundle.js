@@ -47,40 +47,32 @@
 
 	'use strict';
 	
-	var _vue = __webpack_require__(97);
+	var _vue = __webpack_require__(94);
 	
 	var _vue2 = _interopRequireDefault(_vue);
 	
-	var _vueRouter = __webpack_require__(98);
+	var _vueRouter = __webpack_require__(95);
 	
 	var _vueRouter2 = _interopRequireDefault(_vueRouter);
 	
-	var _vueResource = __webpack_require__(99);
+	var _vueResource = __webpack_require__(96);
 	
 	var _vueResource2 = _interopRequireDefault(_vueResource);
 	
-	var _App = __webpack_require__(100);
+	var _routes = __webpack_require__(97);
 	
-	var _App2 = _interopRequireDefault(_App);
-	
-	var _Home = __webpack_require__(102);
-	
-	var _Home2 = _interopRequireDefault(_Home);
+	var _routes2 = _interopRequireDefault(_routes);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	_vue2.default.use(_vueResource2.default);
 	_vue2.default.use(_vueRouter2.default);
 	
-	var routes = [{
-	  path: '/home',
-	  component: _Home2.default
-	}];
-	var router = new _vueRouter2.default({ routes: routes });
+	var router = new _vueRouter2.default({ routes: _routes2.default });
 	
-	new _vue2.default({
+	var app = new _vue2.default({
 	  router: router,
-	  template: '<div>\n  <nav class="navbar navbar-default">\n    <div class="container">\n      <ul class="nav navbar-nav">\n        <li>\n          <a v-bind:href="\'#/home\'">Home</a>\n        </li>\n      </ul>\n    </div>\n  </nav>\n  <div class="container">\n    <router-view></router-view>\n  </div>\n</div>'
+	  template: '<router-view></router-view>'
 	}).$mount('#vue-app');
 
 /***/ },
@@ -272,7 +264,7 @@
 
 /***/ },
 
-/***/ 97:
+/***/ 94:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, global) {/*!
@@ -8604,7 +8596,7 @@
 
 /***/ },
 
-/***/ 98:
+/***/ 95:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -10672,7 +10664,7 @@
 
 /***/ },
 
-/***/ 99:
+/***/ 96:
 /***/ function(module, exports) {
 
 	/*!
@@ -12196,14 +12188,51 @@
 
 /***/ },
 
-/***/ 100:
+/***/ 97:
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	
+	var _Index = __webpack_require__(98);
+	
+	var _Index2 = _interopRequireDefault(_Index);
+	
+	var _Home = __webpack_require__(101);
+	
+	var _Home2 = _interopRequireDefault(_Home);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var routes = [{
+		path: '/',
+		component: _Index2.default
+	}, {
+		path: '/index',
+		component: _Index2.default
+	}, {
+		path: '/home',
+		component: _Home2.default
+	}];
+	
+	exports.default = routes;
+
+/***/ },
+
+/***/ 98:
 /***/ function(module, exports, __webpack_require__) {
 
 	var __vue_exports__, __vue_options__
 	var __vue_styles__ = {}
 	
+	/* script */
+	__vue_exports__ = __webpack_require__(99)
+	
 	/* template */
-	var __vue_template__ = __webpack_require__(101)
+	var __vue_template__ = __webpack_require__(100)
 	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
 	if (
 	  typeof __vue_exports__.default === "object" ||
@@ -12215,7 +12244,7 @@
 	if (typeof __vue_options__ === "function") {
 	  __vue_options__ = __vue_options__.options
 	}
-	__vue_options__.__file = "/home/mats/Projects/_/battle-tanks/client/components/App.vue"
+	__vue_options__.__file = "/home/mats/Projects/_/battle-tanks/client/components/Index.vue"
 	__vue_options__.render = __vue_template__.render
 	__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
 	
@@ -12226,60 +12255,79 @@
 	  if (!hotAPI.compatible) return
 	  module.hot.accept()
 	  if (!module.hot.data) {
-	    hotAPI.createRecord("data-v-7d2c5229", __vue_options__)
+	    hotAPI.createRecord("data-v-ce64f74c", __vue_options__)
 	  } else {
-	    hotAPI.reload("data-v-7d2c5229", __vue_options__)
+	    hotAPI.reload("data-v-ce64f74c", __vue_options__)
 	  }
 	})()}
-	if (__vue_options__.functional) {console.error("[vue-loader] App.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+	if (__vue_options__.functional) {console.error("[vue-loader] Index.vue: functional components are not supported and should be defined in plain js files using render functions.")}
 	
 	module.exports = __vue_exports__
 
 
 /***/ },
 
-/***/ 101:
+/***/ 99:
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = {};
+
+/***/ },
+
+/***/ 100:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
-	  return _c('div', [_c('nav', {
+	  return _c('nav', {
 	    staticClass: "navbar navbar-default"
 	  }, [_c('div', {
 	    staticClass: "container"
 	  }, [_c('ul', {
 	    staticClass: "nav navbar-nav"
-	  }, [_c('li', [_c('a', {
-	    directives: [{
-	      name: "link",
-	      rawName: "v-link",
-	      value: ('home'),
-	      expression: "'home'"
-	    }]
-	  }, [_vm._v("Home")])])])])]), _vm._v(" "), _c('div', {
-	    staticClass: "container"
-	  }, [_c('router-view')])])
-	},staticRenderFns: []}
+	  }, [_vm._m(0), _c('li', [_c('router-link', {
+	    attrs: {
+	      "to": "home"
+	    }
+	  }, [_vm._v("home")])]), _vm._m(1)])])])
+	},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+	  return _c('li', [_c('a', {
+	    attrs: {
+	      "href": "/play"
+	    }
+	  }, [_vm._v("play")])])
+	},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+	  return _c('li', [_c('a', {
+	    attrs: {
+	      "href": "/signout"
+	    }
+	  }, [_vm._v("sign out")])])
+	}]}
 	module.exports.render._withStripped = true
 	if (false) {
 	  module.hot.accept()
 	  if (module.hot.data) {
-	     require("vue-hot-reload-api").rerender("data-v-7d2c5229", module.exports)
+	     require("vue-hot-reload-api").rerender("data-v-ce64f74c", module.exports)
 	  }
 	}
 
 /***/ },
 
-/***/ 102:
+/***/ 101:
 /***/ function(module, exports, __webpack_require__) {
 
 	var __vue_exports__, __vue_options__
 	var __vue_styles__ = {}
 	
 	/* script */
-	__vue_exports__ = __webpack_require__(103)
+	__vue_exports__ = __webpack_require__(102)
 	
 	/* template */
-	var __vue_template__ = __webpack_require__(104)
+	var __vue_template__ = __webpack_require__(103)
 	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
 	if (
 	  typeof __vue_exports__.default === "object" ||
@@ -12314,7 +12362,7 @@
 
 /***/ },
 
-/***/ 103:
+/***/ 102:
 /***/ function(module, exports) {
 
 	'use strict';
@@ -12322,14 +12370,8 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	//
-	//
-	//
-	//
-	//
-	//
-	
 	exports.default = {
+	  name: 'home',
 	  data: function data() {
 	    return {
 	      seen: false
@@ -12350,7 +12392,7 @@
 
 /***/ },
 
-/***/ 104:
+/***/ 103:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;

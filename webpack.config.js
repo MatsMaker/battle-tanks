@@ -23,7 +23,7 @@ if (isDevelopment) {} else {
 module.exports = {
   entry: {
     'game_client': path.join(__dirname, '/game', 'main.js'),
-    'index': path.join(__dirname, '/client', 'index.js')
+    'index': path.join(__dirname, '/client', 'app.js')
   },
   output: {
     path: 'public',
