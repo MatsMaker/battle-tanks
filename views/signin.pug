@@ -1,0 +1,18 @@
+doctype html
+html(lang="en")
+  head
+    title=pageTitle
+  body
+    h1 Sign in
+    if message
+      div.message
+        h3= message
+    form(action='/signin' method='post')
+
+      label(for='email') Email:
+      input(name='email' require=true id='email')
+
+      label(for='password') Password:
+      input(name='password' require=true id='password' type='password')
+
+      button(type='submit') Sign in

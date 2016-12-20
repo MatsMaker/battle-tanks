@@ -1,18 +1,39 @@
 'use strict';
 
 var path = require('path');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+var webpack = require('webpack');
 
 var phaserModule = path.join(__dirname, '/node_modules/phaser/');
 var phaser = path.join(phaserModule, 'build/custom/phaser-split.js'),
   pixi = path.join(phaserModule, 'build/custom/pixi.js'),
   p2 = path.join(phaserModule, 'build/custom/p2.js');
 
+var isDevelopment = process.env.NODE_ENV != 'production';
+
+var plugins = [];
+if (isDevelopment) {} else {
+  plugins.push(new webpack.optimize.UglifyJsPlugin({
+    compress: {
+      warnings: false
+    },
+    comments: false
+  }))
+}
+
 module.exports = {
-  entry: path.join(__dirname, '/client', 'main.js'),
+  entry: {
+    'game_client': path.join(__dirname, '/game', 'main.js'),
+    'index': path.join(__dirname, '/client', 'index.js')
+  },
   output: {
-    path: 'static',
-    filename: 'index_bundle.js'
+    path: 'public',
+    filename: '[name].bundle.js',
+    chunkFilename: '[id].bundle.js',
+  },
+  vue: {
+    loaders: {
+      js: 'babel'
+    }
   },
   module: {
     loaders: [
@@ -21,15 +42,15 @@ module.exports = {
         loaders: ["style", "css?sourceMap", "sass?sourceMap"]
       }, {
         test: /.(jpg|png)$/,
-        loader: 'file',
-        // include: path.join(__dirname, 'assets')
+        loader: 'file'
+      }, {
+        test: /\.vue$/,
+        loader: 'vue?sourceMap'
       }, {
         test: /.js$/,
         exclude: /node_modules/,
         loader: 'babel',
-        query: {
-          presets: ['es2015']
-        }
+        exclude: /node_modules/
       }, {
         test: /p2.js/,
         loader: "script"
@@ -50,9 +71,11 @@ module.exports = {
     }
   },
   split: true,
-  devtool: 'eval',
+  devtool: (isDevelopment)
+    ? 'source-map'
+    : 'cheap-module-source-map',
   progress: true,
   colors: true,
-  watch: true,
-  plugins: [new HtmlWebpackPlugin()]
+  watch: isDevelopment,
+  plugins: plugins
 };
