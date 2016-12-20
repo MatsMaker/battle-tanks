@@ -47,23 +47,23 @@
 
 	'use strict';
 	
-	var _vue = __webpack_require__(97);
+	var _vue = __webpack_require__(94);
 	
 	var _vue2 = _interopRequireDefault(_vue);
 	
-	var _vueRouter = __webpack_require__(98);
+	var _vueRouter = __webpack_require__(95);
 	
 	var _vueRouter2 = _interopRequireDefault(_vueRouter);
 	
-	var _vueResource = __webpack_require__(99);
+	var _vueResource = __webpack_require__(96);
 	
 	var _vueResource2 = _interopRequireDefault(_vueResource);
 	
-	var _App = __webpack_require__(100);
+	var _App = __webpack_require__(97);
 	
 	var _App2 = _interopRequireDefault(_App);
 	
-	var _Home = __webpack_require__(102);
+	var _Home = __webpack_require__(99);
 	
 	var _Home2 = _interopRequireDefault(_Home);
 	
@@ -272,7 +272,7 @@
 
 /***/ },
 
-/***/ 97:
+/***/ 94:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process, global) {/*!
@@ -8604,7 +8604,7 @@
 
 /***/ },
 
-/***/ 98:
+/***/ 95:
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -10672,7 +10672,7 @@
 
 /***/ },
 
-/***/ 99:
+/***/ 96:
 /***/ function(module, exports) {
 
 	/*!
@@ -12196,14 +12196,14 @@
 
 /***/ },
 
-/***/ 100:
+/***/ 97:
 /***/ function(module, exports, __webpack_require__) {
 
 	var __vue_exports__, __vue_options__
 	var __vue_styles__ = {}
 	
 	/* template */
-	var __vue_template__ = __webpack_require__(101)
+	var __vue_template__ = __webpack_require__(98)
 	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
 	if (
 	  typeof __vue_exports__.default === "object" ||
@@ -12238,7 +12238,7 @@
 
 /***/ },
 
-/***/ 101:
+/***/ 98:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
@@ -12269,17 +12269,17 @@
 
 /***/ },
 
-/***/ 102:
+/***/ 99:
 /***/ function(module, exports, __webpack_require__) {
 
 	var __vue_exports__, __vue_options__
 	var __vue_styles__ = {}
 	
 	/* script */
-	__vue_exports__ = __webpack_require__(103)
+	__vue_exports__ = __webpack_require__(100)
 	
 	/* template */
-	var __vue_template__ = __webpack_require__(104)
+	var __vue_template__ = __webpack_require__(101)
 	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
 	if (
 	  typeof __vue_exports__.default === "object" ||
@@ -12314,7 +12314,7 @@
 
 /***/ },
 
-/***/ 103:
+/***/ 100:
 /***/ function(module, exports) {
 
 	'use strict';
@@ -12350,7 +12350,7 @@
 
 /***/ },
 
-/***/ 104:
+/***/ 101:
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;

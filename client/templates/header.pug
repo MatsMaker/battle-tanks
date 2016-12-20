@@ -1,0 +1,16 @@
+div(class='main-wrap')
+    div(class='header')
+        md-toolbar(md-theme='default')
+            h1(class="md-title") My Title
+    div(class='main-content')
+        md-icon(md-theme='default') home
+        span(class='md-subheading') Subheading
+        nav(class='navbar navbar-default')
+            div(class="container")
+                ul(class="nav navbar-nav")
+                    li
+                        a(href="/play") play
+                    li
+                        router-link(to="home") home
+                    li
+                        a(href="/signout") sign out
