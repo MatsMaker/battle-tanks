@@ -9,16 +9,21 @@ Vue.use(VueRouter)
 Vue.use(VueMaterial)
 
 import routes from './routes.js'
-const router = new VueRouter({routes})
+
+const router = new VueRouter({
+    mode: 'history',
+    routes,
+})
 
 Vue.material.registerTheme('default', {
-  primary: 'blue',
-  accent: 'red',
-  warn: 'yellow',
+    primary: 'blue',
+    accent: 'red',
+    warn: 'yellow',
 });
 Vue.material.setCurrentTheme('default')
 
 const app = new Vue({
-  router,
-  template:`<router-view></router-view>`
-}).$mount('#vue-app');
+        template: `<router-view></router-view>`,
+        router,
+    })
+    .$mount('#vue-app');

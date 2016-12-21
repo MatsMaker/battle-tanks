@@ -2,6 +2,7 @@ const dotenv = require('dotenv');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const history = require('connect-history-api-fallback');
 
 const passport = require('passport');
 require('./config/passport');
@@ -11,11 +12,12 @@ const main = require('./routers/main');
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
-dotenv.load({path: '.env.example'});
+dotenv.load({ path: '.env.example' });
 
-require('./middlewares/mongoose').connectToDB();
+require('./middlewares/mongoose')
+    .connectToDB();
 
-app.use(bodyParser.json(), bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json(), bodyParser.urlencoded({ extended: true }));
 app.use(require('./middlewares/session'));
 app.use(passport.initialize(), passport.session());
 /**
@@ -28,8 +30,22 @@ app.set('view engine', 'pug');
  */
 app.use(express.static(path.join(__dirname, 'public')), express.static(path.join(__dirname, 'public/client')));
 /**
- * Routers.
+ * Routers API.
  */
-app.use('/', main);
+const apiRouterMiddlewere = require('./middlewares/api');
+app.use('/api', apiRouterMiddlewere);
+/**
+ * Routers Client.
+ */
+app.use('/', main); //TODO need remove
+app.use(history({
+    index: '/index',
+    rewrites: [
+      {
+          from: /^\/[^{api | public}].*/,
+          to: '/index'
+      }
+   ]
+}), main)
 
 module.exports = app;
