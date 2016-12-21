@@ -1,11 +1,11 @@
-md-bottom-bar(md-shift)
-    md-bottom-bar-item(md-icon="near_me")
-        a(href="/play") play
-    md-bottom-bar-item(md-icon="favorite")
-        router-link(to="home") home
-    md-bottom-bar-item(md-icon="history")
-        a(href="/signout") sign out
-    md-bottom-bar-item(md-icon="history")
-        a(href='/signin') Sign in
-    md-bottom-bar-item(md-icon="history")
-        a(href='/signup') Sign up
+md-layout(md-gutter)
+    md-layout(md-flex="10")
+    md-layout
+        router-link(class="md-button md-theme-default" to="/")
+            md-icon home
+        router-link(class="md-button md-theme-default" to="/play") play
+        router-link(class="md-button md-theme-default" to="/profile") profile
+        router-link(class="md-button md-theme-default" to="/signin") sign in
+        router-link(class="md-button md-theme-default" to="/signup") sign up
+        router-link(class="md-button md-theme-default" to="/signout") sign out
+    md-layout(md-flex="10")

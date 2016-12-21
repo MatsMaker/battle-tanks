@@ -76,7 +76,7 @@
 	_vue2.default.use(_vueMaterial2.default);
 	
 	var router = new _vueRouter2.default({
-	    mode: 'history',
+	    // mode: 'history',
 	    routes: _routes2.default
 	});
 	
@@ -12590,13 +12590,20 @@
 	
 	var _Home2 = _interopRequireDefault(_Home);
 	
+	var _Profile = __webpack_require__(107);
+	
+	var _Profile2 = _interopRequireDefault(_Profile);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var routes = [{
-	    path: '/index',
+	    path: '/',
 	    component: _Index2.default,
 	    children: [{
-	        path: '',
+	        path: 'profile',
+	        component: _Profile2.default
+	    }, {
+	        path: '*',
 	        component: _Home2.default
 	    }]
 	}];
@@ -12653,12 +12660,20 @@
 /***/ 102:
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.default = {};
+	exports.default = {
+	  name: 'index',
+	  methods: {
+	    redirect: function redirect(path, e) {
+	      console.log(path, e, this.router);
+	      // this.$route.push('/profile');
+	    }
+	  }
+	};
 
 /***/ },
 
@@ -12666,7 +12681,9 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
-	  return _c('md-layout', {
+	  return _c('div', {
+	    staticClass: "desctop-viewport"
+	  }, [_c('md-toolbar', [_c('md-layout', {
 	    attrs: {
 	      "md-gutter": "md-gutter"
 	    }
@@ -12674,70 +12691,53 @@
 	    attrs: {
 	      "md-flex": "10"
 	    }
-	  }), _c('md-layout', {
+	  }), _c('md-layout', [_c('router-link', {
+	    staticClass: "md-button md-theme-default",
 	    attrs: {
-	      "md-column": "md-column"
+	      "to": "/"
 	    }
-	  }, [_c('md-layout', [_c('md-layout', {
-	    staticClass: "header",
+	  }, [_c('md-icon', [_vm._v("home")])]), _c('router-link', {
+	    staticClass: "md-button md-theme-default",
 	    attrs: {
-	      "md-row": "md-row"
+	      "to": "/play"
 	    }
-	  }, [_c('md-bottom-bar', {
+	  }, [_vm._v("play")]), _c('router-link', {
+	    staticClass: "md-button md-theme-default",
 	    attrs: {
-	      "md-shift": "md-shift"
+	      "to": "/profile"
 	    }
-	  }, [_c('md-bottom-bar-item', {
+	  }, [_vm._v("profile")]), _c('router-link', {
+	    staticClass: "md-button md-theme-default",
 	    attrs: {
-	      "md-icon": "near_me"
+	      "to": "/signin"
 	    }
-	  }, [_c('a', {
+	  }, [_vm._v("sign in")]), _c('router-link', {
+	    staticClass: "md-button md-theme-default",
 	    attrs: {
-	      "href": "/play"
+	      "to": "/signup"
 	    }
-	  }, [_vm._v("play")])]), _c('md-bottom-bar-item', {
+	  }, [_vm._v("sign up")]), _c('router-link', {
+	    staticClass: "md-button md-theme-default",
 	    attrs: {
-	      "md-icon": "favorite"
+	      "to": "/signout"
 	    }
-	  }, [_c('router-link', {
-	    attrs: {
-	      "to": "home"
-	    }
-	  }, [_vm._v("home")])]), _c('md-bottom-bar-item', {
-	    attrs: {
-	      "md-icon": "history"
-	    }
-	  }, [_c('a', {
-	    attrs: {
-	      "href": "/signout"
-	    }
-	  }, [_vm._v("sign out")])]), _c('md-bottom-bar-item', {
-	    attrs: {
-	      "md-icon": "history"
-	    }
-	  }, [_c('a', {
-	    attrs: {
-	      "href": "/signin"
-	    }
-	  }, [_vm._v("Sign in")])]), _c('md-bottom-bar-item', {
-	    attrs: {
-	      "md-icon": "history"
-	    }
-	  }, [_c('a', {
-	    attrs: {
-	      "href": "/signup"
-	    }
-	  }, [_vm._v("Sign up")])])])])]), _c('md-layout', [_c('transition', {
-	    attrs: {
-	      "name": 'Home'
-	    }
-	  }, [_c('router-view')])]), _c('md-layout', [_c('div', {
-	    staticClass: "footer"
-	  }, [_vm._v("Footer")])])]), _c('md-layout', {
+	  }, [_vm._v("sign out")])]), _c('md-layout', {
 	    attrs: {
 	      "md-flex": "10"
 	    }
-	  })])
+	  })]), _c('md-button', [_vm._v("t")])]), _c('md-layout', {
+	    attrs: {
+	      "md-gutter": "md-gutter"
+	    }
+	  }, [_c('md-layout', {
+	    attrs: {
+	      "md-flex": "10"
+	    }
+	  }), _c('md-layout', [_c('router-view')]), _c('md-layout', {
+	    attrs: {
+	      "md-flex": "10"
+	    }
+	  })])])
 	},staticRenderFns: []}
 	module.exports.render._withStripped = true
 	if (false) {
@@ -12850,6 +12850,73 @@
 	  module.hot.accept()
 	  if (module.hot.data) {
 	     require("vue-hot-reload-api").rerender("data-v-6f307ff2", module.exports)
+	  }
+	}
+
+/***/ },
+
+/***/ 107:
+/***/ function(module, exports, __webpack_require__) {
+
+	var __vue_exports__, __vue_options__
+	var __vue_styles__ = {}
+	
+	/* template */
+	var __vue_template__ = __webpack_require__(108)
+	__vue_options__ = __vue_exports__ = __vue_exports__ || {}
+	if (
+	  typeof __vue_exports__.default === "object" ||
+	  typeof __vue_exports__.default === "function"
+	) {
+	if (Object.keys(__vue_exports__).some(function (key) { return key !== "default" && key !== "__esModule" })) {console.error("named exports are not supported in *.vue files.")}
+	__vue_options__ = __vue_exports__ = __vue_exports__.default
+	}
+	if (typeof __vue_options__ === "function") {
+	  __vue_options__ = __vue_options__.options
+	}
+	__vue_options__.__file = "/home/mats/Projects/_/battle-tanks/client/components/Profile.vue"
+	__vue_options__.render = __vue_template__.render
+	__vue_options__.staticRenderFns = __vue_template__.staticRenderFns
+	
+	/* hot reload */
+	if (false) {(function () {
+	  var hotAPI = require("vue-hot-reload-api")
+	  hotAPI.install(require("vue"), false)
+	  if (!hotAPI.compatible) return
+	  module.hot.accept()
+	  if (!module.hot.data) {
+	    hotAPI.createRecord("data-v-d614349e", __vue_options__)
+	  } else {
+	    hotAPI.reload("data-v-d614349e", __vue_options__)
+	  }
+	})()}
+	if (__vue_options__.functional) {console.error("[vue-loader] Profile.vue: functional components are not supported and should be defined in plain js files using render functions.")}
+	
+	module.exports = __vue_exports__
+
+
+/***/ },
+
+/***/ 108:
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
+	  return _c('md-card', [_c('md-card-header', [_c('md-avatar', [_c('img', {
+	    attrs: {
+	      "src": "https://vuematerial.github.io/assets/card-image-1.jpg",
+	      "alt": "People"
+	    }
+	  })]), _c('div', {
+	    staticClass: "md-title"
+	  }, [_vm._v("Title goes here")]), _c('div', {
+	    staticClass: "md-subhead"
+	  }, [_vm._v("Subtitle here")])]), _c('md-card-content', [_c('span', [_vm._v("Lorem ipsum dolor sit amet, consectetur adipisicing elit. Optio itaque ea, nostrum odio. Dolores, sed accusantium quasi non, voluptas eius illo quas, saepe voluptate pariatur in deleniti minus sint. Excepturi.")])]), _c('md-card-actions', [_c('md-button', [_vm._v("Action")]), _c('md-button', [_vm._v("Action")])])])
+	},staticRenderFns: []}
+	module.exports.render._withStripped = true
+	if (false) {
+	  module.hot.accept()
+	  if (module.hot.data) {
+	     require("vue-hot-reload-api").rerender("data-v-d614349e", module.exports)
 	  }
 	}
 

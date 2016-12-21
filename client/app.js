@@ -11,7 +11,7 @@ Vue.use(VueMaterial)
 import routes from './routes.js'
 
 const router = new VueRouter({
-    mode: 'history',
+    // mode: 'history',
     routes,
 })
 
