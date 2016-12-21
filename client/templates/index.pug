@@ -1,8 +1,11 @@
-md-layout(md-gutter class='main-wrap')
-  md-layout(md-flex="10")
-  md-layout
-    include header.pug
-    include main-menu.pug
-    div Index
-    include footer.pug
-  md-layout(md-flex="10")
+md-layout(md-gutter)
+    md-layout(md-flex="10")
+    md-layout(md-column)
+        md-layout
+            include header.pug
+        md-layout
+            transition(:name="'Home'")
+                router-view
+        md-layout
+            include footer.pug
+    md-layout(md-flex="10")

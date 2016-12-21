@@ -1,7 +1,4 @@
 div(class='main-wrap')
-    include header.pug
-    include main-menu.pug
     div(class="col-sm-6 col-sm-offset-3")
-        button(class="btn btn-primary" v-on:click="getQuote()") Make a test reuest
-        p(v-if="seen") Now you see me after test request
-    include footer.pug
+        md-button(class="md-raised md-primary" v-on:click="getQuote()") Make a test reuest
+        md-whiteframe(md-elevation="2" v-if="seen") Now you see me after test request

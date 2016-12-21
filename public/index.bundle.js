@@ -12579,7 +12579,7 @@
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	    value: true
 	});
 	
 	var _Index = __webpack_require__(101);
@@ -12593,14 +12593,12 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var routes = [{
-		path: '/',
-		component: _Index2.default
-	}, {
-		path: '/index',
-		component: _Index2.default
-	}, {
-		path: '/home',
-		component: _Home2.default
+	    path: '/index',
+	    component: _Index2.default,
+	    children: [{
+	        path: '',
+	        component: _Home2.default
+	    }]
 	}];
 	
 	exports.default = routes;
@@ -12669,7 +12667,6 @@
 
 	module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
 	  return _c('md-layout', {
-	    staticClass: "main-wrap",
 	    attrs: {
 	      "md-gutter": "md-gutter"
 	    }
@@ -12677,37 +12674,66 @@
 	    attrs: {
 	      "md-flex": "10"
 	    }
-	  }), _c('md-layout', [_c('div', {
-	    staticClass: "main-content"
-	  }, [_c('md-icon', [_vm._v("home")]), _c('span', {
-	    staticClass: "md-subheading"
-	  }, [_vm._v("Subheading")]), _c('nav', {
-	    staticClass: "navbar navbar-default"
-	  }, [_c('div', {
-	    staticClass: "container"
-	  }, [_c('ul', {
-	    staticClass: "nav navbar-nav"
-	  }, [_c('li', [_c('a', {
+	  }), _c('md-layout', {
+	    attrs: {
+	      "md-column": "md-column"
+	    }
+	  }, [_c('md-layout', [_c('md-layout', {
+	    staticClass: "header",
+	    attrs: {
+	      "md-row": "md-row"
+	    }
+	  }, [_c('md-bottom-bar', {
+	    attrs: {
+	      "md-shift": "md-shift"
+	    }
+	  }, [_c('md-bottom-bar-item', {
+	    attrs: {
+	      "md-icon": "near_me"
+	    }
+	  }, [_c('a', {
 	    attrs: {
 	      "href": "/play"
 	    }
-	  }, [_vm._v("play")])]), _c('li', [_c('router-link', {
+	  }, [_vm._v("play")])]), _c('md-bottom-bar-item', {
+	    attrs: {
+	      "md-icon": "favorite"
+	    }
+	  }, [_c('router-link', {
 	    attrs: {
 	      "to": "home"
 	    }
-	  }, [_vm._v("home")])]), _c('li', [_c('a', {
+	  }, [_vm._v("home")])]), _c('md-bottom-bar-item', {
+	    attrs: {
+	      "md-icon": "history"
+	    }
+	  }, [_c('a', {
 	    attrs: {
 	      "href": "/signout"
 	    }
-	  }, [_vm._v("sign out")])]), _c('li', [_c('a', {
+	  }, [_vm._v("sign out")])]), _c('md-bottom-bar-item', {
+	    attrs: {
+	      "md-icon": "history"
+	    }
+	  }, [_c('a', {
 	    attrs: {
 	      "href": "/signin"
 	    }
-	  }, [_vm._v("Sign in")])]), _c('li', [_c('a', {
+	  }, [_vm._v("Sign in")])]), _c('md-bottom-bar-item', {
+	    attrs: {
+	      "md-icon": "history"
+	    }
+	  }, [_c('a', {
 	    attrs: {
 	      "href": "/signup"
 	    }
-	  }, [_vm._v("Sign up")])])])])])]), _c('div', [_vm._v("Index")])]), _c('md-layout', {
+	  }, [_vm._v("Sign up")])])])])]), _c('md-layout', [_c('transition', {
+	    attrs: {
+	      "name": 'Home'
+	    }
+	  }, [_c('router-view')])]), _c('md-layout', [_c('div', {
+	    staticClass: "footer"
+	  }, [_vm._v("Footer")])])]), _c('md-layout', {
 	    attrs: {
 	      "md-flex": "10"
 	    }
@@ -12805,54 +12831,20 @@
 	  return _c('div', {
 	    staticClass: "main-wrap"
 	  }, [_c('div', {
-	    staticClass: "main-content"
-	  }, [_c('md-icon', [_vm._v("home")]), _c('span', {
-	    staticClass: "md-subheading"
-	  }, [_vm._v("Subheading")]), _c('nav', {
-	    staticClass: "navbar navbar-default"
-	  }, [_c('div', {
-	    staticClass: "container"
-	  }, [_c('ul', {
-	    staticClass: "nav navbar-nav"
-	  }, [_vm._m(0), _c('li', [_c('router-link', {
-	    attrs: {
-	      "to": "home"
-	    }
-	  }, [_vm._v("home")])]), _vm._m(1), _vm._m(2), _vm._m(3)])])])]), _c('div', {
 	    staticClass: "col-sm-6 col-sm-offset-3"
-	  }, [_c('button', {
-	    staticClass: "btn btn-primary",
+	  }, [_c('md-button', {
+	    staticClass: "md-raised md-primary",
 	    on: {
 	      "click": function($event) {
 	        _vm.getQuote()
 	      }
 	    }
-	  }, [_vm._v("Make a test reuest")]), (_vm.seen) ? _c('p', [_vm._v("Now you see me after test request")]) : _vm._e()])])
-	},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
-	  return _c('li', [_c('a', {
+	  }, [_vm._v("Make a test reuest")]), (_vm.seen) ? _c('md-whiteframe', {
 	    attrs: {
-	      "href": "/play"
+	      "md-elevation": "2"
 	    }
-	  }, [_vm._v("play")])])
-	},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
-	  return _c('li', [_c('a', {
-	    attrs: {
-	      "href": "/signout"
-	    }
-	  }, [_vm._v("sign out")])])
-	},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
-	  return _c('li', [_c('a', {
-	    attrs: {
-	      "href": "/signin"
-	    }
-	  }, [_vm._v("Sign in")])])
-	},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._c;
-	  return _c('li', [_c('a', {
-	    attrs: {
-	      "href": "/signup"
-	    }
-	  }, [_vm._v("Sign up")])])
-	}]}
+	  }, [_vm._v("Now you see me after test request")]) : _vm._e()])])
+	},staticRenderFns: []}
 	module.exports.render._withStripped = true
 	if (false) {
 	  module.hot.accept()
