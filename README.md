@@ -1,5 +1,7 @@
 # battle-tanks
 
+mini multiply game
+
 Run
 
 install and run mondoDB
