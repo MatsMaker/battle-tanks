@@ -3,7 +3,7 @@ var io = require('socket.io-client');
 class Reduser {
 
   constructor(host) {
-    this.socket = io.connect(host || 'http://192.168.0.28:8000');
+    this.socket = io.connect(host || 'http://192.168.0.197:8000');
     this.eventList = {};
   }
 

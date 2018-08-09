@@ -4,7 +4,7 @@ import Reduser from './reduser/index.js';
 
 let theGame;
 
-const reduser = new Reduser('http://192.168.0.28:8000/game');
+const reduser = new Reduser('http://192.168.0.197:8000/game');
 
 reduser.connect().then(response => {
   return reduser.makeOne('auth', {});
